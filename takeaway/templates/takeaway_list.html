@@ -1,0 +1,8 @@
+<!-- templates/takeaway/takeaway_list.html -->
+<h1>Takeaway List</h1>
+<ul>
+  {% for takeaway in takeaways %}
+    <li><a href="{% url 'takeaway-detail' takeaway.id %}">{{ takeaway.title }}</a></li>
+  {% endfor %}
+</ul>
+<a href="{% url 'takeaway-create' %}">Create New Takeaway</a>

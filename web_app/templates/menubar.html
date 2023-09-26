@@ -1,0 +1,28 @@
+<div class="ui top fixed menu">
+    <div class="ui container">
+        <div class="right menu">
+
+            {% if user.is_authenticated %}
+                <div class="ui simple dropdown item"> 
+                        <i class="user circle icon"></i>
+                        {{ user.username}}
+                        <div class="menu" style="padding: 1rem;">
+                            <div class="ui link list">
+                                <a class="item borderless" href="{% url 'password_change' %}?next={{ request.get_full_path }}" style="padding: 0.5rem">
+                                    Update Password
+                                </a>
+                                <a class="item borderless" href="{% url 'logout' %}?next={{ request.get_full_path }}" style="padding: 0.5rem">
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                </div>
+            {% else %}
+                <a class="item" href="{% url 'login' %}?next={{ request.get_full_path }}" style="border-right: 1px solid rgba(34, 36, 38, .1)">
+                    Login
+                </a>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>

@@ -1,0 +1,5 @@
+
+<h1>takeaway Detail</h1>
+<p>Title: {{ takeaway.title }}</p>
+<a href="{% url 'takeaway-update' takeaway.id %}">Edit takeaway</a>
+<a href="{% url 'takeaway-delete' takeaway.id %}">Delete takeaway</a>

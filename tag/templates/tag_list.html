@@ -1,0 +1,8 @@
+<!-- templates/tag/tag_list.html -->
+<h1>Tag List</h1>
+<ul>
+  {% for tag in tags %}
+    <li><a href="{% url 'tag-detail' tag.id %}">{{ tag.name }}</a></li>
+  {% endfor %}
+</ul>
+<a href="{% url 'tag-create' %}">Create New tag</a>

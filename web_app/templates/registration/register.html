@@ -1,0 +1,24 @@
+{% extends 'lockscreen.html' %} 
+{% load semanticui %} 
+
+{% block content %}
+    <div class="ui middle aligned center aligned grid" style="height: 100%;">
+        <div class="column" style="max-width: 400px">
+            <h2>Cradar.AI</h2>
+            <div class="ui raised segment">
+                <div class="ui container center aligned">
+                    <h3>Register</h3>
+                </div>
+                <div class="ui container left aligned">
+                    <form class="ui form" method="post">
+                        {% csrf_token %} 
+                        {% render_form form %}
+                        <button class="ui button" type="submit">Register</button>
+                        <div class="ui divider"></div>
+                        Already have an account? Please <a href="{% url 'login' %}">login</a>.
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

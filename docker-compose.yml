@@ -1,0 +1,71 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - OPENAI_API_KEY=your_openai_api_key
+      - AWS_STORAGE_BUCKET_NAME=steven-proto-test
+      - AWS_DEFAULT_ACL=public-read
+      - AWS_QUERYSTRING_AUTH=False
+      - AWS_S3_REGION_NAME=ap-southeast-1
+      - MASTER_DB_USERNAME=root
+      - MASTER_DB_PASSWORD=k
+      - MASTER_DB_NAME=cradar
+      - MASTER_DB_HOST=db
+      - MASTER_DB_PORT=3306
+      - MEDIA_URL=media
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+  
+  frontend:
+    build:
+      context: ./frontend # Directory containing the React Dockerfile
+      dockerfile: Dockerfile
+    env_file:
+      - frontend/.env
+      - frontend/.env.local
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:4173"
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./static/:/static/
+      - ./media/:/media/
+    depends_on:
+      - backend
+      - frontend
+
+  db:
+    image: mysql:8.0.33
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "k"
+      MYSQL_DATABASE: "cradar"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--password=k"]
+      timeout: 1s
+      retries: 5
+    volumes:
+      - ./db:/var/lib/mysql
+    logging:
+      driver: none

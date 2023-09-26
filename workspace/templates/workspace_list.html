@@ -1,0 +1,8 @@
+<!-- templates/workspace/workspace_list.html -->
+<h1>Workspace List</h1>
+<ul>
+  {% for workspace in workspaces %}
+    <li><a href="{% url 'workspace-detail' workspace.id %}">{{ workspace.name }}</a></li>
+  {% endfor %}
+</ul>
+<a href="{% url 'workspace-create' %}">Create New Workspace</a>

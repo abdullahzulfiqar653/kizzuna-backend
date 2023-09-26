@@ -1,0 +1,7 @@
+<!-- templates/workspace/workspace_confirm_delete.html -->
+<h1>Delete Workspace</h1>
+<p>Are you sure you want to delete "{{ workspace.name }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <input type="submit" value="Confirm Delete">
+</form>
