@@ -25,7 +25,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-        restart: true
+    #    restart: true
   
   frontend:
     build:
