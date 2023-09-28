@@ -2,10 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import generics, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from tag.models import Tag
 from tag.serializers import TagSerializer
+from takeaway.models import Takeaway
+from takeaway.serializers import TakeawaySerializer
 
 from .forms import TakeawayForm
 from .models import Takeaway
@@ -27,7 +30,6 @@ def takeaway_create(request):
     if request.method == 'POST':
         form = TakeawayForm(request.POST)
         if form.is_valid():
-            import ipdb; ipdb.set_trace()
             takeaway = form.instance
             takeaway.created_by = request.user
             takeaway.save()
@@ -55,6 +57,31 @@ def takeaway_delete(request, takeaway_id):
         takeaway.delete()
         return redirect('takeaway-list')
     return render(request, 'takeaway_confirm_delete.html', {'takeaway': takeaway})
+
+class TakeawayListCreateView(generics.ListCreateAPIView):
+    queryset = Takeaway.objects.all()
+    serializer_class = TakeawaySerializer
+
+class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Takeaway.objects.all()
+    serializer_class = TakeawaySerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class TakeawayTagCreateView(generics.CreateAPIView):
     serializer_class = TagSerializer

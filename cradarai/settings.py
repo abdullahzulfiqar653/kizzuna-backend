@@ -17,7 +17,7 @@ import environ
 
 env = environ.Env()
 # reading .env file
-environ.Env.read_env('.env', **os.environ)
+environ.Env.read_env('.env')
 os.environ['OPENAI_API_KEY'] = env('OPENAI_API_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,10 +31,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)&p#ue*_uiab=o7hfwx7u&_e#4oi(gfpj7f-wc+15mdv_!!=dh'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG', cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '0.0.0.0']
-
+ALLOWED_HOSTS = env('ALLOWED_HOSTS', cast=list)
+FRONTEND_URL = env('FRONTEND_URL')
 
 # Application definition
 
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_yasg',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -75,6 +76,11 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
     ],
 }
 
@@ -205,7 +211,14 @@ STORAGES = {
     },
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS', cast=bool)
+EMAIL_USE_SSL = env('EMAIL_USE_SSL', cast=bool)
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 LOGGING = {
     "version": 1,
@@ -224,6 +237,7 @@ LOGGING = {
     },
 }
 
+INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60 # 3 days
 
 # Optional: You can also set a different location for your static files within the bucket.
 # STATICFILES_LOCATION = 'static'

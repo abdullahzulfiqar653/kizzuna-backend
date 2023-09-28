@@ -1,6 +1,13 @@
-from django.db import models
-from django.contrib.auth.models import User
 from enum import Enum
+
+from django.contrib.auth.models import User
+from django.contrib.auth.models import User as AuthUser
+from django.db import models
+
+from project.models import Project
+from workspace.models import Workspace
+
+# Create your models here.
 
 class RoleEnum(Enum):
     ADMIN = 'admin'
@@ -23,3 +30,14 @@ class User(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.position}"
+
+class Invitation(models.Model):
+    sender = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name='sent_invitations')
+    recipient_email = models.EmailField()
+    token = models.CharField(max_length=64, unique=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    created_user = models.ForeignKey(AuthUser, null=True, on_delete=models.CASCADE, related_name='invitations')

@@ -33,6 +33,11 @@ class Note(models.Model):
         PDF = 'pdf'
         MP3 = 'mp3'
         WAV = 'wav'
+
+    class Sentiment(models.TextChoices):
+        POSITIVE = 'positive'
+        NEUTRAL = 'neutral'
+        NEGATIVE = 'negative'
         
     id = ShortUUIDField(length=12, max_length=12, primary_key=True)
     title = models.CharField(max_length=100)
@@ -56,6 +61,7 @@ class Note(models.Model):
     content = models.TextField()
     summary = models.TextField()
     keywords = models.TextField()
+    sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
     
     class Meta:
         unique_together = [

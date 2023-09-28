@@ -1,10 +1,12 @@
+from collections import OrderedDict
+
 from rest_framework import serializers
 
-from auth.serializers import AuthUserSerializer
 from tag.serializers import TagSerializer
+from user.serializers import AuthUserSerializer
 
 from .models import Takeaway
-from collections import OrderedDict
+
 
 class TakeawaySerializer(serializers.ModelSerializer):
     created_by = AuthUserSerializer(read_only=True)

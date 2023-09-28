@@ -1,24 +1,34 @@
+from datetime import datetime
+
+from django.conf import settings
 from django.contrib.auth import password_validation
-from rest_framework import serializers
-from django.contrib.auth.models import User as AuthUser
 from django.contrib.auth.forms import PasswordResetForm
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User as AuthUser
 from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode
-from user.models import User
-from workspace.models import Workspace
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   TokenRefreshSerializer)
 
-class AuthUserSerializer(serializers.Serializer):
+from project.serializers import ProjectSerializer
+from user.models import Invitation, User
+from workspace.models import Workspace
+from workspace.serializers import WorkspaceSerializer
+
+
+class SignupSerializer(serializers.Serializer):
     username = serializers.EmailField()
     first_name = serializers.CharField(max_length=100)
     last_name = serializers.CharField(max_length=100)
     password = serializers.CharField(write_only=True)
+    workspace_name = serializers.CharField(write_only=True)
     
     class Meta:
         # TODO: update var to email instead
-        fields = ['username', 'first_name', 'last_name', 'password']
+        fields = ['username', 'first_name', 'last_name', 'password', 'workspace_name']
         
     def validate_password(self, value):
         password_validation.validate_password(value)
@@ -30,17 +40,38 @@ class AuthUserSerializer(serializers.Serializer):
             raise serializers.ValidationError(f"User {username} already exists.")
         return value
     
+    def validate_workspace_name(self, value):
+        if Workspace.objects.filter(name=value).exists():
+            raise serializers.ValidationError(f"Workspace name {value} already exists.")
+        return value
+    
     def create(self, validated_data):
+        # Create auth user
         auth_user = AuthUser(
             email=validated_data.get('username'), 
             username=validated_data.get('username'), 
             first_name=validated_data.get('first_name'), 
             last_name=validated_data.get('last_name')
-            )
+        )
         auth_user.set_password(validated_data.get('password'))
         auth_user.save()
 
+        # Create user
+        User.objects.create(
+            first_name=validated_data.get('first_name'),
+            last_name=validated_data.get('last_name'),
+            auth_user=auth_user,
+        )
+
+        # Create and add workspace
+        workspace = self.get_workspace(validated_data)
+        auth_user.workspaces.add(workspace)
+
         return auth_user
+    
+    def get_workspace(self, validated_data):
+        # To be overwritten by invited signup serializer
+        return Workspace.objects.create(name=validated_data.get('workspace_name'))
     
 
 class PasswordUpdateSerializer(serializers.Serializer):
@@ -78,10 +109,13 @@ class RequestPasswordResetSerializer(serializers.Serializer):
         raise serializers.ValidationError(self.form.errors)
     
     def create(self, validated_data):
-        request = validated_data.get('request')
+        request = self.context['request']
         self.form.save(
             request=request,
             email_template_name='password_reset_email.html',
+            extra_email_context={
+                'frontend_url': settings.FRONTEND_URL,
+            },
         )
         return validated_data
 
@@ -143,3 +177,62 @@ class CustomTokenRefreshSerializer(TokenRefreshSerializer):
         data['access_token'] = data.pop('access')
         return data
 
+
+class InviteUserSerializer(serializers.Serializer):
+    emails = serializers.ListField(child=serializers.EmailField(), allow_empty=False)
+    project_id = serializers.CharField()
+
+
+class InvitationStatusSerializer(serializers.Serializer):
+    is_signed_up = serializers.BooleanField()
+    email = serializers.EmailField()
+    workspace = WorkspaceSerializer()
+    project = ProjectSerializer()
+
+
+class InvitationSignupSerializer(SignupSerializer):
+    username = None
+    workspace_name = None
+    token = serializers.CharField()
+    workspace = WorkspaceSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
+
+    def validate(self, data):
+        # Get invitation
+        token = data.get('token')
+        self.invitation = invitation = get_object_or_404(Invitation, token=token)
+        if timezone.make_aware(datetime.now()) > invitation.expires_at: 
+            raise serializers.ValidationError('Token has expired.')
+        
+        if invitation.is_used: 
+            raise serializers.ValidationError('Token has been used.')
+        
+        if AuthUser.objects.filter(username=invitation.recipient_email):
+            raise serializers.ValidationError(
+                f'Email {invitation.recipient_email} has already been taken.'
+            )
+
+        return data
+
+    def create(self, validated_data):
+        invitation = self.invitation
+
+        # Create auth_user, add workspace and add project
+        validated_data['username'] = invitation.recipient_email
+        validated_data['workspace'] = invitation.workspace
+        # Calling SignupSerializer.create method
+        auth_user = super().create(validated_data)
+        auth_user.projects.add(invitation.project)
+
+        # Update invitation
+        invitation.created_user = auth_user
+        invitation.is_used = True
+        invitation.save()
+
+        # Return project_id
+        validated_data['workspace'] = invitation.workspace
+        validated_data['project'] = invitation.project
+        return validated_data
+
+    def get_workspace(self, validated_data):
+        return validated_data['workspace']

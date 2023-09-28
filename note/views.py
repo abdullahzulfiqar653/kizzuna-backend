@@ -1,16 +1,21 @@
+import json
+from pprint import pprint
 from textwrap import dedent
 
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr
 from rest_framework import generics, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from note.models import Note
+from note.serializers import NoteSerializer
 from tag.models import Tag
 from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
@@ -18,20 +23,45 @@ from takeaway.serializers import TakeawaySerializer
 from .forms import NoteForm
 from .models import Note
 
+# class NoteInsight(BaseModel):
+#     summary: str = Field(description='Summary of the text.')
+#     keywords: list[str] = Field(description='The list of relevant keywords of the text.')
+#     takeaways: list[str] = Field(description='What are the main messages to take away from the text. Not more than 5 takeaways from the text.')
 
-class NoteInsight(BaseModel):
-    summary: str = Field(description='Summary of the text.')
-    keywords: list[str] = Field(description='The list of relevant keywords of the text.')
-    takeaways: list[str] = Field(description='What are the main messages to take away from the text. Not more than 5 takeaways from the text.')
 
+# output_parser = PydanticOutputParser(pydantic_object=NoteInsight)
 
-output_parser = PydanticOutputParser(pydantic_object=NoteInsight)
+# prompt = PromptTemplate(
+#     input_variables=['text'],
+#     template=dedent("""
+#         Analyze the following text: {text}
+#         {format_instructions}
+#     """),
+#     partial_variables={
+#         'format_instructions': output_parser.get_format_instructions(),
+#     },
+# )
+# llm = ChatOpenAI()
+# chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
+
+class TakeawaySchema(BaseModel):
+    message: str = Field(description='message of the takeaway.')
+    tags: list[constr(max_length=50)] = Field(description='Tags to be added to the takeaway.')
+
+class TakeawayListSchema(BaseModel):
+    takeaways: list[TakeawaySchema]
+
+output_parser = PydanticOutputParser(pydantic_object=TakeawayListSchema)
 
 prompt = PromptTemplate(
-    input_variables=['text'],
+    input_variables=['takeaways'],
     template=dedent("""
-        Analyze the following text: {text}
+        Given the following takeaway messages,
+        add tags to each takeaway message.
+        Give 3 - 5 tags for each message.
         {format_instructions}
+                    
+        {takeaways}
     """),
     partial_variables={
         'format_instructions': output_parser.get_format_instructions(),
@@ -39,6 +69,7 @@ prompt = PromptTemplate(
 )
 llm = ChatOpenAI()
 chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
+
 
 def note_list(request):
     notes = Note.objects.all()
@@ -76,22 +107,22 @@ def note_delete(request, note_id):
         return redirect('note-list')
     return render(request, 'note_confirm_delete.html', {'note': note})
 
-def note_create_summary(request, note_id):
-    # AI goes here
-    note = get_object_or_404(Note, id=note_id)
-    text = f'{note.title}\n{note.content}'
-    insight = chain.predict(text=text).dict()
-    note.summary = insight['summary']
-    note.save()
-    for keyword in insight['keywords']:
-        tag = Tag(name=keyword)
-        tag.save()
-        note.tags.add(tag)
-    for takeaway_title in insight['takeaways']:
-        takeaway = Takeaway(title=takeaway_title)
-        takeaway.save()
-        note.takeaways.add(takeaway)
-    return render(request, 'note_detail.html', {'note': note})
+# def note_create_summary(request, note_id):
+#     # AI goes here
+#     note = get_object_or_404(Note, id=note_id)
+#     text = f'{note.title}\n{note.content}'
+#     insight = chain.predict(text=text).dict()
+#     note.summary = insight['summary']
+#     note.save()
+#     for keyword in insight['keywords']:
+#         tag = Tag(name=keyword)
+#         tag.save()
+#         note.tags.add(tag)
+#     for takeaway_title in insight['takeaways']:
+#         takeaway = Takeaway(title=takeaway_title)
+#         takeaway.save()
+#         note.takeaways.add(takeaway)
+#     return render(request, 'note_detail.html', {'note': note})
 
 
 # def attachment_list(request, note_id):
@@ -126,6 +157,38 @@ def note_create_summary(request, note_id):
 #         form = AttachmentForm()
 #     return render(request, 'note_form.html', {'form': form})
 
+class NoteListCreateView(generics.ListCreateAPIView):
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
+
+    def get_queryset(self):
+        return (
+            super().get_queryset()
+            .annotate(takeaway_count=Count('takeaways'))
+            .annotate(participant_count=Count('user_participants'))
+        )
+
+class NoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Note.objects.all()
+    serializer_class = NoteSerializer
+    
+    def get_queryset(self):
+        return (
+            super().get_queryset()
+            .annotate(takeaway_count=Count('takeaways'))
+            .annotate(participant_count=Count('user_participants'))
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
@@ -147,3 +210,29 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+class NoteTakeawayTagGenerateView(generics.CreateAPIView):
+    def create(self, request, report_id):
+        note = get_object_or_404(Note, id=report_id)
+        data = {
+            'takeaways': [
+                {
+                    'message': takeaway.title,
+                }
+                for takeaway in note.takeaways.all()
+            ]
+        }
+        takeaways = json.dumps(data)
+        try:
+            results = chain.predict(takeaways=takeaways).dict()
+            pprint(results)
+        except:
+            import traceback
+            traceback.print_exc()
+            return Response({'details': 'Failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        for takeaway_data in results['takeaways']:
+            takeaway = note.takeaways.get(title=takeaway_data['message'])
+            for tag_str in takeaway_data['tags']:
+                tag, created = Tag.objects.get_or_create(name=tag_str)
+                takeaway.tags.add(tag)
+        return Response({'details': 'Successful'})

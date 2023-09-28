@@ -1,16 +1,16 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User as AuthUser
-from .models import User
-from .forms import UserForm
-from .serializers import UserSerializer
-from workspace.serializers import WorkspaceSerializer
-from workspace.models import Workspace
-from project.models import Project
-from project.serializers import ProjectSerializer
+from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
-from django.core.exceptions import PermissionDenied
+
+from project.models import Project
+from project.serializers import ProjectSerializer
+from workspace.models import Workspace
+from workspace.serializers import WorkspaceSerializer
+
+from .forms import UserForm
+from .models import User
+from .serializers import UserProfileUpdateSerializer, UserSerializer
 
 
 # TODO: DELETE START
@@ -84,6 +84,13 @@ class UserRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class AuthUserRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = AuthUser.objects.all()
+    serializer_class = UserProfileUpdateSerializer
+
+    def get_object(self):
+        return self.request.user
 
 class AuthUserWorkspaceListView(generics.ListAPIView):
     serializer_class = WorkspaceSerializer

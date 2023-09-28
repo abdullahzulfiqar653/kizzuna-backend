@@ -1,44 +1,26 @@
 # api/urls.py
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from user.views import (
-    UserListCreateView, 
-    UserRetrieveUpdateDeleteView,
-    AuthUserWorkspaceListView,
-    AuthUserProjectListView
-    )
-from workspace.views import (
-    WorkspaceUserListView,
-    WorkspaceListCreateView, 
-    WorkspaceRetrieveUpdateDeleteView
-)
-from project.views import (
-    ProjectUserListView,
-    ProjectNoteListCreateView,
-    ProjectTakeawayListView,
-)
-from note.views import (
-    NoteTakeawayListCreateView,
-)
-from takeaway.views import (
-    TakeawayTagCreateView,
-    TakeawayTagDestroyView,
-)
-from .views import (api_root,
-    SignupView, 
-    DoPasswordResetView,
-    NoteListCreateView, 
-    NoteRetrieveUpdateDeleteView,
-    PasswordUpdateView, 
-    ProjectListCreateView, 
-    ProjectRetrieveUpdateDeleteView, 
-    RequestPasswordResetView,
-    TagListCreateView, 
-    TagRetrieveUpdateDeleteView, 
-    TakeawayListCreateView, 
-    TakeawayRetrieveUpdateDeleteView, 
-    TokenObtainPairAndRefreshView
-)
+
+from note.views import (NoteListCreateView, NoteRetrieveUpdateDeleteView,
+                        NoteTakeawayListCreateView, NoteTakeawayTagGenerateView)
+from project.views import (ProjectListCreateView, ProjectNoteListCreateView,
+                           ProjectRetrieveUpdateDeleteView,
+                           ProjectTakeawayListView, ProjectUserListView)
+from tag.views import TagListCreateView, TagRetrieveUpdateDeleteView
+from takeaway.views import (TakeawayListCreateView,
+                            TakeawayRetrieveUpdateDeleteView,
+                            TakeawayTagCreateView, TakeawayTagDestroyView)
+from user.views import (AuthUserProjectListView, AuthUserRetrieveUpdateView,
+                        AuthUserWorkspaceListView, UserListCreateView,
+                        UserRetrieveUpdateDeleteView)
+from workspace.views import (WorkspaceListCreateView,
+                             WorkspaceRetrieveUpdateDeleteView,
+                             WorkspaceUserListView)
+
+from .views import (DoPasswordResetView, InvitationSignupCreateView, InviteUserView, InvitationStatusRetrieveView,
+                    PasswordUpdateView, RequestPasswordResetView, SignupView,
+                    TokenObtainPairAndRefreshView, api_root)
 
 urlpatterns = [
     path('', api_root, name='api-root'),
@@ -49,6 +31,7 @@ urlpatterns = [
     path('reports/', NoteListCreateView.as_view(), name='note-list-create'),
     path('reports/<str:pk>/', NoteRetrieveUpdateDeleteView.as_view(), name='note-retrieve-update-delete'),
     path('reports/<str:report_id>/takeaways/', NoteTakeawayListCreateView.as_view(), name='note-takeaway-list-create'),
+    path('reports/<str:report_id>/generate-tags/', NoteTakeawayTagGenerateView.as_view(), name='note-takeaway-tag-generate'),
 
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
     path('projects/<str:pk>/', ProjectRetrieveUpdateDeleteView.as_view(), name='project-retrieve-update-delete'),
@@ -69,9 +52,13 @@ urlpatterns = [
     path('takeaways/<str:takeaway_id>/tags/<str:tag_id>/', TakeawayTagDestroyView.as_view(), name='takeaway-tag-destroy'),
 
     path('signup/', SignupView.as_view(), name='signup-create'),
+    path('invitation/signup/', InvitationSignupCreateView.as_view(), name='invited-signup-create'),
+    path('invitation/status/', InvitationStatusRetrieveView.as_view(), name='invitation-status-retrieve'),
     
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
+    path('users/invite/', InviteUserView.as_view(), name='user-invite'),
     path('users/<int:pk>/', UserRetrieveUpdateDeleteView.as_view(), name='user-retrieve-update-delete'),
+    path('auth-users/', AuthUserRetrieveUpdateView.as_view(), name='auth-user-retrieve-update'),
 
     path('users/<int:auth_user_id>/workspaces/', AuthUserWorkspaceListView.as_view(), name='user-workspace-list'),
     path('users/<int:auth_user_id>/projects/', AuthUserProjectListView.as_view(), name='user-project-list'),
