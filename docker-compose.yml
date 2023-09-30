@@ -55,4 +55,4 @@ services:
     volumes:
       - ./db:/var/lib/mysql
     logging:
-      driver: none
+      driver: json-file
