@@ -49,7 +49,7 @@ services:
       MYSQL_ROOT_PASSWORD: "4TV7WuvL8X1B182CxseS"
       MYSQL_DATABASE: "cradar"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--password=4TV7WuvL8X1B182CxseS"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--password=k"]
       timeout: 1s
       retries: 5
     volumes:
