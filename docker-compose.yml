@@ -53,6 +53,9 @@ services:
       timeout: 1s
       retries: 5
     volumes:
-      - ./db:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     logging:
       driver: json-file
+
+volumes:
+  mysql-data:
