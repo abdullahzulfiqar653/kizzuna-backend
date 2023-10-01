@@ -1,6 +1,5 @@
 import json
 from pprint import pprint
-from textwrap import dedent
 from threading import Thread
 from time import time
 
@@ -9,11 +8,6 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404, redirect, render
-from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
-from langchain.output_parsers import PydanticOutputParser
-from langchain.prompts import PromptTemplate
-from pydantic import BaseModel, Field, constr
 from rest_framework import generics, serializers, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -32,31 +26,10 @@ from user.serializers import UserSerializer
 
 from .forms import ProjectForm
 from .models import Project
+from .summarizers import RefineSummarizer
 
 transcriber = OpenAITranscriber()
-
-
-class NoteInsightSchema(BaseModel):
-    summary: str = Field(description='Summary of the text.')
-    keywords: list[constr(max_length=50)] = Field(description='The list of relevant keywords of the text.')
-    takeaways: list[str] = Field(description='What are the main messages to take away from the text. Not more than 5 takeaways from the text.')
-    sentiment: Note.Sentiment = Field(description='The sentiment of the text.')
-
-
-output_parser = PydanticOutputParser(pydantic_object=NoteInsightSchema)
-
-prompt = PromptTemplate(
-    input_variables=['text'],
-    template=dedent("""
-        Analyze the following text: {text}
-        {format_instructions}
-    """),
-    partial_variables={
-        'format_instructions': output_parser.get_format_instructions(),
-    },
-)
-llm = ChatOpenAI()
-chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
+summarizer = RefineSummarizer()
 
 def project_list(request):
     projects = Project.objects.all()
@@ -232,7 +205,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
 
     def summarize(self, note):
         text = f'{note.title}\n{note.content}'
-        insight = chain.predict(text=text).dict()
+        insight = summarizer.summarize(text)
         pprint(insight)
         note.summary = insight['summary']
         note.sentiment = insight['sentiment']
@@ -258,7 +231,8 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             self.summarize(note)
             print('========> End analyzing')
         except Exception as e:
-            print(str(e))
+            import traceback
+            traceback.print_exc()
         note.is_analyzing = False
         note.save()
     
