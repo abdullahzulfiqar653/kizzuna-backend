@@ -23,7 +23,7 @@ class RefineSummarizer:
     def __init__(self):
 
         output_parser = PydanticOutputParser(pydantic_object=NoteInsightSchema)
-        llm = ChatOpenAI()
+        llm = ChatOpenAI(verbose=True)
 
         # document prompt
         document_prompt = PromptTemplate(
@@ -43,7 +43,7 @@ class RefineSummarizer:
                 'format_instructions': output_parser.get_format_instructions(),
             },
         )
-        initial_llm_chain = LLMChain(llm=llm, prompt=initial_prompt)
+        initial_llm_chain = LLMChain(llm=llm, prompt=initial_prompt, verbose=True)
 
         # refine llm chain
         initial_response_name = "prev_response"
@@ -58,7 +58,7 @@ class RefineSummarizer:
                 'format_instructions': output_parser.get_format_instructions(),
             },
         )
-        refine_llm_chain = LLMChain(llm=llm, prompt=refine_prompt)
+        refine_llm_chain = LLMChain(llm=llm, prompt=refine_prompt, verbose=True)
 
         # defining self attributes
         self.output_parser = output_parser
@@ -69,11 +69,12 @@ class RefineSummarizer:
             document_prompt=document_prompt,
             document_variable_name=document_variable_name,
             initial_response_name=initial_response_name,
+            verbose=True,
         )
 
         self.text_splitter = TokenTextSplitter(
             model_name='gpt-3.5-turbo', 
-            chunk_size=2000, 
+            chunk_size=1500, 
             chunk_overlap=100
         )
 
