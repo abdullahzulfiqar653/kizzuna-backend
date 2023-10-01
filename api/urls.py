@@ -3,7 +3,8 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from note.views import (NoteListCreateView, NoteRetrieveUpdateDeleteView,
-                        NoteTakeawayListCreateView, NoteTakeawayTagGenerateView)
+                        NoteTagListCreateView, NoteTakeawayListCreateView,
+                        NoteTakeawayTagGenerateView)
 from project.views import (ProjectListCreateView, ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
                            ProjectTakeawayListView, ProjectUserListView)
@@ -18,7 +19,8 @@ from workspace.views import (WorkspaceListCreateView,
                              WorkspaceRetrieveUpdateDeleteView,
                              WorkspaceUserListView)
 
-from .views import (DoPasswordResetView, InvitationSignupCreateView, InviteUserView, InvitationStatusRetrieveView,
+from .views import (DoPasswordResetView, InvitationSignupCreateView,
+                    InvitationStatusRetrieveView, InviteUserView,
                     PasswordUpdateView, RequestPasswordResetView, SignupView,
                     TokenObtainPairAndRefreshView, api_root)
 
@@ -31,6 +33,7 @@ urlpatterns = [
     path('reports/', NoteListCreateView.as_view(), name='note-list-create'),
     path('reports/<str:pk>/', NoteRetrieveUpdateDeleteView.as_view(), name='note-retrieve-update-delete'),
     path('reports/<str:report_id>/takeaways/', NoteTakeawayListCreateView.as_view(), name='note-takeaway-list-create'),
+    path('reports/<str:report_id>/tags/', NoteTagListCreateView.as_view(), name='note-tag-list-create'),
     path('reports/<str:report_id>/generate-tags/', NoteTakeawayTagGenerateView.as_view(), name='note-takeaway-tag-generate'),
 
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),

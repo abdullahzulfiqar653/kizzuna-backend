@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from note.models import Note
 from note.serializers import NoteSerializer
 from tag.models import Tag
+from tag.serializers import TagSerializer
 from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
 
@@ -210,6 +211,33 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+class NoteTagListCreateView(generics.ListCreateAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+    def get_queryset(self):
+        auth_user = self.request.user
+        note_id = self.kwargs.get('report_id')
+        note = get_object_or_404(Note, id=note_id)
+        if not note.project.users.contains(auth_user):
+            raise PermissionDenied
+        return Tag.objects.filter(note=note)
+
+    def create(self, request, report_id):
+        note = get_object_or_404(Note, id=report_id)
+        if not note.project.users.contains(request.user):
+            raise PermissionDenied
+        request.data['note'] = note.id
+        return super().create(request)
+    
+    def perform_create(self, serializer):
+        report_id = self.kwargs.get('report_id')
+        note = get_object_or_404(Note, id=report_id)
+        if not note.project.users.contains(self.request.user):
+            raise PermissionDenied
+        tag = serializer.save()
+        note.tags.add(tag)
 
 class NoteTakeawayTagGenerateView(generics.CreateAPIView):
     def create(self, request, report_id):
