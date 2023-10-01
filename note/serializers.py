@@ -13,6 +13,7 @@ class NoteSerializer(serializers.ModelSerializer):
     participant_count = serializers.IntegerField(read_only=True)
     author = AuthUserSerializer(read_only=True)
     is_analyzing = serializers.BooleanField(read_only=True)
+    is_auto_tagged = serializers.BooleanField(read_only=True)
     file_type = serializers.CharField(read_only=True)
     tags = TagSerializer(many=True, required=False)
     content = serializers.CharField(required=False, default='', allow_blank=True)

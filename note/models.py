@@ -58,6 +58,7 @@ class Note(models.Model):
     file = models.FileField(upload_to='attachments/', validators=[validate_file_size, validate_file_type], null=True)
     file_type = models.CharField(max_length=3, choices=FileType.choices, null=True)
     is_analyzing = models.BooleanField(default=False)
+    is_auto_tagged = models.BooleanField(default=False)
     content = models.TextField()
     summary = models.TextField()
     keywords = models.TextField()

@@ -242,6 +242,10 @@ class NoteTagListCreateView(generics.ListCreateAPIView):
 class NoteTakeawayTagGenerateView(generics.CreateAPIView):
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
+
+        if note.is_auto_tagged:
+            raise PermissionDenied('Report takeaways have already auto tagged.')
+
         data = {
             'takeaways': [
                 {
@@ -251,6 +255,7 @@ class NoteTakeawayTagGenerateView(generics.CreateAPIView):
             ]
         }
         takeaways = json.dumps(data)
+
         try:
             results = chain.predict(takeaways=takeaways).dict()
             pprint(results)
@@ -258,9 +263,14 @@ class NoteTakeawayTagGenerateView(generics.CreateAPIView):
             import traceback
             traceback.print_exc()
             return Response({'details': 'Failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         for takeaway_data in results['takeaways']:
             takeaway = note.takeaways.get(title=takeaway_data['message'])
             for tag_str in takeaway_data['tags']:
                 tag, created = Tag.objects.get_or_create(name=tag_str)
                 takeaway.tags.add(tag)
+
+        note.is_auto_tagged = True
+        note.save()
+
         return Response({'details': 'Successful'})
