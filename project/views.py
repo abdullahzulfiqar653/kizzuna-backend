@@ -206,7 +206,6 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     def summarize(self, note):
         text = f'{note.title}\n{note.content}'
         insight = summarizer.summarize(text)
-        pprint(insight)
         note.summary = insight['summary']
         note.sentiment = insight['sentiment']
         note.save()

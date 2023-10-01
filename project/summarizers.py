@@ -14,7 +14,7 @@ from note.models import Note
 class NoteInsightSchema(BaseModel):
     summary: str = Field(description='Summary of the text.')
     keywords: list[constr(max_length=50)] = Field(description='The list of relevant keywords of the text.')
-    takeaways: list[str] = Field(description='What are the main messages to take away from the text. Not more than 5 takeaways from the text.')
+    takeaways: list[constr(max_length=200)] = Field(description='What are the main messages to take away from the text. Not more than 5 takeaways from the text.')
     sentiment: Note.Sentiment = Field(description='The sentiment of the text.')
 
 
@@ -36,7 +36,10 @@ class RefineSummarizer:
         initial_prompt = PromptTemplate(
             input_variables=['context'],
             template=dedent("""
-                Analyze the following text: {context}
+                text:
+                {context}
+                
+                Analyze the text above.
                 {format_instructions}
             """),
             partial_variables={
@@ -50,8 +53,14 @@ class RefineSummarizer:
         refine_prompt = PromptTemplate(
             input_variables=['prev_response', 'context'],
             template=dedent("""
-                "Here's your first results: {prev_response}. "
-                "Now add to it based on the following context: {context}"
+                Previous response:
+                {prev_response}
+
+                Text:
+                {context}
+
+                Analyze the text above following the output schema
+                and add to the previous response given above.
                 {format_instructions}
             """),
             partial_variables={
@@ -82,4 +91,5 @@ class RefineSummarizer:
         doc = Document(page_content=text)
         docs = self.text_splitter.split_documents([doc])
         results = self.chain.run(docs)
+        print(results)
         return self.output_parser.parse(results).dict()
