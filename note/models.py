@@ -25,9 +25,9 @@ def validate_file_type(value):
 
 class Note(models.Model):
     class Revenue(models.TextChoices):
-        LOW = 'low'
-        MEDIUM = 'medium'
-        HIGH = 'high'
+        LOW = 'Low'
+        MEDIUM = 'Medium'
+        HIGH = 'High'
 
     class FileType(models.TextChoices):
         PDF = 'pdf'
@@ -35,9 +35,9 @@ class Note(models.Model):
         WAV = 'wav'
 
     class Sentiment(models.TextChoices):
-        POSITIVE = 'positive'
-        NEUTRAL = 'neutral'
-        NEGATIVE = 'negative'
+        POSITIVE = 'Positive'
+        NEUTRAL = 'Neutral'
+        NEGATIVE = 'Negative'
         
     id = ShortUUIDField(length=12, max_length=12, primary_key=True)
     title = models.CharField(max_length=100)

@@ -6,22 +6,16 @@ from tag.models import Tag
 
 
 class Takeaway(models.Model):
-    class Sentiment(models.TextChoices):
-        POSITIVE = 'positive'
-        NEUTRAL = 'neutral'
-        NEGATIVE = 'negative'
-        
     class Status(models.TextChoices):
-        OPEN = 'open'
-        ONHOLD = 'onhold'
-        CLOSE = 'close'
+        OPEN = 'Open'
+        ONHOLD = 'Onhold'
+        CLOSE = 'Closed'
     
     id = ShortUUIDField(length=12, max_length=12, primary_key=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
-    sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='takeaways', null=True)
     upvoted_by = models.ManyToManyField(User)
     status = models.CharField(max_length=6, choices=Status.choices, default=Status.OPEN)
