@@ -193,6 +193,7 @@ class NoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
+    ordering = ['created_at']
 
     def get_queryset(self):
         auth_user = self.request.user

@@ -70,6 +70,7 @@ def project_delete(request, project_id):
 class ProjectListCreateView(generics.ListCreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    ordering = ['-created_at']
 
     def get_queryset(self):
         auth_user = self.request.user
