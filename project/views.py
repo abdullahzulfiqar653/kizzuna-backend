@@ -132,7 +132,13 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         'company_name',
         'title',
     ]
-    search_fields = ['title']
+    search_fields = [
+        'title',
+        'author__username',
+        'author__first_name',
+        'author__last_name',
+        'company_name',
+    ]
     ordering = ['-created_at']
 
     def get_queryset(self):
