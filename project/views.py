@@ -22,7 +22,7 @@ from takeaway.filters import TakeawayFilter
 from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
 from transcriber.transcribers import OpenAITranscriber
-from user.serializers import UserSerializer
+from user.serializers import AuthUserSerializer
 
 from .forms import ProjectForm
 from .models import Project
@@ -106,8 +106,8 @@ class ProjectRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ProjectUserListView(generics.ListAPIView):
-    serializer_class = UserSerializer
+class ProjectAuthUserListView(generics.ListAPIView):
+    serializer_class = AuthUserSerializer
 
     def list(self, request, project_id=None):
         project = get_object_or_404(Project, id=project_id)
@@ -117,7 +117,7 @@ class ProjectUserListView(generics.ListAPIView):
             raise PermissionDenied
 
         users = project.users.all()
-        serializer = UserSerializer(users, many=True)
+        serializer = AuthUserSerializer(users, many=True)
         return Response(serializer.data)
     
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
