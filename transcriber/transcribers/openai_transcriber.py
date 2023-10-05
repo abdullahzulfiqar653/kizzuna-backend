@@ -14,7 +14,8 @@ class OpenAITranscriber:
             transcript = openai.Audio.transcribe(
                 model='whisper-1', 
                 file=audio_file, 
-                response_format='verbose_json'
+                response_format='verbose_json',
+                language='en',
             )
         print('Transcript duration:', transcript['duration'])
         return transcript['text']
