@@ -88,9 +88,10 @@ class InviteUserView(generics.CreateAPIView):
 
         project = self.get_project(project_id)
         workspace = self.get_workspace(project)
-        emails = self.handle_existing_users(emails, workspace, project)
+        emails, existing_auth_users = self.handle_existing_users(emails, workspace, project)
+        self.send_notification_emails(existing_auth_users, workspace, project)
         email_tokens = self.create_invitations(emails, workspace, project)
-        self.send_emails(email_tokens, workspace, project)
+        self.send_invitation_emails(email_tokens, workspace, project)
 
     def get_workspace(self, project):
         workspace = project.workspace
@@ -110,7 +111,7 @@ class InviteUserView(generics.CreateAPIView):
             auth_user.workspaces.add(workspace)
             auth_user.projects.add(project)
             emails.remove(auth_user.username)
-        return emails
+        return emails, existing_auth_users
 
     def create_invitations(self, emails, workspace, project):
         expire_at = datetime.now() + timedelta(seconds=settings.INVITATION_LINK_TIMEOUT)
@@ -130,8 +131,30 @@ class InviteUserView(generics.CreateAPIView):
             )
             email_tokens[email] = token
         return email_tokens
+    
+    def send_notification_emails(self, auth_users, workspace, project):
+        email_template = dedent('''
+            Hi, you are invited to join our project "{project}" in workspace "{workspace}".
+            Click the following link to go to the project: 
+            {frontend_url}/dashboard/projects/{project_id}/reports
+        ''')
+        auth_user_emails = [auth_user.username for auth_user in auth_users]
+        for email in auth_user_emails:
+            message = email_template.format(
+                frontend_url=settings.FRONTEND_URL, 
+                workspace=workspace.name,
+                project=project.name,
+                project_id=project.id,
+            )
+            send_mail(
+                subject='Invitation to our project',
+                from_email=None,
+                message=message,
+                recipient_list=[email],
+            )
 
-    def send_emails(self, email_tokens, workspace, project):
+
+    def send_invitation_emails(self, email_tokens, workspace, project):
         email_template = dedent('''
             Hi, you are invited to join our project "{project}" in workspace "{workspace}".
             Click the following link to sign up: 
