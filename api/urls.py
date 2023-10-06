@@ -15,9 +15,7 @@ from takeaway.views import (TakeawayListCreateView,
 from user.views import (AuthUserProjectListView, AuthUserRetrieveUpdateView,
                         AuthUserWorkspaceListView, UserListCreateView,
                         UserRetrieveUpdateDeleteView)
-from workspace.views import (WorkspaceListCreateView,
-                             WorkspaceRetrieveUpdateDeleteView,
-                             WorkspaceUserListView)
+from workspace.views import WorkspaceListCreateView, WorkspaceUserListView
 
 from .views import (DoPasswordResetView, InvitationSignupCreateView,
                     InvitationStatusRetrieveView, InviteUserView,
@@ -43,7 +41,6 @@ urlpatterns = [
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
 
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list-create'),
-    path('workspaces/<str:pk>/', WorkspaceRetrieveUpdateDeleteView.as_view(), name='workspace-retrieve-update-delete'),
     path('workspaces/<str:pk>/users/', WorkspaceUserListView.as_view(), name='workspace-user-list'),
 
     # path('tags/', TagListCreateView.as_view(), name='tag-list-create'),

@@ -24,11 +24,10 @@ class SignupSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=100)
     last_name = serializers.CharField(max_length=100)
     password = serializers.CharField(write_only=True)
-    workspace_name = serializers.CharField(write_only=True)
     
     class Meta:
         # TODO: update var to email instead
-        fields = ['username', 'first_name', 'last_name', 'password', 'workspace_name']
+        fields = ['username', 'first_name', 'last_name', 'password']
         
     def validate_password(self, value):
         password_validation.validate_password(value)
@@ -38,11 +37,6 @@ class SignupSerializer(serializers.Serializer):
         username = value
         if username and AuthUser.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError(f"User {username} already exists.")
-        return value
-    
-    def validate_workspace_name(self, value):
-        if Workspace.objects.filter(name=value).exists():
-            raise serializers.ValidationError(f"Workspace name {value} already exists.")
         return value
     
     def create(self, validated_data):
@@ -63,15 +57,7 @@ class SignupSerializer(serializers.Serializer):
             auth_user=auth_user,
         )
 
-        # Create and add workspace
-        workspace = self.get_workspace(validated_data)
-        auth_user.workspaces.add(workspace)
-
         return auth_user
-    
-    def get_workspace(self, validated_data):
-        # To be overwritten by invited signup serializer
-        return Workspace.objects.create(name=validated_data.get('workspace_name'))
     
 
 class PasswordUpdateSerializer(serializers.Serializer):
@@ -192,7 +178,6 @@ class InvitationStatusSerializer(serializers.Serializer):
 
 class InvitationSignupSerializer(SignupSerializer):
     username = None
-    workspace_name = None
     token = serializers.CharField()
     workspace = WorkspaceSerializer(read_only=True)
     project = ProjectSerializer(read_only=True)

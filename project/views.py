@@ -36,11 +36,13 @@ class ProjectListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         auth_user = self.request.user
+        # TODO: Use workspace id from query_param
         workspace = auth_user.workspaces.first()
         return Project.objects.filter(workspace=workspace, users=auth_user)
     
     def create(self, request, *args, **kwargs):
         auth_user = self.request.user
+        # TODO: Use workspace id from query_param
         workspace = auth_user.workspaces.first()
         if workspace.projects.count() > 1:
             # We restrict user from creating more than 2 projects per workspace

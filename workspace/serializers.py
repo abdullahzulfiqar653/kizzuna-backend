@@ -23,4 +23,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         )
         workspace.save()
 
+        request = self.context['request']
+        request.user.workspaces.add(workspace)
+
         return workspace
