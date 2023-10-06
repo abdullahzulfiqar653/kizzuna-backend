@@ -38,6 +38,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if 'email' in validated_data:
             validated_data['username'] = validated_data['email']
+        # TODO: Update user object also
         return super().update(instance, validated_data)
 
 class UserSerializer(serializers.ModelSerializer):

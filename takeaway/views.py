@@ -1,5 +1,4 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -9,53 +8,9 @@ from tag.serializers import TagSerializer
 from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
 
-from .forms import TakeawayForm
 from .models import Takeaway
 from .serializers import TakeawaySerializer
 
-
-@login_required
-def takeaway_list(request):
-    takeaways = Takeaway.objects.all()
-    return render(request, 'takeaway_list.html', {'takeaways': takeaways})
-
-@login_required
-def takeaway_detail(request, takeaway_id):
-    takeaway = get_object_or_404(Takeaway, id=takeaway_id)
-    return render(request, 'takeaway_detail.html', {'takeaway': takeaway})
-
-@login_required
-def takeaway_create(request):
-    if request.method == 'POST':
-        form = TakeawayForm(request.POST)
-        if form.is_valid():
-            takeaway = form.instance
-            takeaway.created_by = request.user
-            takeaway.save()
-            return redirect('takeaway-list')
-    else:
-        form = TakeawayForm()
-    return render(request, 'takeaway_form.html', {'form': form})
-
-@login_required
-def takeaway_update(request, takeaway_id):
-    takeaway = get_object_or_404(Takeaway, id=takeaway_id)
-    if request.method == 'POST':
-        form = TakeawayForm(request.POST, instance=takeaway)
-        if form.is_valid():
-            form.save()
-            return redirect('takeaway-list')
-    else:
-        form = TakeawayForm(instance=takeaway)
-    return render(request, 'takeaway_form.html', {'form': form})
-
-@login_required
-def takeaway_delete(request, takeaway_id):
-    takeaway = get_object_or_404(Takeaway, id=takeaway_id)
-    if request.method == 'POST':
-        takeaway.delete()
-        return redirect('takeaway-list')
-    return render(request, 'takeaway_confirm_delete.html', {'takeaway': takeaway})
 
 class TakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()

@@ -18,14 +18,13 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework_simplejwt.views import TokenObtainPairView, api_settings
 
-from auth.serializers import (DoPasswordResetSerializer,
-                              InvitationSignupSerializer,
-                              InvitationStatusSerializer, InviteUserSerializer,
-                              PasswordUpdateSerializer,
-                              RequestPasswordResetSerializer, SignupSerializer)
+from api.serializers import (DoPasswordResetSerializer,
+                             InvitationSignupSerializer,
+                             InvitationStatusSerializer, InviteUserSerializer,
+                             PasswordUpdateSerializer,
+                             RequestPasswordResetSerializer, SignupSerializer)
 from project.models import Project
 from user.models import Invitation
-from workspace.models import Workspace
 
 
 @api_view(['GET'])

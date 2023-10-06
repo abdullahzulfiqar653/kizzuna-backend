@@ -1,12 +1,11 @@
 import json
-from pprint import pprint
 from threading import Thread
 from time import time
 
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count
 from django.http.request import QueryDict
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, serializers, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -23,48 +22,12 @@ from takeaway.serializers import TakeawaySerializer
 from transcriber.transcribers import OpenAITranscriber
 from user.serializers import UserSerializer
 
-from .forms import ProjectForm
 from .models import Project
 from .summarizers import RefineSummarizer
 
 transcriber = OpenAITranscriber()
 summarizer = RefineSummarizer()
 
-def project_list(request):
-    projects = Project.objects.all()
-    return render(request, 'project_list.html', {'projects': projects})
-
-def project_detail(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    return render(request, 'project_detail.html', {'project': project})
-
-def project_create(request):
-    if request.method == 'POST':
-        form = ProjectForm(request.POST)
-        if form.is_valid():
-            project = form.save()
-            return redirect('project-list')
-    else:
-        form = ProjectForm()
-    return render(request, 'project_form.html', {'form': form})
-
-def project_update(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    if request.method == 'POST':
-        form = ProjectForm(request.POST, instance=project)
-        if form.is_valid():
-            form.save()
-            return redirect('project-list')
-    else:
-        form = ProjectForm(instance=project)
-    return render(request, 'project_form.html', {'form': form})
-
-def project_delete(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    if request.method == 'POST':
-        project.delete()
-        return redirect('project-list')
-    return render(request, 'project_confirm_delete.html', {'project': project})
 
 class ProjectListCreateView(generics.ListCreateAPIView):
     queryset = Project.objects.all()

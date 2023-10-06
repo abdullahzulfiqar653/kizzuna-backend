@@ -3,7 +3,7 @@ from pprint import pprint
 from textwrap import dedent
 
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import PydanticOutputParser
@@ -20,29 +20,7 @@ from tag.serializers import TagSerializer
 from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
 
-from .forms import NoteForm
 from .models import Note
-
-# class NoteInsight(BaseModel):
-#     summary: str = Field(description='Summary of the text.')
-#     keywords: list[str] = Field(description='The list of relevant keywords of the text.')
-#     takeaways: list[str] = Field(description='What are the main messages to take away from the text. Not more than 5 takeaways from the text.')
-
-
-# output_parser = PydanticOutputParser(pydantic_object=NoteInsight)
-
-# prompt = PromptTemplate(
-#     input_variables=['text'],
-#     template=dedent("""
-#         Analyze the following text: {text}
-#         {format_instructions}
-#     """),
-#     partial_variables={
-#         'format_instructions': output_parser.get_format_instructions(),
-#     },
-# )
-# llm = ChatOpenAI()
-# chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
 
 class TakeawaySchema(BaseModel):
     message: str = Field(description='message of the takeaway.')
@@ -69,72 +47,6 @@ prompt = PromptTemplate(
 )
 llm = ChatOpenAI()
 chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
-
-
-def note_list(request):
-    notes = Note.objects.all()
-    return render(request, 'note_list.html', {'notes': notes})
-
-def note_detail(request, note_id):
-    note = get_object_or_404(Note, id=note_id)
-    return render(request, 'note_detail.html', {'note': note})
-
-def note_create(request):
-    if request.method == 'POST':
-        form = NoteForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('note-list')
-    else:
-        form = NoteForm()
-    return render(request, 'note_form.html', {'form': form})
-
-def note_update(request, note_id):
-    note = get_object_or_404(Note, id=note_id)
-    if request.method == 'POST':
-        form = NoteForm(request.POST, instance=note)
-        if form.is_valid():
-            form.save()
-            return redirect('note-list')
-    else:
-        form = NoteForm(instance=note)
-    return render(request, 'note_form.html', {'form': form})
-
-def note_delete(request, note_id):
-    note = get_object_or_404(Note, id=note_id)
-    if request.method == 'POST':
-        note.delete()
-        return redirect('note-list')
-    return render(request, 'note_confirm_delete.html', {'note': note})
-
-# def note_create_summary(request, note_id):
-#     # AI goes here
-#     note = get_object_or_404(Note, id=note_id)
-#     text = f'{note.title}\n{note.content}'
-#     insight = chain.predict(text=text).dict()
-#     note.summary = insight['summary']
-#     note.save()
-#     for keyword in insight['keywords']:
-#         tag = Tag(name=keyword)
-#         tag.save()
-#         note.tags.add(tag)
-#     for takeaway_title in insight['takeaways']:
-#         takeaway = Takeaway(title=takeaway_title)
-#         takeaway.save()
-#         note.takeaways.add(takeaway)
-#     return render(request, 'note_detail.html', {'note': note})
-
-
-# def attachment_list(request, note_id):
-#     attachments = Attachment.objects.filter(note__id=note_id)
-#     note = get_object_or_404(Note, id=note_id)
-#     return render(request, 'attachment_list.html', {'attachments': attachments, 'note': note})
-
-# def attachment_detail(request, note_id, attachment_id):
-#     note = get_object_or_404(Note, id=note_id)
-#     attachment = get_object_or_404(Attachment, id=attachment_id)
-
-#     return render(request, 'attachment_detail.html', {'note': note, 'attachment': attachment})
 
 # def attachment_create(request, note_id):
 #     if request.method == 'POST':
