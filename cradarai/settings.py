@@ -85,8 +85,8 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
-    "TOKEN_OBTAIN_SERIALIZER": "auth.serializers.CustomTokenObtainPairSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "auth.serializers.CustomTokenRefreshSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "api.serializers.CustomTokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "api.serializers.CustomTokenRefreshSerializer",
 }
 
 # Set SESSION_ENGINE to 'django.contrib.sessions.backends.db' for database-backed sessions
