@@ -194,6 +194,12 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
     ordering = ['created_at']
+    search_fields = [
+        'title',
+        'created_by__username',
+        'created_by__first_name',
+        'created_by__last_name',
+    ]
 
     def get_queryset(self):
         auth_user = self.request.user
