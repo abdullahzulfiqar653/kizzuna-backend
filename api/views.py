@@ -151,7 +151,6 @@ class InviteUserView(generics.CreateAPIView):
                 recipient_list=[email],
             )
 
-
     def send_invitation_emails(self, email_tokens, workspace, project):
         email_template = dedent('''
             Hi, you are invited to join our project "{project}" in workspace "{workspace}".

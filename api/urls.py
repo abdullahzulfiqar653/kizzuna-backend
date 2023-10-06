@@ -5,9 +5,10 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from note.views import (NoteListCreateView, NoteRetrieveUpdateDeleteView,
                         NoteTagListCreateView, NoteTakeawayListCreateView,
                         NoteTakeawayTagGenerateView)
-from project.views import (ProjectListCreateView, ProjectNoteListCreateView,
+from project.views import (ProjectAuthUserListView, ProjectListCreateView,
+                           ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
-                           ProjectTakeawayListView, ProjectAuthUserListView)
+                           ProjectTakeawayListView)
 from tag.views import TagListCreateView, TagRetrieveUpdateDeleteView
 from takeaway.views import (TakeawayListCreateView,
                             TakeawayRetrieveUpdateDeleteView,
@@ -15,7 +16,9 @@ from takeaway.views import (TakeawayListCreateView,
 from user.views import (AuthUserProjectListView, AuthUserRetrieveUpdateView,
                         AuthUserWorkspaceListView, UserListCreateView,
                         UserRetrieveUpdateDeleteView)
-from workspace.views import WorkspaceListCreateView, WorkspaceUserListView
+from workspace.views import (WorkspaceListCreateView,
+                             WorkspaceProjectListCreateView,
+                             WorkspaceUserListView)
 
 from .views import (DoPasswordResetView, InvitationSignupCreateView,
                     InvitationStatusRetrieveView, InviteUserView,
@@ -41,6 +44,7 @@ urlpatterns = [
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
 
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list-create'),
+    path('workspaces/<str:pk>/projects/', WorkspaceProjectListCreateView.as_view(), name='workspace-project-list-create'),
     path('workspaces/<str:pk>/users/', WorkspaceUserListView.as_view(), name='workspace-user-list'),
 
     # path('tags/', TagListCreateView.as_view(), name='tag-list-create'),

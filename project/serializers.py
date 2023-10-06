@@ -1,6 +1,9 @@
 # api/serializers.py
+from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
+
 from project.models import Project
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
@@ -16,8 +19,23 @@ class ProjectSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
     def create(self, validated_data):
-        auth_user = self.user
-        workspace = auth_user.workspaces.first()
+        request = self.context.get('request')
+        auth_user = request.user
+        view = self.context.get('view')
+        workspace_id = view.kwargs.get('workspace_id')
+
+        # TODO: Once frontend supply the workspace_id, remove the if, keep the else
+        if workspace_id is None:
+            workspace = auth_user.workspaces.first()
+        else:
+            workspace = auth_user.workspaces.filter(id=workspace_id).first()
+            if workspace is None:
+                raise PermissionDenied('Do not have permission to access the workspace.')
+
+        if workspace.projects.count() > 1:
+            # We restrict user from creating more than 2 projects per workspace
+            raise PermissionDenied('Hit project limit of the workspace.')
+
         validated_data['workspace'] = workspace
         validated_data['users'] = [auth_user]
         return super().create(validated_data)
