@@ -2,7 +2,6 @@ import json
 from pprint import pprint
 from textwrap import dedent
 
-from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from langchain.chains import LLMChain

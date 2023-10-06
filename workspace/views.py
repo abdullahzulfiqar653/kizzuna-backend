@@ -1,10 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from rest_framework import generics, status
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
+
+from user.serializers import UserSerializer
+
+from .forms import WorkspaceForm
 from .models import Workspace
 from .serializers import WorkspaceSerializer
-from .forms import WorkspaceForm
-from rest_framework import generics, status
-from user.serializers import UserSerializer
-from rest_framework.response import Response
+
 
 def workspace_list(request):
     workspaces = Workspace.objects.all()
@@ -50,8 +54,8 @@ class WorkspaceUserListView(generics.ListAPIView):
         workspace = get_object_or_404(Workspace, pk=pk)
        
         # TODO: Check permission
-        # if not workspace.members.contains(request.user):
-        #     PermissionDenied
+        if not workspace.members.contains(request.user):
+            raise PermissionDenied
 
         members = workspace.members.all()
         serializer = UserSerializer(members, many=True)

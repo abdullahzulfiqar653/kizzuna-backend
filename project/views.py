@@ -3,7 +3,6 @@ from pprint import pprint
 from threading import Thread
 from time import time
 
-from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count
 from django.http.request import QueryDict

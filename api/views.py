@@ -5,7 +5,6 @@ from textwrap import dedent
 
 from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
-from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -13,15 +12,15 @@ from django.utils.module_loading import import_string
 from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework import generics
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework_simplejwt.views import TokenObtainPairView, api_settings
 
 from auth.serializers import (DoPasswordResetSerializer,
-                              InvitationStatusSerializer,
-                              InvitationSignupSerializer, InviteUserSerializer,
+                              InvitationSignupSerializer,
+                              InvitationStatusSerializer, InviteUserSerializer,
                               PasswordUpdateSerializer,
                               RequestPasswordResetSerializer, SignupSerializer)
 from project.models import Project
