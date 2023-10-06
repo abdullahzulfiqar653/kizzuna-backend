@@ -18,10 +18,10 @@ def validate_file_size(value):
         raise ValidationError('File size cannot exceed 20 MB.')
 
 def validate_file_type(value):
-    allowed_extensions = ['pdf', 'mp3', 'wav']
+    allowed_extensions = [filetype[0] for filetype in Note.FileType.choices]
     ext = value.name.split('.')[-1]
     if ext.lower() not in allowed_extensions:
-        raise ValidationError('Only PDF, MP3, and WAV files are allowed.')
+        raise ValidationError(f'Only {allowed_extensions} files are allowed.')
 
 class Note(models.Model):
     class Revenue(models.TextChoices):
@@ -30,8 +30,12 @@ class Note(models.Model):
         HIGH = 'High'
 
     class FileType(models.TextChoices):
-        PDF = 'pdf'
+        DOCX = 'docx'
+        FLAC = 'flac'
         MP3 = 'mp3'
+        MP4 = 'mp4'
+        PDF = 'pdf'
+        TXT = 'txt'
         WAV = 'wav'
 
     class Sentiment(models.TextChoices):
@@ -56,7 +60,7 @@ class Note(models.Model):
     takeaway_sequence = models.IntegerField(default=0)
 
     file = models.FileField(upload_to='attachments/', validators=[validate_file_size, validate_file_type], null=True, max_length=255)
-    file_type = models.CharField(max_length=3, choices=FileType.choices, null=True)
+    file_type = models.CharField(max_length=4, choices=FileType.choices, null=True)
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
     content = models.TextField()

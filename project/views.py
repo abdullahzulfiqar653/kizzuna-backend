@@ -19,13 +19,13 @@ from tag.models import Tag
 from takeaway.filters import TakeawayFilter
 from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
-from transcriber.transcribers import OpenAITranscriber
+from transcriber.transcribers import omni_transcriber
 from user.serializers import AuthUserSerializer
 
 from .models import Project
 from .summarizers import RefineSummarizer
 
-transcriber = OpenAITranscriber()
+transcriber = omni_transcriber
 summarizer = RefineSummarizer()
 
 

@@ -1,3 +1,6 @@
-# from .google_transcriber import GoogleTranscriber
-# from .whisper_transcriber import WhisperTranscriber
-from .openai_transcriber import OpenAITranscriber
+# from .whisper_transcriber import whisper_transcriber
+from .docx_transcriber import docx_transcriber
+from .omni_transcriber import omni_transcriber
+from .openai_transcriber import openai_transcriber
+from .text_transcriber import text_transcriber
+from .tika_transcriber import tika_transcriber
