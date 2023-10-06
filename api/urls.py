@@ -7,7 +7,7 @@ from note.views import (NoteListCreateView, NoteRetrieveUpdateDeleteView,
                         NoteTakeawayTagGenerateView)
 from project.views import (ProjectListCreateView, ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
-                           ProjectTakeawayListView, ProjectUserListView)
+                           ProjectTakeawayListView, ProjectAuthUserListView)
 from tag.views import TagListCreateView, TagRetrieveUpdateDeleteView
 from takeaway.views import (TakeawayListCreateView,
                             TakeawayRetrieveUpdateDeleteView,
@@ -36,7 +36,7 @@ urlpatterns = [
 
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
     path('projects/<str:pk>/', ProjectRetrieveUpdateDeleteView.as_view(), name='project-retrieve-update-delete'),
-    path('projects/<str:project_id>/users/', ProjectUserListView.as_view(), name='project-user-list'),
+    path('projects/<str:project_id>/users/', ProjectAuthUserListView.as_view(), name='project-user-list'),
     path('projects/<str:project_id>/reports/', ProjectNoteListCreateView.as_view(), name='project-note-list-create'),
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
 
