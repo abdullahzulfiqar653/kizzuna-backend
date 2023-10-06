@@ -17,7 +17,6 @@ class WorkspaceUserListView(generics.ListAPIView):
     def list(self, request, pk=None):
         workspace = get_object_or_404(Workspace, pk=pk)
        
-        # TODO: Check permission
         if not workspace.members.contains(request.user):
             raise PermissionDenied
 

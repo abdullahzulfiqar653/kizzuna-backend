@@ -30,19 +30,18 @@ summarizer = RefineSummarizer()
 
 
 class ProjectListCreateView(generics.ListCreateAPIView):
+    # TODO: To be deprecated and replaced WorkspaceProjectListCreateView
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     ordering = ['-created_at']
 
     def get_queryset(self):
         auth_user = self.request.user
-        # TODO: Use workspace id from query_param
         workspace = auth_user.workspaces.first()
         return Project.objects.filter(workspace=workspace, users=auth_user)
     
     def create(self, request, *args, **kwargs):
         auth_user = self.request.user
-        # TODO: Use workspace id from query_param
         workspace = auth_user.workspaces.first()
         if workspace.projects.count() > 1:
             # We restrict user from creating more than 2 projects per workspace
@@ -76,7 +75,6 @@ class ProjectAuthUserListView(generics.ListAPIView):
     def list(self, request, project_id=None):
         project = get_object_or_404(Project, id=project_id)
        
-        # TODO: Check permission
         if not project.users.contains(request.user):
             raise PermissionDenied
 
@@ -222,7 +220,6 @@ class ProjectTakeawayListView(generics.ListAPIView):
         project_id = self.kwargs['project_id']
         project = get_object_or_404(Project, id=project_id)
        
-        # TODO: Check permission
         if not project.users.contains(self.request.user):
             raise PermissionDenied
 
