@@ -55,7 +55,7 @@ class Note(models.Model):
     code = models.CharField(max_length=5)
     takeaway_sequence = models.IntegerField(default=0)
 
-    file = models.FileField(upload_to='attachments/', validators=[validate_file_size, validate_file_type], null=True)
+    file = models.FileField(upload_to='attachments/', validators=[validate_file_size, validate_file_type], null=True, max_length=255)
     file_type = models.CharField(max_length=3, choices=FileType.choices, null=True)
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
