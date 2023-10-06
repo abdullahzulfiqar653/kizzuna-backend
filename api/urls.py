@@ -3,7 +3,8 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from note.views import (NoteListCreateView, NoteRetrieveUpdateDeleteView,
-                        NoteTagListCreateView, NoteTakeawayListCreateView,
+                        NoteTagDestroyView, NoteTagListCreateView,
+                        NoteTakeawayListCreateView,
                         NoteTakeawayTagGenerateView)
 from project.views import (ProjectAuthUserListView, ProjectListCreateView,
                            ProjectNoteListCreateView,
@@ -35,6 +36,7 @@ urlpatterns = [
     path('reports/<str:pk>/', NoteRetrieveUpdateDeleteView.as_view(), name='note-retrieve-update-delete'),
     path('reports/<str:report_id>/takeaways/', NoteTakeawayListCreateView.as_view(), name='note-takeaway-list-create'),
     path('reports/<str:report_id>/tags/', NoteTagListCreateView.as_view(), name='note-tag-list-create'),
+    path('reports/<str:report_id>/tags/<str:tag_id>/', NoteTagDestroyView.as_view(), name='note-tag-destroy'),
     path('reports/<str:report_id>/generate-tags/', NoteTakeawayTagGenerateView.as_view(), name='note-takeaway-tag-generate'),
 
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),

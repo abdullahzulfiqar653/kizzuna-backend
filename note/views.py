@@ -157,6 +157,33 @@ class NoteTagListCreateView(generics.ListCreateAPIView):
         tag = serializer.save()
         note.tags.add(tag)
 
+class NoteTagDestroyView(generics.DestroyAPIView):
+    note_queryset = Note.objects.all()
+    tag_queryset = Tag.objects.all()
+    note_serializer_class = NoteSerializer
+    tag_serializer_class = TagSerializer
+
+    def destroy(self, request, report_id, tag_id):
+        try:
+            note = self.note_queryset.get(pk=report_id)
+            tag = self.tag_queryset.get(pk=tag_id)
+        except Note.DoesNotExist or Tag.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        if not note.project.users.contains(request.user):
+            raise PermissionDenied
+
+        # Check if the tag is related to the note
+        if note.tags.filter(pk=tag_id).exists():
+            # Remove the association between note and tag
+            note.tags.remove(tag)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                {"detail": "Tag is not associated with the specified report."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
 class NoteTakeawayTagGenerateView(generics.CreateAPIView):
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
