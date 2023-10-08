@@ -46,7 +46,7 @@ urlpatterns = [
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
 
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list-create'),
-    path('workspaces/<str:pk>/projects/', WorkspaceProjectListCreateView.as_view(), name='workspace-project-list-create'),
+    path('workspaces/<str:workspace_id>/projects/', WorkspaceProjectListCreateView.as_view(), name='workspace-project-list-create'),
     path('workspaces/<str:pk>/users/', WorkspaceUserListView.as_view(), name='workspace-user-list'),
 
     # path('tags/', TagListCreateView.as_view(), name='tag-list-create'),

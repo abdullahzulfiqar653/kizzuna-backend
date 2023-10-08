@@ -1,6 +1,6 @@
 # api/serializers.py
-from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 
 from project.models import Project
 
