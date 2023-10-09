@@ -57,7 +57,17 @@ class SignupSerializer(serializers.Serializer):
             auth_user=auth_user,
         )
 
+        # TODO: To remove after we split the workspace creation page from signup page
+        # Create and add workspace
+        workspace = self.get_workspace(validated_data)
+        auth_user.workspaces.add(workspace)
+
         return auth_user
+    
+    # TODO: To remove after we split the workspace creation page from signup page
+    def get_workspace(self, validated_data):
+        # To be overwritten by invited signup serializer
+        return Workspace.objects.create(name=validated_data.get('workspace_name'))
     
 
 class PasswordUpdateSerializer(serializers.Serializer):
