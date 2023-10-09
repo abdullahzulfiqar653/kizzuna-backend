@@ -24,10 +24,11 @@ class SignupSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=100)
     last_name = serializers.CharField(max_length=100)
     password = serializers.CharField(write_only=True)
+    workspace_name = serializers.CharField(write_only=True)
     
     class Meta:
         # TODO: update var to email instead
-        fields = ['username', 'first_name', 'last_name', 'password']
+        fields = ['username', 'first_name', 'last_name', 'password', 'workspace_name']
         
     def validate_password(self, value):
         password_validation.validate_password(value)
