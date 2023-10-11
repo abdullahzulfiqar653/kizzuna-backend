@@ -1,0 +1,41 @@
+name: Deploy to Prod
+
+on:
+  push:
+    branches:
+    - main
+jobs:
+  Deployment:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: rsync deployments
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete --exclude="frontend" --exclude="media" --exclude="db" --exclude=".env"
+          path: .
+          remote_path: /home/ubuntu/cradar-backend
+          remote_host: 52.220.178.82
+          remote_user: ubuntu
+          remote_key: ${{ secrets.DEPLOY_KEYS }}
+
+  RunningCommands:
+    name: Start Application
+    needs: Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: 52.220.178.82
+          username: ubuntu
+          key: ${{ secrets.DEPLOY_KEYS }}
+          port: 22
+          script: |
+            cd /home/ubuntu/cradar-backend
+            docker-compose build backend
+            docker-compose up -d backend

@@ -213,8 +213,13 @@ class ProjectTakeawayListView(generics.ListAPIView):
         'created_by__last_name', 
         'title',
     ]
-    search_fields = ['title']
-    ordering = ['-created_at']
+    ordering = ['created_at']
+    search_fields = [
+        'title',
+        'created_by__username',
+        'created_by__first_name',
+        'created_by__last_name',
+    ]
 
     def get_queryset(self):
         project_id = self.kwargs['project_id']

@@ -104,6 +104,12 @@ class NoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
+    ordering_fields = [
+        'created_at', 
+        'created_by__first_name', 
+        'created_by__last_name', 
+        'title',
+    ]
     ordering = ['created_at']
     search_fields = [
         'title',
