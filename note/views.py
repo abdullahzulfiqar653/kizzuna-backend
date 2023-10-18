@@ -9,7 +9,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
 from pydantic import BaseModel, Field, constr
-from rest_framework import exceptions, generics, status
+from rest_framework import generics, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from note.models import Note
@@ -20,7 +21,6 @@ from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
 
 from .models import Note
-
 
 class TakeawaySchema(BaseModel):
     message: str = Field(description='message of the takeaway.')
@@ -91,11 +91,15 @@ class NoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             .annotate(participant_count=Count('user_participants'))
         )
 
-    def retrieve(self, request, pk):
-        note = Note.objects.filter(id=pk).first()
-        if note is None or not note.project.users.contains(request.user):
-            raise exceptions.NotFound('Report not found.')
-        return super().retrieve(request, pk)
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
@@ -119,13 +123,13 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
         note_id = self.kwargs.get('report_id')
         note = get_object_or_404(Note, id=note_id)
         if not note.project.users.contains(auth_user):
-            raise exceptions.PermissionDenied
+            raise PermissionDenied
         return Takeaway.objects.filter(note=note)
 
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
         if not note.project.users.contains(request.user):
-            raise exceptions.PermissionDenied
+            raise PermissionDenied
         request.data['note'] = note.id
         return super().create(request)
     
@@ -141,13 +145,13 @@ class NoteTagListCreateView(generics.ListCreateAPIView):
         note_id = self.kwargs.get('report_id')
         note = get_object_or_404(Note, id=note_id)
         if not note.project.users.contains(auth_user):
-            raise exceptions.PermissionDenied
+            raise PermissionDenied
         return Tag.objects.filter(note=note)
 
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
         if not note.project.users.contains(request.user):
-            raise exceptions.PermissionDenied
+            raise PermissionDenied
         request.data['note'] = note.id
         return super().create(request)
     
@@ -155,7 +159,7 @@ class NoteTagListCreateView(generics.ListCreateAPIView):
         report_id = self.kwargs.get('report_id')
         note = get_object_or_404(Note, id=report_id)
         if not note.project.users.contains(self.request.user):
-            raise exceptions.PermissionDenied
+            raise PermissionDenied
         tag = serializer.save()
         note.tags.add(tag)
 
@@ -173,7 +177,7 @@ class NoteTagDestroyView(generics.DestroyAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         
         if not note.project.users.contains(request.user):
-            raise exceptions.PermissionDenied
+            raise PermissionDenied
 
         # Check if the tag is related to the note
         if note.tags.filter(pk=tag_id).exists():
@@ -191,7 +195,7 @@ class NoteTakeawayTagGenerateView(generics.CreateAPIView):
         note = get_object_or_404(Note, id=report_id)
 
         if note.is_auto_tagged:
-            raise exceptions.PermissionDenied('Report takeaways have already auto tagged.')
+            raise PermissionDenied('Report takeaways have already auto tagged.')
 
         data = {
             'takeaways': [
