@@ -1,4 +1,5 @@
 from textwrap import dedent
+from typing import Optional
 
 from langchain.chains import LLMChain, RefineDocumentsChain
 from langchain.chat_models import ChatOpenAI
@@ -7,6 +8,7 @@ from langchain.prompts import PromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
 from pydantic import BaseModel, Field, constr
+from langchain.schema import OutputParserException
 
 from note.models import Note
 
@@ -14,11 +16,13 @@ from note.models import Note
 class NoteInsightSchema(BaseModel):
     summary: str = Field(description='Summary of the text.')
     keywords: list[constr(max_length=50)] = Field(description='The list of relevant keywords of the text.')
-    takeaways: list[constr(max_length=200)] = Field(description='What are the main messages to take away from the text. Not more than 5 takeaways from the text.')
-    sentiment: Note.Sentiment = Field(description='The sentiment of the text.')
+    takeaways: list[str] = Field(description='At least 10 key takeaways, which could be user pain points, suggestions, positive moment, risk or opportunity.')
+    sentiment: Optional[Note.Sentiment] = Field(description='The sentiment of the text.')
 
 
 class RefineSummarizer:
+
+    RETRY_ATTEMPTS = 3
     
     def __init__(self):
 
@@ -90,6 +94,11 @@ class RefineSummarizer:
     def summarize(self, text):
         doc = Document(page_content=text)
         docs = self.text_splitter.split_documents([doc])
-        results = self.chain.run(docs)
-        print(results)
-        return self.output_parser.parse(results).dict()
+
+        for _ in range(self.RETRY_ATTEMPTS):
+            try:
+                results = self.chain.run(docs)
+                print(results)
+                return self.output_parser.parse(results).dict()
+            except OutputParserException:
+                pass
