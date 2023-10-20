@@ -6,9 +6,11 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User as AuthUser
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode
+from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   TokenRefreshSerializer)
@@ -38,6 +40,14 @@ class SignupSerializer(serializers.Serializer):
         username = value
         if username and AuthUser.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError(f"User {username} already exists.")
+        return value
+    
+    def validate_workspace_name(self, value):
+        name = value
+        slug = slugify(name)
+        condition = Q(name__iexact=name) | Q(domain_slug=slug)
+        if name and Workspace.objects.filter(condition).exists():
+            raise serializers.ValidationError(f"Workspace Name already taken.")
         return value
     
     def create(self, validated_data):

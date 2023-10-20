@@ -1,7 +1,10 @@
 # workspace/serializers.py
+from django.db.models import Q
+from django.utils.text import slugify
 from rest_framework import serializers
 
 from .models import Workspace
+
 
 class WorkspaceSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=100)
@@ -12,8 +15,10 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         name = value
-        if name and Workspace.objects.filter(name__iexact=name).exists():
-            raise serializers.ValidationError(f"Workspace Name {name} already taken.")
+        slug = slugify(name)
+        condition = Q(name__iexact=name) | Q(domain_slug=slug)
+        if name and Workspace.objects.filter(condition).exists():
+            raise serializers.ValidationError(f"Workspace Name already taken.")
         return value
 
     def create(self, validated_data):
