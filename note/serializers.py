@@ -22,3 +22,8 @@ class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         exclude = ['takeaway_sequence', 'user_participants', 'workspace', 'keywords']
+
+
+class NoteCompanySerializer(serializers.Serializer):
+    name = serializers.CharField()
+    
