@@ -25,6 +25,11 @@ services:
       - ./frontend:/app
     ports:
       - "3000:4173"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     image: nginx:latest
@@ -57,7 +62,8 @@ services:
     # This is to build frontend first to save memory
     # Once we move to ECS we should remove this
     depends_on:
-      - frontend
+      frontend:
+        condition: service_healthy
 
 volumes:
   mysql-data:
