@@ -25,8 +25,6 @@ services:
       - ./frontend:/app
     ports:
       - "3000:4173"
-    depends_on:
-      - backend
 
   nginx:
     image: nginx:latest
@@ -56,6 +54,10 @@ services:
       - mysql-data:/var/lib/mysql
     logging:
       driver: json-file
+    # This is to build frontend first to save memory
+    # Once we move to ECS we should remove this
+    depends_on:
+      - frontend
 
 volumes:
   mysql-data:
