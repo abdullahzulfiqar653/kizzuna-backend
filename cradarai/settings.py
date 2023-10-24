@@ -81,6 +81,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+    'NON_FIELD_ERRORS_KEY': 'detail',
 }
 
 SIMPLE_JWT = {

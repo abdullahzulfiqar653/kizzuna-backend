@@ -6,10 +6,10 @@ from note.views import (NoteListCreateView, NoteRetrieveUpdateDeleteView,
                         NoteTagDestroyView, NoteTagListCreateView,
                         NoteTakeawayListCreateView,
                         NoteTakeawayTagGenerateView)
-from project.views import (ProjectAuthUserListView, ProjectListCreateView,
-                           ProjectNoteListCreateView,
+from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
+                           ProjectListCreateView, ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
-                           ProjectTakeawayListView)
+                           ProjectTakeawayListView, ProjectTakeawayTagListView)
 from tag.views import TagListCreateView, TagRetrieveUpdateDeleteView
 from takeaway.views import (TakeawayListCreateView,
                             TakeawayRetrieveUpdateDeleteView,
@@ -44,6 +44,8 @@ urlpatterns = [
     path('projects/<str:project_id>/users/', ProjectAuthUserListView.as_view(), name='project-user-list'),
     path('projects/<str:project_id>/reports/', ProjectNoteListCreateView.as_view(), name='project-note-list-create'),
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
+    path('projects/<str:project_id>/takeaway-tags/', ProjectTakeawayTagListView.as_view(), name='project-takeaway-tag-list'),
+    path('projects/<str:project_id>/companies/', ProjectCompanyListView.as_view(), name='project-company-list'),
 
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list-create'),
     path('workspaces/<str:workspace_id>/projects/', WorkspaceProjectListCreateView.as_view(), name='workspace-project-list-create'),
