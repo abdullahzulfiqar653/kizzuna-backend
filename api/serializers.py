@@ -199,6 +199,7 @@ class InvitationStatusSerializer(serializers.Serializer):
 
 class InvitationSignupSerializer(SignupSerializer):
     username = None
+    workspace_name = None
     token = serializers.CharField()
     workspace = WorkspaceSerializer(read_only=True)
     project = ProjectSerializer(read_only=True)
