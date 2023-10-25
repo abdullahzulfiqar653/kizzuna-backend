@@ -10,13 +10,9 @@ from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
                            ProjectListCreateView, ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
                            ProjectTakeawayListView, ProjectTakeawayTagListView)
-from tag.views import TagListCreateView, TagRetrieveUpdateDeleteView
-from takeaway.views import (TakeawayListCreateView,
-                            TakeawayRetrieveUpdateDeleteView,
+from takeaway.views import (TakeawayRetrieveUpdateDeleteView,
                             TakeawayTagCreateView, TakeawayTagDestroyView)
-from user.views import (AuthUserProjectListView, AuthUserRetrieveUpdateView,
-                        AuthUserWorkspaceListView, UserListCreateView,
-                        UserRetrieveUpdateDeleteView)
+from user.views import AuthUserRetrieveUpdateView
 from workspace.views import (WorkspaceListCreateView,
                              WorkspaceProjectListCreateView,
                              WorkspaceUserListView)
@@ -52,10 +48,7 @@ urlpatterns = [
     path('workspaces/<str:workspace_id>/projects/', WorkspaceProjectListCreateView.as_view(), name='workspace-project-list-create'),
     path('workspaces/<str:pk>/users/', WorkspaceUserListView.as_view(), name='workspace-user-list'),
 
-    # path('tags/', TagListCreateView.as_view(), name='tag-list-create'),
-    # path('tags/<str:pk>/', TagRetrieveUpdateDeleteView.as_view(), name='tag-retrieve-update-delete'),
 
-    # path('takeaways/', TakeawayListCreateView.as_view(), name='takeaway-list-create'),
     path('takeaways/<str:pk>/', TakeawayRetrieveUpdateDeleteView.as_view(), name='takeaway-retrieve-update-delete'),
     path('takeaways/<str:takeaway_id>/tags/', TakeawayTagCreateView.as_view(), name='takeaway-tag-create'),
     path('takeaways/<str:takeaway_id>/tags/<str:tag_id>/', TakeawayTagDestroyView.as_view(), name='takeaway-tag-destroy'),
@@ -63,15 +56,10 @@ urlpatterns = [
     path('signup/', SignupView.as_view(), name='signup-create'),
     path('invitation/signup/', InvitationSignupCreateView.as_view(), name='invited-signup-create'),
     path('invitation/status/', InvitationStatusRetrieveView.as_view(), name='invitation-status-retrieve'),
-    
-    # path('users/', UserListCreateView.as_view(), name='user-list-create'),
+
     path('users/invite/', InviteUserView.as_view(), name='user-invite'),
-    # path('users/<int:pk>/', UserRetrieveUpdateDeleteView.as_view(), name='user-retrieve-update-delete'),
     path('auth-users/', AuthUserRetrieveUpdateView.as_view(), name='auth-user-retrieve-update'),
 
-    # path('users/<int:auth_user_id>/workspaces/', AuthUserWorkspaceListView.as_view(), name='user-workspace-list'),
-    # path('users/<int:auth_user_id>/projects/', AuthUserProjectListView.as_view(), name='user-project-list'),
-    
     path('password/update/', PasswordUpdateView.as_view(), name='password-update'),
     path('password/request-reset/', RequestPasswordResetView.as_view(), name='password-request-reset'),
     path('password/do-reset/', DoPasswordResetView.as_view(), name='password-do-reset'),
