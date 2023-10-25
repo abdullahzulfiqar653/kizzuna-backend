@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from note.filters import NoteFilter
 from note.models import Note
-from note.serializers import NoteCompanySerializer, NoteSerializer
+from note.serializers import ProjectNoteSerializer, NoteCompanySerializer
 from project.models import Project
 from project.serializers import ProjectSerializer
 from tag.models import Tag
@@ -89,7 +89,7 @@ class ProjectAuthUserListView(generics.ListAPIView):
     
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
     queryset = Note.objects.all()
-    serializer_class = NoteSerializer
+    serializer_class = ProjectNoteSerializer
     filterset_class = NoteFilter
     ordering_fields = [
         'created_at', 
@@ -119,12 +119,12 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             .annotate(participant_count=Count('user_participants'))
         )
     
-    def get_project_id(self):
+    def get_project(self):
         project_id = self.kwargs.get('project_id')
         project = get_object_or_404(Project, id=project_id)
         if not project.users.contains(self.request.user):
             raise exceptions.PermissionDenied
-        return project_id
+        return project
     
     def to_dict(self, form_data):
         data_file = form_data.get('data')
@@ -147,9 +147,6 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             kwargs['data'] = self.to_dict(data)
             data = kwargs['data']
 
-        # Set project
-        data['project'] = self.get_project_id()
-
         # In multipart form, null will be treated as string instead of converting to None
         # We need to manually handle the null
         if 'revenue' not in data or data['revenue'] == 'null':
@@ -161,7 +158,8 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         return super().get_serializer(*args, **kwargs)
     
     def perform_create(self, serializer):
-        note = serializer.save(author=self.request.user)
+        project = self.get_project()
+        note = serializer.save(author=self.request.user, project=project)
         if note.file:
             thread = Thread(
                 target=self.analyze,
