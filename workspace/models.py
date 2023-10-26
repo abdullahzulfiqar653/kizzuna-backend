@@ -18,9 +18,6 @@ class Workspace(models.Model):
     def __str__(self):
         return f"{self.id} - {self.name}"
     
-    def get_tags(self):
-        return self.tags.all()
-    
     def save(self, *args, **kwargs):
         # Generate the domain slug based on the workspace name
         self.domain_slug = slugify(self.name)

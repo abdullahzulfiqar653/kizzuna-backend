@@ -10,6 +10,7 @@ from project.models import Project
 from tag.models import Tag
 from user.models import User
 from workspace.models import Workspace
+from takeaway.models import Highlight
 
 
 def validate_file_size(value):
@@ -75,6 +76,9 @@ class Note(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def highlights(self):
+        return Highlight.objects.filter(note=self)
     
     def save(self, *args, **kwargs):
         if self.file and self.file.name:

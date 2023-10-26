@@ -16,8 +16,8 @@ from note.models import Note
 from note.serializers import NoteSerializer
 from tag.models import Tag
 from tag.serializers import TagSerializer
-from takeaway.models import Takeaway
-from takeaway.serializers import TakeawaySerializer
+from takeaway.models import Takeaway, Highlight
+from takeaway.serializers import TakeawaySerializer, HighlightSerializer
 
 from .models import Note
 
@@ -69,16 +69,6 @@ chain = LLMChain(llm=llm, prompt=prompt, output_parser=output_parser)
 #         form = AttachmentForm()
 #     return render(request, 'note_form.html', {'form': form})
 
-class NoteListCreateView(generics.ListCreateAPIView):
-    queryset = Note.objects.all()
-    serializer_class = NoteSerializer
-
-    def get_queryset(self):
-        return (
-            super().get_queryset()
-            .annotate(takeaway_count=Count('takeaways'))
-            .annotate(participant_count=Count('user_participants'))
-        )
 
 class NoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Note.objects.all()
@@ -121,7 +111,7 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
         if not note.project.users.contains(auth_user):
             raise exceptions.PermissionDenied
         return Takeaway.objects.filter(note=note)
-
+      
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
         if not note.project.users.contains(request.user):
@@ -131,6 +121,12 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+
+class NoteHighlightCreateView(generics.CreateAPIView):
+    queryset = Highlight.objects.all()
+    serializer_class = HighlightSerializer
+
 
 class NoteTagListCreateView(generics.ListCreateAPIView):
     queryset = Tag.objects.all()
