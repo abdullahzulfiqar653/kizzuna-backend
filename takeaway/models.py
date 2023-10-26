@@ -21,7 +21,6 @@ class Takeaway(models.Model):
     status = models.CharField(max_length=6, choices=Status.choices, default=Status.OPEN)
     note = models.ForeignKey('note.Note', on_delete=models.CASCADE, related_name='takeaways')
     code = models.CharField(max_length=10, unique=True)
-    
 
     def __str__(self):
         return self.title
@@ -33,3 +32,13 @@ class Takeaway(models.Model):
             note.takeaway_sequence += 1
             note.save()
         super().save(*args, **kwargs)
+
+
+class Highlight(Takeaway):
+    start = models.IntegerField()
+    end = models.IntegerField()
+
+    def save(self, *args, **kwargs):
+        content = ' '.join(self.note.content.split(' '))
+        self.title = content[self.start:self.end]
+        return super().save(*args, **kwargs)

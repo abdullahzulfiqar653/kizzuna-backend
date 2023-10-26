@@ -81,6 +81,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+    'NON_FIELD_ERRORS_KEY': 'detail',
 }
 
 SIMPLE_JWT = {
@@ -101,8 +102,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'web_app' / 'templates', 
-            BASE_DIR / 'auth' / 'templates'
+            BASE_DIR / 'api' / 'templates', 
             ],
         'APP_DIRS': True,
         'OPTIONS': {

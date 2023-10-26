@@ -2,21 +2,17 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from note.views import (NoteListCreateView, NoteRetrieveUpdateDeleteView,
+from note.views import (NoteHighlightCreateView, NoteRetrieveUpdateDeleteView,
                         NoteTagDestroyView, NoteTagListCreateView,
                         NoteTakeawayListCreateView,
                         NoteTakeawayTagGenerateView)
-from project.views import (ProjectAuthUserListView, ProjectListCreateView,
-                           ProjectNoteListCreateView,
+from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
+                           ProjectListCreateView, ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
-                           ProjectTakeawayListView)
-from tag.views import TagListCreateView, TagRetrieveUpdateDeleteView
-from takeaway.views import (TakeawayListCreateView,
-                            TakeawayRetrieveUpdateDeleteView,
+                           ProjectTakeawayListView, ProjectTakeawayTagListView)
+from takeaway.views import (TakeawayRetrieveUpdateDeleteView,
                             TakeawayTagCreateView, TakeawayTagDestroyView)
-from user.views import (AuthUserProjectListView, AuthUserRetrieveUpdateView,
-                        AuthUserWorkspaceListView, UserListCreateView,
-                        UserRetrieveUpdateDeleteView)
+from user.views import AuthUserRetrieveUpdateView
 from workspace.views import (WorkspaceListCreateView,
                              WorkspaceProjectListCreateView,
                              WorkspaceUserListView)
@@ -35,6 +31,7 @@ urlpatterns = [
     # path('reports/', NoteListCreateView.as_view(), name='note-list-create'),
     path('reports/<str:pk>/', NoteRetrieveUpdateDeleteView.as_view(), name='note-retrieve-update-delete'),
     path('reports/<str:report_id>/takeaways/', NoteTakeawayListCreateView.as_view(), name='note-takeaway-list-create'),
+    path('reports/<str:report_id>/highlights/', NoteHighlightCreateView.as_view(), name='note-highlight-create'),
     path('reports/<str:report_id>/tags/', NoteTagListCreateView.as_view(), name='note-tag-list-create'),
     path('reports/<str:report_id>/tags/<str:tag_id>/', NoteTagDestroyView.as_view(), name='note-tag-destroy'),
     path('reports/<str:report_id>/generate-tags/', NoteTakeawayTagGenerateView.as_view(), name='note-takeaway-tag-generate'),
@@ -44,15 +41,14 @@ urlpatterns = [
     path('projects/<str:project_id>/users/', ProjectAuthUserListView.as_view(), name='project-user-list'),
     path('projects/<str:project_id>/reports/', ProjectNoteListCreateView.as_view(), name='project-note-list-create'),
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
+    path('projects/<str:project_id>/takeaway-tags/', ProjectTakeawayTagListView.as_view(), name='project-takeaway-tag-list'),
+    path('projects/<str:project_id>/companies/', ProjectCompanyListView.as_view(), name='project-company-list'),
 
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list-create'),
     path('workspaces/<str:workspace_id>/projects/', WorkspaceProjectListCreateView.as_view(), name='workspace-project-list-create'),
     path('workspaces/<str:pk>/users/', WorkspaceUserListView.as_view(), name='workspace-user-list'),
 
-    # path('tags/', TagListCreateView.as_view(), name='tag-list-create'),
-    # path('tags/<str:pk>/', TagRetrieveUpdateDeleteView.as_view(), name='tag-retrieve-update-delete'),
 
-    # path('takeaways/', TakeawayListCreateView.as_view(), name='takeaway-list-create'),
     path('takeaways/<str:pk>/', TakeawayRetrieveUpdateDeleteView.as_view(), name='takeaway-retrieve-update-delete'),
     path('takeaways/<str:takeaway_id>/tags/', TakeawayTagCreateView.as_view(), name='takeaway-tag-create'),
     path('takeaways/<str:takeaway_id>/tags/<str:tag_id>/', TakeawayTagDestroyView.as_view(), name='takeaway-tag-destroy'),
@@ -60,15 +56,10 @@ urlpatterns = [
     path('signup/', SignupView.as_view(), name='signup-create'),
     path('invitation/signup/', InvitationSignupCreateView.as_view(), name='invited-signup-create'),
     path('invitation/status/', InvitationStatusRetrieveView.as_view(), name='invitation-status-retrieve'),
-    
-    # path('users/', UserListCreateView.as_view(), name='user-list-create'),
+
     path('users/invite/', InviteUserView.as_view(), name='user-invite'),
-    # path('users/<int:pk>/', UserRetrieveUpdateDeleteView.as_view(), name='user-retrieve-update-delete'),
     path('auth-users/', AuthUserRetrieveUpdateView.as_view(), name='auth-user-retrieve-update'),
 
-    # path('users/<int:auth_user_id>/workspaces/', AuthUserWorkspaceListView.as_view(), name='user-workspace-list'),
-    # path('users/<int:auth_user_id>/projects/', AuthUserProjectListView.as_view(), name='user-project-list'),
-    
     path('password/update/', PasswordUpdateView.as_view(), name='password-update'),
     path('password/request-reset/', RequestPasswordResetView.as_view(), name='password-request-reset'),
     path('password/do-reset/', DoPasswordResetView.as_view(), name='password-do-reset'),
