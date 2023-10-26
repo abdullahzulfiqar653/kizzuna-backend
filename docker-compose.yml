@@ -46,10 +46,10 @@ services:
     ports:
       - "3308:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: "4TV7WuvL8X1B182CxseS"
+      MYSQL_ROOT_PASSWORD: ${MASTER_DB_PASSWORD}
       MYSQL_DATABASE: "cradar"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--password=4TV7WuvL8X1B182CxseS"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--password=${MASTER_DB_PASSWORD}"]
       timeout: 1s
       retries: 5
     volumes:

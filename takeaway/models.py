@@ -12,7 +12,7 @@ class Takeaway(models.Model):
         CLOSE = 'Closed'
     
     id = ShortUUIDField(length=12, max_length=12, primary_key=True)
-    title = models.CharField(max_length=200)
+    title = models.TextField()
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
