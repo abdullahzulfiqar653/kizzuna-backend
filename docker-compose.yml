@@ -59,11 +59,6 @@ services:
       - mysql-data:/var/lib/mysql
     logging:
       driver: json-file
-    # This is to build frontend first to save memory
-    # Once we move to ECS we should remove this
-    depends_on:
-      frontend:
-        condition: service_healthy
 
 volumes:
   mysql-data:
