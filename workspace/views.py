@@ -43,4 +43,8 @@ class WorkspaceProjectListCreateView(generics.ListCreateAPIView):
         workspace = auth_user.workspaces.filter(id=workspace_id).first()
         if workspace is None:
             raise PermissionDenied('Do not have permission to access the workspace.')
-        return Project.objects.filter(workspace=workspace, users=auth_user)
+        return (
+            Project.objects
+            .filter(workspace=workspace, users=auth_user)
+            .select_related('workspace')
+        )

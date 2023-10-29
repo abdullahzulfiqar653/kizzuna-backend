@@ -14,7 +14,11 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         auth_user = self.request.user
         workspace = auth_user.workspaces.first()
-        return Project.objects.filter(workspace=workspace, users=auth_user)
+        return (
+            Project.objects
+            .filter(workspace=workspace, users=auth_user)
+            .select_related('workspace')
+        )
 
     def create(self, request, *args, **kwargs):
         auth_user = self.request.user
@@ -30,4 +34,4 @@ class ProjectRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
-        return self.request.user.projects.all()
+        return self.request.user.projects.select_related('workspace').all()

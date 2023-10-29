@@ -3,14 +3,16 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from project.models import Project
+from workspace.serializers import WorkspaceSerializer
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
+    workspace = WorkspaceSerializer(read_only=True)
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'status']
+        fields = ['id', 'name', 'description', 'status', 'workspace']
 
     def __init__(self, *args, **kwargs):
         request = kwargs.get('context', {}).get('request')
