@@ -7,6 +7,7 @@ from .models import Workspace
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=100)
 
     class Meta:

@@ -3,75 +3,22 @@ from threading import Thread
 from time import time
 
 from django.core.files.uploadedfile import UploadedFile
-from django.db.models import Count, F
+from django.db.models import Count
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, generics, serializers
 
 from note.filters import NoteFilter
 from note.models import Note
-from note.serializers import NoteCompanySerializer, ProjectNoteSerializer
+from note.serializers import ProjectNoteSerializer
 from project.models import Project
-from project.serializers import ProjectSerializer
+from project.summarizers import RefineSummarizer
 from tag.models import Tag
-from tag.serializers import TagSerializer
-from takeaway.filters import TakeawayFilter
 from takeaway.models import Takeaway
-from takeaway.serializers import TakeawaySerializer
 from transcriber.transcribers import omni_transcriber
-from user.serializers import AuthUserSerializer
-
-from .models import Project
-from .summarizers import RefineSummarizer
 
 transcriber = omni_transcriber
 summarizer = RefineSummarizer()
-
-
-class ProjectListCreateView(generics.ListCreateAPIView):
-    # TODO: To be deprecated and replaced WorkspaceProjectListCreateView
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    ordering = ['-created_at']
-
-    def get_queryset(self):
-        auth_user = self.request.user
-        workspace = auth_user.workspaces.first()
-        return Project.objects.filter(workspace=workspace, users=auth_user)
-
-    def create(self, request, *args, **kwargs):
-        auth_user = self.request.user
-        workspace = auth_user.workspaces.first()
-        if workspace.projects.count() > 1:
-            # We restrict user from creating more than 2 projects per workspace
-            raise exceptions.PermissionDenied('Cannot create more than 2 projects in one workspace.')
-        return super().create(request, *args, **kwargs)
-
-
-class ProjectRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-
-    def get_queryset(self):
-        return self.request.user.projects.all()
-
-
-class ProjectAuthUserListView(generics.ListAPIView):
-    serializer_class = AuthUserSerializer
-    ordering = ['last_name']
-    search_fields = [
-        'username',
-        'first_name',
-        'last_name',
-    ]
-
-    def get_queryset(self):
-        project_id = self.kwargs['project_id']
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return project.users.all()
 
 
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
@@ -174,7 +121,6 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             takeaway = Takeaway(title=takeaway_title, note=note)
             takeaway.save()
 
-
     def analyze(self, note):
         note.is_analyzing = True
         note.save()
@@ -192,61 +138,3 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             traceback.print_exc()
         note.is_analyzing = False
         note.save()
-
-
-class ProjectTakeawayListView(generics.ListAPIView):
-    serializer_class = TakeawaySerializer
-    filterset_class = TakeawayFilter
-    ordering_fields = [
-        'created_at',
-        'created_by__first_name',
-        'created_by__last_name',
-        'title',
-    ]
-    ordering = ['created_at']
-    search_fields = [
-        'title',
-        'created_by__username',
-        'created_by__first_name',
-        'created_by__last_name',
-    ]
-
-    def get_queryset(self):
-        project_id = self.kwargs['project_id']
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return Takeaway.objects.filter(note__project=project)
-
-
-class ProjectTakeawayTagListView(generics.ListAPIView):
-    serializer_class = TagSerializer
-    ordering = ['name']
-
-    def get_queryset(self):
-        project_id = self.kwargs['project_id']
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return Tag.objects.filter(takeaway__note__project=project)
-
-
-class ProjectCompanyListView(generics.ListAPIView):
-    serializer_class = NoteCompanySerializer
-    ordering = ['name']
-
-    def get_queryset(self):
-        project_id = self.kwargs['project_id']
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return (
-            Note.objects
-            .filter(project=project)
-            .annotate(name=F('company_name'))
-            .values('name')
-            .distinct()
-        )
