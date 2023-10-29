@@ -16,7 +16,7 @@ jobs:
       - name: rsync deployments
         uses: burnett01/rsync-deployments@5.1
         with:
-          switches: -avzr --delete --exclude="frontend" --exclude="media" --exclude="db" --exclude=".env"
+          switches: -avzr --delete --exclude="frontend" --exclude="media" --exclude="db" --exclude=".env" --exclude="**/__pycache__"
           path: .
           remote_path: /home/ubuntu/cradar-backend
           remote_host: ${{ vars.DEV_IP_ADDR }}
