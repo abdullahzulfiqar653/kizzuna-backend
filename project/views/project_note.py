@@ -13,14 +13,12 @@ from rest_framework import exceptions, generics, serializers
 from note.filters import NoteFilter
 from note.models import Note
 from note.serializers import ProjectNoteSerializer
+from project.generators.metadata_generator import generate_metadata
+from project.generators.takeaway_generator import generate_takeaways
 from project.models import Project
-from project.summarizers import RefineSummarizer
-from tag.models import Tag
-from takeaway.models import Takeaway
 from transcriber.transcribers import omni_transcriber, openai_transcriber
 
 transcriber = omni_transcriber
-summarizer = RefineSummarizer()
 
 
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
@@ -121,20 +119,12 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             note.save()
 
     def summarize(self, note):
-        text = f'{note.title}\n{note.content}'
         with get_openai_callback() as callback:
-            insight = summarizer.summarize(text)
+            generate_takeaways(note)
+            generate_metadata(note)
             note.analyzing_token += callback.total_tokens
             note.analyzing_cost += callback.total_cost
-        note.summary = insight['summary']
-        note.sentiment = insight['sentiment']
         note.save()
-        for keyword in insight['keywords']:
-            tag, is_created = Tag.objects.get_or_create(name=keyword)
-            note.tags.add(tag)
-        for takeaway_title in insight['takeaways']:
-            takeaway = Takeaway(title=takeaway_title, note=note)
-            takeaway.save()
 
     def analyze(self, note):
         note.is_analyzing = True
