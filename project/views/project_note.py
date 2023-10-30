@@ -6,6 +6,8 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404
+from langchain.callbacks import get_openai_callback
+from pydub.utils import mediainfo
 from rest_framework import exceptions, generics, serializers
 
 from note.filters import NoteFilter
@@ -15,7 +17,7 @@ from project.models import Project
 from project.summarizers import RefineSummarizer
 from tag.models import Tag
 from takeaway.models import Takeaway
-from transcriber.transcribers import omni_transcriber
+from transcriber.transcribers import omni_transcriber, openai_transcriber
 
 transcriber = omni_transcriber
 summarizer = RefineSummarizer()
@@ -100,6 +102,16 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             )
             thread.start()
 
+    def update_audio_filesize(self, note):
+        if (
+            openai_transcriber in transcriber.transcribers
+            and note.file_type in openai_transcriber.supported_filetypes
+        ):
+            audio_info = mediainfo(note.file.path)
+            note.file_duration = round(float(audio_info['duration']))
+            note.analyzing_cost += note.file_duration / 60 * 0.006
+            note.save()
+
     def transcribe(self, note):
         filepath = note.file.path
         filetype = note.file_type
@@ -110,7 +122,10 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
 
     def summarize(self, note):
         text = f'{note.title}\n{note.content}'
-        insight = summarizer.summarize(text)
+        with get_openai_callback() as callback:
+            insight = summarizer.summarize(text)
+            note.analyzing_token += callback.total_tokens
+            note.analyzing_cost += callback.total_cost
         note.summary = insight['summary']
         note.sentiment = insight['sentiment']
         note.save()
@@ -128,6 +143,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             print('========> Start transcribing')
             start = time()
             self.transcribe(note)
+            self.update_audio_filesize(note)
             end = time()
             print(f'Elapsed time: {end - start} seconds')
             print('========> Start summarizing')
