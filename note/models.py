@@ -62,13 +62,16 @@ class Note(models.Model):
 
     file = models.FileField(upload_to='attachments/', validators=[validate_file_size, validate_file_type], null=True, max_length=255)
     file_type = models.CharField(max_length=4, choices=FileType.choices, null=True)
+    file_duration = models.IntegerField(null=True)
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
     content = models.TextField()
     summary = models.TextField()
     keywords = models.TextField()
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
-    
+    analyzing_token = models.IntegerField(default=0)
+    analyzing_cost = models.DecimalField(default=0, decimal_places=7, max_digits=11)
+
     class Meta:
         unique_together = [
             ['workspace', 'code'],

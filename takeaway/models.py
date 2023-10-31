@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from shortuuid.django_fields import ShortUUIDField
+from project.models import Project
 
 from tag.models import Tag
 
@@ -42,3 +43,13 @@ class Highlight(Takeaway):
         content = ' '.join(self.note.content.split(' '))
         self.title = content[self.start:self.end]
         return super().save(*args, **kwargs)
+
+
+class Insight(models.Model):
+    id = ShortUUIDField(length=12, max_length=12, primary_key=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='insights')
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='insights')
+    takeaways = models.ManyToManyField(Takeaway, related_name='insights', related_query_name='insight')

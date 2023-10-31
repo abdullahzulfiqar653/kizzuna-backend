@@ -10,7 +10,10 @@ from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
                            ProjectListCreateView, ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
                            ProjectTakeawayListView, ProjectTakeawayTagListView)
-from takeaway.views import (TakeawayRetrieveUpdateDeleteView,
+from project.views.project_insight import ProjectInsightListCreateView
+from takeaway.views import (InsightRetrieveUpdateDeleteView,
+                            InsightTagCreateView, InsightTakeawayCreateView,
+                            TakeawayRetrieveUpdateDeleteView,
                             TakeawayTagCreateView, TakeawayTagDestroyView)
 from user.views import AuthUserRetrieveUpdateView
 from workspace.views import (WorkspaceListCreateView,
@@ -43,15 +46,19 @@ urlpatterns = [
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
     path('projects/<str:project_id>/takeaway-tags/', ProjectTakeawayTagListView.as_view(), name='project-takeaway-tag-list'),
     path('projects/<str:project_id>/companies/', ProjectCompanyListView.as_view(), name='project-company-list'),
+    path('projects/<str:project_id>/insights/', ProjectInsightListCreateView.as_view(), name='project-insight-list-create'),
 
     path('workspaces/', WorkspaceListCreateView.as_view(), name='workspace-list-create'),
     path('workspaces/<str:workspace_id>/projects/', WorkspaceProjectListCreateView.as_view(), name='workspace-project-list-create'),
     path('workspaces/<str:pk>/users/', WorkspaceUserListView.as_view(), name='workspace-user-list'),
 
-
     path('takeaways/<str:pk>/', TakeawayRetrieveUpdateDeleteView.as_view(), name='takeaway-retrieve-update-delete'),
     path('takeaways/<str:takeaway_id>/tags/', TakeawayTagCreateView.as_view(), name='takeaway-tag-create'),
     path('takeaways/<str:takeaway_id>/tags/<str:tag_id>/', TakeawayTagDestroyView.as_view(), name='takeaway-tag-destroy'),
+
+    path('insights/<str:pk>/', InsightRetrieveUpdateDeleteView.as_view(), name='insight-retrieve-update-delete'),
+    path('insights/<str:insight_id>/tags/', InsightTagCreateView.as_view(), name='insight-tag-create'),
+    path('insights/<str:insight_id>/takeaways/<str:takeaway_id>/', InsightTakeawayCreateView.as_view(), name='insight-takeaway-create'),
 
     path('signup/', SignupView.as_view(), name='signup-create'),
     path('invitation/signup/', InvitationSignupCreateView.as_view(), name='invited-signup-create'),

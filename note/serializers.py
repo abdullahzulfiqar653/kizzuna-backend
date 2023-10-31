@@ -1,5 +1,6 @@
 # note/serializers.py
 from rest_framework import serializers
+from traitlets import default
 
 from note.models import Note
 from tag.serializers import TagSerializer
@@ -25,6 +26,9 @@ class SkipIdValidatorHighlightSerializer(HighlightSerializer):
 
 class NoteSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
+    title = serializers.CharField(required=False, default='New Report')
+    type = serializers.CharField(required=False, default='User Interview')
+    description = serializers.CharField(required=False, default='')
     code = serializers.CharField(read_only=True)
     takeaway_count = serializers.IntegerField(read_only=True)
     participant_count = serializers.IntegerField(read_only=True)
