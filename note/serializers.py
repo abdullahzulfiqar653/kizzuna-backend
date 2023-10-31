@@ -1,6 +1,5 @@
 # note/serializers.py
 from rest_framework import serializers
-from traitlets import default
 
 from note.models import Note
 from tag.serializers import TagSerializer
