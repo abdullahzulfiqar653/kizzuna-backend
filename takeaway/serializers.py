@@ -9,7 +9,6 @@ from user.serializers import AuthUserSerializer
 
 
 class TakeawaySerializer(serializers.ModelSerializer):
-    id = serializers.CharField(read_only=True)
     created_by = AuthUserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
 
