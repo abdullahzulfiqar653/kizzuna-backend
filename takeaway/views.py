@@ -82,18 +82,3 @@ class InsightTakeawayCreateView(generics.CreateAPIView):
 
         insight.takeaways.add(takeaway)
         return Response({'id': takeaway_id}, status=status.HTTP_201_CREATED)
-
-
-class InsightTagCreateView(generics.CreateAPIView):
-    serializer_class = TagSerializer
-
-    def create(self, request, insight_id):
-        insight = Insight.objects.filter(id=insight_id, project__users=request.user).first()
-        if insight is None:
-            raise exceptions.NotFound('Insight not found.')
-
-        serializer = TagSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        tag = serializer.save()
-        insight.tags.add(tag)
-        return Response(serializer.data)

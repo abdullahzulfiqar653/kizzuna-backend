@@ -12,7 +12,7 @@ from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
                            ProjectTakeawayListView, ProjectTakeawayTagListView)
 from project.views.project_insight import ProjectInsightListCreateView
 from takeaway.views import (InsightRetrieveUpdateDeleteView,
-                            InsightTagCreateView, InsightTakeawayCreateView,
+                            InsightTakeawayCreateView,
                             TakeawayRetrieveUpdateDeleteView,
                             TakeawayTagCreateView, TakeawayTagDestroyView)
 from user.views import AuthUserRetrieveUpdateView
@@ -57,7 +57,6 @@ urlpatterns = [
     path('takeaways/<str:takeaway_id>/tags/<str:tag_id>/', TakeawayTagDestroyView.as_view(), name='takeaway-tag-destroy'),
 
     path('insights/<str:pk>/', InsightRetrieveUpdateDeleteView.as_view(), name='insight-retrieve-update-delete'),
-    path('insights/<str:insight_id>/tags/', InsightTagCreateView.as_view(), name='insight-tag-create'),
     path('insights/<str:insight_id>/takeaways/<str:takeaway_id>/', InsightTakeawayCreateView.as_view(), name='insight-takeaway-create'),
 
     path('signup/', SignupView.as_view(), name='signup-create'),

@@ -115,7 +115,6 @@ class InsightSerializer(serializers.ModelSerializer):
     takeaways = TakeawaySerializer(many=True, read_only=True)
     created_by = AuthUserSerializer(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Insight
@@ -126,5 +125,4 @@ class InsightSerializer(serializers.ModelSerializer):
             'created_at',
             'created_by',
             'takeaways',
-            'tags',
         ]
