@@ -37,5 +37,5 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/cradar-backend
-            docker-compose build backend
+            docker-compose stop backend
             docker-compose up -d backend
