@@ -17,6 +17,7 @@ from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
 
 from project.serializers import ProjectSerializer
 from user.models import Invitation, User
+from user.serializers import AuthUserSerializer
 from workspace.models import Workspace
 from workspace.serializers import WorkspaceSerializer
 
@@ -195,6 +196,7 @@ class InvitationStatusSerializer(serializers.Serializer):
     email = serializers.EmailField()
     workspace = WorkspaceSerializer()
     project = ProjectSerializer()
+    sender = AuthUserSerializer()
 
 
 class InvitationSignupSerializer(SignupSerializer):
