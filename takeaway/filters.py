@@ -15,15 +15,10 @@ def takeaway_tags_in_project(request):
     return Tag.objects.filter(takeaway__note__project_id=project_id)
 
 
-def takeaways_in_project(request):
-    project_id = request.parser_context['kwargs']['project_id']
-    return Takeaway.objects.filter(note__project_id=project_id)
-
-
 class TakeawayFilter(filters.FilterSet):
     created_by = filters.ModelMultipleChoiceFilter(field_name='created_by__username', to_field_name='username', queryset=auth_users_in_project)
     tag = filters.ModelMultipleChoiceFilter(field_name='tags__name', to_field_name='name', queryset=takeaway_tags_in_project)
-    status = filters.ModelMultipleChoiceFilter(field_name='status', to_field_name='status', queryset=takeaways_in_project)
+    status = filters.MultipleChoiceFilter(choices=Takeaway.Status.choices)
 
     class Meta:
         model = Takeaway

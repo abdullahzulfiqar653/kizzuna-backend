@@ -13,8 +13,8 @@ def auth_users_in_project(request):
 
 class NoteFilter(filters.FilterSet):
     company_name = filters.ModelMultipleChoiceFilter(to_field_name='company_name', queryset=notes_in_project)
-    revenue = filters.ModelMultipleChoiceFilter(to_field_name='revenue', queryset=notes_in_project)
-    sentiment = filters.ModelMultipleChoiceFilter(to_field_name='sentiment', queryset=notes_in_project)
+    revenue = filters.MultipleChoiceFilter(choices=Note.Revenue.choices)
+    sentiment = filters.MultipleChoiceFilter(choices=Note.Sentiment.choices)
     author = filters.ModelMultipleChoiceFilter(field_name='author__username', to_field_name='username', queryset=auth_users_in_project)
     created_at = filters.DateFromToRangeFilter(field_name='created_at')
 

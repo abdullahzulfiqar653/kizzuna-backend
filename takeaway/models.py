@@ -17,7 +17,7 @@ class Takeaway(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     tags = models.ManyToManyField(Tag, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='takeaways', null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='takeaways')
     upvoted_by = models.ManyToManyField(User)
     status = models.CharField(max_length=6, choices=Status.choices, default=Status.OPEN)
     note = models.ForeignKey('note.Note', on_delete=models.CASCADE, related_name='takeaways')

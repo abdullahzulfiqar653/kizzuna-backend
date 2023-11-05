@@ -241,3 +241,5 @@ INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60 # 3 days
 # Optional: You can also set a different location for your static files within the bucket.
 # STATICFILES_LOCATION = 'static'
 # STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
+
+FILTERS_NULL_CHOICE_LABEL = 'null'

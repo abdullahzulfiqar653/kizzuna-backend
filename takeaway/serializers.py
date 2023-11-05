@@ -34,16 +34,6 @@ class TakeawaySerializer(serializers.ModelSerializer):
         validated_data['note'] = note
         return super().create(validated_data)
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        if data.get('created_by') is None:
-            data['created_by'] = OrderedDict({
-                'username': '',
-                'first_name': 'Created by AI',
-                'last_name': ''
-            })
-        return data
-
 
 class HighlightSerializer(TakeawaySerializer):
 
