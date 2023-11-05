@@ -12,7 +12,7 @@ class Takeaway(models.Model):
         ONHOLD = 'Onhold'
         CLOSE = 'Closed'
     
-    id = ShortUUIDField(length=12, max_length=12, primary_key=True)
+    id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     title = models.TextField()
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -46,7 +46,7 @@ class Highlight(Takeaway):
 
 
 class Insight(models.Model):
-    id = ShortUUIDField(length=12, max_length=12, primary_key=True)
+    id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='insights')

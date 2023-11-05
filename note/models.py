@@ -44,7 +44,7 @@ class Note(models.Model):
         NEUTRAL = 'Neutral'
         NEGATIVE = 'Negative'
         
-    id = ShortUUIDField(length=12, max_length=12, primary_key=True)
+    id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     title = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name='notes')
