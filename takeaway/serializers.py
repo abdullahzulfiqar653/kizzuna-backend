@@ -9,7 +9,6 @@ from user.serializers import AuthUserSerializer
 
 
 class TakeawaySerializer(serializers.ModelSerializer):
-    id = serializers.CharField(read_only=True)
     created_by = AuthUserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
 
@@ -34,16 +33,6 @@ class TakeawaySerializer(serializers.ModelSerializer):
         validated_data['created_by'] = request.user
         validated_data['note'] = note
         return super().create(validated_data)
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        if data.get('created_by') is None:
-            data['created_by'] = OrderedDict({
-                'username': '',
-                'first_name': 'Created by AI',
-                'last_name': ''
-            })
-        return data
 
 
 class HighlightSerializer(TakeawaySerializer):
@@ -116,7 +105,6 @@ class InsightSerializer(serializers.ModelSerializer):
     takeaways = TakeawaySerializer(many=True, read_only=True)
     created_by = AuthUserSerializer(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Insight
@@ -127,5 +115,4 @@ class InsightSerializer(serializers.ModelSerializer):
             'created_at',
             'created_by',
             'takeaways',
-            'tags',
         ]

@@ -12,7 +12,7 @@ class StatusEnum(Enum):
         return self.value
 
 class Project(models.Model):
-    id = ShortUUIDField(length=12, max_length=12, primary_key=True)
+    id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

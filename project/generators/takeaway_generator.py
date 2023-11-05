@@ -1,5 +1,6 @@
 from pprint import pprint
 
+from django.contrib.auth.models import User as AuthUser
 from langchain.chains.openai_functions import create_structured_output_chain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
@@ -39,6 +40,7 @@ text_splitter = TokenTextSplitter(
 )
 
 def generate_takeaways(note: Note):
+    bot = AuthUser.objects.get(username='bot@raijin.ai')
     doc = Document(page_content=note.content)
     docs = text_splitter.split_documents([doc])
     outputs = [takeaways_chain.invoke(doc.page_content) for doc in docs]
@@ -49,5 +51,5 @@ def generate_takeaways(note: Note):
         for takeaway in output['function']['takeaways']
     ]
     for takeaway_title in output_takeaways:
-        takeaway = Takeaway(title=takeaway_title, note=note)
+        takeaway = Takeaway(title=takeaway_title, note=note, created_by=bot)
         takeaway.save()
