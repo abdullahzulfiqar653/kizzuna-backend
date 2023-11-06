@@ -8,9 +8,19 @@ from takeaway.models import Highlight, Insight, Takeaway
 from user.serializers import AuthUserSerializer
 
 
+class BriefNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = [
+            'id',
+            'title',
+        ]
+
+
 class TakeawaySerializer(serializers.ModelSerializer):
     created_by = AuthUserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+    report = BriefNoteSerializer(source='note', read_only=True)
 
     class Meta:
         model = Takeaway
@@ -21,6 +31,8 @@ class TakeawaySerializer(serializers.ModelSerializer):
             'description',
             'status',
             'created_by',
+            'report',
+            'created_at',
         ]
 
     def create(self, validated_data):
