@@ -27,7 +27,6 @@ class SignupSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=100)
     last_name = serializers.CharField(max_length=100)
     password = serializers.CharField(write_only=True)
-    workspace_name = serializers.CharField(write_only=True)
     
     class Meta:
         # TODO: update var to email instead
@@ -41,14 +40,6 @@ class SignupSerializer(serializers.Serializer):
         username = value
         if username and AuthUser.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError(f"User {username} already exists.")
-        return value
-    
-    def validate_workspace_name(self, value):
-        name = value
-        slug = slugify(name)
-        condition = Q(name__iexact=name) | Q(domain_slug=slug)
-        if name and Workspace.objects.filter(condition).exists():
-            raise serializers.ValidationError(f"Workspace Name already taken.")
         return value
     
     def create(self, validated_data):
@@ -69,17 +60,7 @@ class SignupSerializer(serializers.Serializer):
             auth_user=auth_user,
         )
 
-        # TODO: To remove after we split the workspace creation page from signup page
-        # Create and add workspace
-        workspace = self.get_workspace(validated_data)
-        auth_user.workspaces.add(workspace)
-
         return auth_user
-    
-    # TODO: To remove after we split the workspace creation page from signup page
-    def get_workspace(self, validated_data):
-        # To be overwritten by invited signup serializer
-        return Workspace.objects.create(name=validated_data.get('workspace_name'))
     
 
 class PasswordUpdateSerializer(serializers.Serializer):
@@ -201,7 +182,6 @@ class InvitationStatusSerializer(serializers.Serializer):
 
 class InvitationSignupSerializer(SignupSerializer):
     username = None
-    workspace_name = None
     token = serializers.CharField()
     workspace = WorkspaceSerializer(read_only=True)
     project = ProjectSerializer(read_only=True)
@@ -231,6 +211,7 @@ class InvitationSignupSerializer(SignupSerializer):
         validated_data['workspace'] = invitation.workspace
         # Calling SignupSerializer.create method
         auth_user = super().create(validated_data)
+        auth_user.workspaces.add(invitation.workspace)
         auth_user.projects.add(invitation.project)
 
         # Update invitation
