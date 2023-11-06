@@ -1,18 +1,26 @@
 from collections import OrderedDict
 
 from rest_framework import exceptions, serializers
-from rest_framework.fields import empty
 
 from note.models import Note
 from tag.serializers import TagSerializer
+from takeaway.models import Highlight, Insight, Takeaway
 from user.serializers import AuthUserSerializer
 
-from .models import Highlight, Takeaway
+
+class BriefNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = [
+            'id',
+            'title',
+        ]
 
 
 class TakeawaySerializer(serializers.ModelSerializer):
     created_by = AuthUserSerializer(read_only=True)
-    tags = TagSerializer(many=True, required=False)
+    tags = TagSerializer(many=True, read_only=True)
+    report = BriefNoteSerializer(source='note', read_only=True)
 
     class Meta:
         model = Takeaway
@@ -23,6 +31,8 @@ class TakeawaySerializer(serializers.ModelSerializer):
             'description',
             'status',
             'created_by',
+            'report',
+            'created_at',
         ]
 
     def create(self, validated_data):
@@ -31,20 +41,10 @@ class TakeawaySerializer(serializers.ModelSerializer):
         note = Note.objects.filter(id=report_id).first()
         if note is None or not note.project.users.contains(request.user):
             exceptions.NotFound('Report is not found.')
-        
+
         validated_data['created_by'] = request.user
         validated_data['note'] = note
         return super().create(validated_data)
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        if data.get('created_by') is None:
-            data['created_by'] = OrderedDict({
-                'username': '',
-                'first_name': 'Created by AI',
-                'last_name': ''
-            })
-        return data
 
 
 class HighlightSerializer(TakeawaySerializer):
@@ -66,7 +66,7 @@ class HighlightSerializer(TakeawaySerializer):
                 "0 <= start < end."
             )
         return super().validate(data)
-        
+
     def create(self, validated_data):
         report_id = self.context['view'].kwargs['report_id']
         note = Note.objects.filter(id=report_id).first()
@@ -82,4 +82,49 @@ class HighlightSerializer(TakeawaySerializer):
     def to_representation(self, instance):
         # Overwriting TakeawaySerializer.to_representation with rest_framework original function
         return super(TakeawaySerializer, self).to_representation(instance)
-    
+
+
+class ProjectInsightSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    created_by = AuthUserSerializer(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    takeaway_count = serializers.IntegerField(read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Insight
+        fields = [
+            'id',
+            'title',
+            'created_at',
+            'created_by',
+            'takeaway_count',
+            'tags',
+        ]
+
+    def create(self, validated_data):
+        project_id = self.context['view'].kwargs['project_id']
+        request = self.context['request']
+        project = request.user.projects.filter(id=project_id).first()
+        if project is None:
+            exceptions.NotFound('Project not found.')
+        validated_data['project'] = project
+        validated_data['created_by'] = request.user
+        return super().create(validated_data)
+
+
+class InsightSerializer(serializers.ModelSerializer):
+    takeaways = TakeawaySerializer(many=True, read_only=True)
+    created_by = AuthUserSerializer(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Insight
+        fields = [
+            'id',
+            'title',
+            'description',
+            'created_at',
+            'created_by',
+            'takeaways',
+        ]

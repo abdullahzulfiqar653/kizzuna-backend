@@ -1,15 +1,11 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import exceptions, generics, status
 from rest_framework.response import Response
 
 from tag.models import Tag
 from tag.serializers import TagSerializer
-from takeaway.models import Takeaway
-from takeaway.serializers import TakeawaySerializer
-
-from .models import Takeaway
-from .serializers import TakeawaySerializer
+from takeaway.models import Insight, Takeaway
+from takeaway.serializers import InsightSerializer, TakeawaySerializer
 
 
 class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -27,7 +23,7 @@ class TakeawayTagCreateView(generics.CreateAPIView):
         takeaway = get_object_or_404(Takeaway, id=takeaway_id)
         project = takeaway.note.project
         if not project.users.contains(request.user):
-            raise PermissionDenied
+            raise exceptions.PermissionDenied
 
         serializer = TagSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,7 +46,7 @@ class TakeawayTagDestroyView(generics.DestroyAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if not takeaway.note.project.users.contains(request.user):
-            raise PermissionDenied
+            raise exceptions.PermissionDenied
 
         # Check if the tag is related to the takeaway
         if takeaway.tags.filter(pk=tag_id).exists():
@@ -62,3 +58,27 @@ class TakeawayTagDestroyView(generics.DestroyAPIView):
                 {"detail": "Tag is not associated with the specified takeaway."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class InsightRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Insight.objects.all()
+    serializer_class = InsightSerializer
+
+    def get_queryset(self):
+        return Insight.objects.filter(project__users=self.request.user)
+
+
+class InsightTakeawayCreateView(generics.CreateAPIView):
+    queryset = Insight.objects.all()
+
+    def create(self, request, insight_id, takeaway_id):
+        insight = Insight.objects.filter(id=insight_id, project__users=request.user).first()
+        if insight is None:
+            raise exceptions.NotFound('Insight not found.')
+
+        takeaway = Takeaway.objects.filter(id=takeaway_id, note__project=insight.project).first()
+        if takeaway is None:
+            raise exceptions.NotFound('Takeaway not found.')
+
+        insight.takeaways.add(takeaway)
+        return Response({'id': takeaway_id}, status=status.HTTP_201_CREATED)

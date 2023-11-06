@@ -193,6 +193,7 @@ class InvitationStatusRetrieveView(generics.RetrieveAPIView):
             'email': invitation.recipient_email,
             'workspace': vars(invitation.workspace),
             'project': vars(invitation.project),
+            'sender': vars(invitation.sender),
         }
 
         if auth_user is None:

@@ -1,9 +1,9 @@
-name: Deploy to Stg
+name: Deploy to Dev
 
 on:
   push:
     branches:
-    - stg
+    - dev
 jobs:
   Deployment:
     runs-on: ${{ matrix.os }}
@@ -19,9 +19,9 @@ jobs:
           switches: -avzr --delete --exclude="frontend" --exclude="media" --exclude="db" --exclude=".env" --exclude="**/__pycache__"
           path: .
           remote_path: /home/ubuntu/cradar-backend
-          remote_host: ${{ vars.STG_IP_ADDR }}
+          remote_host: ${{ vars.DEV_IP_ADDR }}
           remote_user: ubuntu
-          remote_key: ${{ secrets.DEPLOY_KEY_STG }}
+          remote_key: ${{ secrets.DEPLOY_KEY_DEV }}
 
   RunningCommands:
     name: Start Application
@@ -31,11 +31,11 @@ jobs:
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ vars.STG_IP_ADDR }}
+          host: ${{ vars.DEV_IP_ADDR }}
           username: ubuntu
-          key: ${{ secrets.DEPLOY_KEY_STG }}
+          key: ${{ secrets.DEPLOY_KEY_DEV }}
           port: 22
           script: |
             cd /home/ubuntu/cradar-backend
-            docker-compose build backend
+            docker-compose stop backend
             docker-compose up -d backend

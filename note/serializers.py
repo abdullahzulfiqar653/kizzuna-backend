@@ -25,6 +25,9 @@ class SkipIdValidatorHighlightSerializer(HighlightSerializer):
 
 class NoteSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
+    title = serializers.CharField(required=False, default='New Report')
+    type = serializers.CharField(required=False, default='User Interview')
+    description = serializers.CharField(required=False, default='')
     code = serializers.CharField(read_only=True)
     takeaway_count = serializers.IntegerField(read_only=True)
     participant_count = serializers.IntegerField(read_only=True)
