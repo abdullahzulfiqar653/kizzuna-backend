@@ -9,7 +9,7 @@ class BaseTranscriber(ABC):
         ...
 
     @abstractmethod
-    def transcribe(self, filepath: str, filetype: str) -> str:
+    def transcribe(self, filepath: str, filetype: str, language: str) -> str:
         ...
 
     def check_filetype(self, filetype):

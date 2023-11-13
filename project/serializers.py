@@ -12,13 +12,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'status', 'workspace']
-
-    def __init__(self, *args, **kwargs):
-        request = kwargs.get('context', {}).get('request')
-        if request is not None and hasattr(request, 'user'):
-            self.user = request.user
-        super().__init__(*args, **kwargs)
+        fields = ['id', 'name', 'description', 'workspace', 'language']
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -26,13 +20,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         view = self.context.get('view')
         workspace_id = view.kwargs.get('workspace_id')
 
-        # TODO: Once frontend supply the workspace_id, remove the if, keep the else
-        if workspace_id is None:
-            workspace = auth_user.workspaces.first()
-        else:
-            workspace = auth_user.workspaces.filter(id=workspace_id).first()
-            if workspace is None:
-                raise PermissionDenied('Do not have permission to access the workspace.')
+        workspace = auth_user.workspaces.filter(id=workspace_id).first()
+        if workspace is None:
+            raise PermissionDenied('Do not have permission to access the workspace.')
 
         if workspace.projects.count() > 1:
             # We restrict user from creating more than 2 projects per workspace
