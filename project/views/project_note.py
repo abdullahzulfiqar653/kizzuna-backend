@@ -113,8 +113,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     def transcribe(self, note):
         filepath = note.file.path
         filetype = note.file_type
-        language = note.project.language
-        transcript = transcriber.transcribe(filepath, filetype, language)
+        transcript = transcriber.transcribe(filepath, filetype)
         if transcript is not None:
             note.content = transcript
             note.save()

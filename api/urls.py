@@ -7,12 +7,12 @@ from note.views import (NoteHighlightCreateView, NoteRetrieveUpdateDeleteView,
                         NoteTakeawayListCreateView,
                         NoteTakeawayTagGenerateView)
 from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
-                           ProjectNoteListCreateView,
+                           ProjectListCreateView, ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
                            ProjectTakeawayListView, ProjectTakeawayTagListView)
 from project.views.project_insight import ProjectInsightListCreateView
 from takeaway.views import (InsightRetrieveUpdateDeleteView,
-                            InsightTakeawayCreateDeleteView,
+                            InsightTakeawayCreateView,
                             TakeawayRetrieveUpdateDeleteView,
                             TakeawayTagCreateView, TakeawayTagDestroyView)
 from user.views import AuthUserRetrieveUpdateView
@@ -31,6 +31,7 @@ urlpatterns = [
     path('token/', TokenObtainPairAndRefreshView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
+    # path('reports/', NoteListCreateView.as_view(), name='note-list-create'),
     path('reports/<str:pk>/', NoteRetrieveUpdateDeleteView.as_view(), name='note-retrieve-update-delete'),
     path('reports/<str:report_id>/takeaways/', NoteTakeawayListCreateView.as_view(), name='note-takeaway-list-create'),
     path('reports/<str:report_id>/highlights/', NoteHighlightCreateView.as_view(), name='note-highlight-create'),
@@ -38,6 +39,7 @@ urlpatterns = [
     path('reports/<str:report_id>/tags/<str:tag_id>/', NoteTagDestroyView.as_view(), name='note-tag-destroy'),
     path('reports/<str:report_id>/generate-tags/', NoteTakeawayTagGenerateView.as_view(), name='note-takeaway-tag-generate'),
 
+    path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
     path('projects/<str:pk>/', ProjectRetrieveUpdateDeleteView.as_view(), name='project-retrieve-update-delete'),
     path('projects/<str:project_id>/users/', ProjectAuthUserListView.as_view(), name='project-user-list'),
     path('projects/<str:project_id>/reports/', ProjectNoteListCreateView.as_view(), name='project-note-list-create'),
@@ -55,7 +57,7 @@ urlpatterns = [
     path('takeaways/<str:takeaway_id>/tags/<str:tag_id>/', TakeawayTagDestroyView.as_view(), name='takeaway-tag-destroy'),
 
     path('insights/<str:pk>/', InsightRetrieveUpdateDeleteView.as_view(), name='insight-retrieve-update-delete'),
-    path('insights/<str:insight_id>/takeaways/', InsightTakeawayCreateDeleteView.as_view(), name='insight-takeaway-create-delete'),
+    path('insights/<str:insight_id>/takeaways/<str:takeaway_id>/', InsightTakeawayCreateView.as_view(), name='insight-takeaway-create'),
 
     path('signup/', SignupView.as_view(), name='signup-create'),
     path('invitation/signup/', InvitationSignupCreateView.as_view(), name='invited-signup-create'),

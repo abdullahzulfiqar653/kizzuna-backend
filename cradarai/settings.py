@@ -19,7 +19,6 @@ env = environ.Env()
 # reading .env file
 environ.Env.read_env('.env')
 os.environ['OPENAI_API_KEY'] = env('OPENAI_API_KEY')
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = env('GOOGLE_APPLICATION_CREDENTIALS')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

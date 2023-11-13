@@ -5,9 +5,7 @@ from rest_framework.response import Response
 from tag.models import Tag
 from tag.serializers import TagSerializer
 from takeaway.models import Insight, Takeaway
-from takeaway.serializers import (InsightSerializer,
-                                  InsightTakeawaysSerializer,
-                                  TakeawaySerializer)
+from takeaway.serializers import InsightSerializer, TakeawaySerializer
 
 
 class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -70,38 +68,17 @@ class InsightRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         return Insight.objects.filter(project__users=self.request.user)
 
 
-class InsightTakeawayCreateDeleteView(generics.GenericAPIView):
+class InsightTakeawayCreateView(generics.CreateAPIView):
     queryset = Insight.objects.all()
-    serializer_class = InsightTakeawaysSerializer
 
-    def get_insight(self, insight_id):
-        insight = Insight.objects.filter(id=insight_id, project__users=self.request.user).first()
+    def create(self, request, insight_id, takeaway_id):
+        insight = Insight.objects.filter(id=insight_id, project__users=request.user).first()
         if insight is None:
             raise exceptions.NotFound('Insight not found.')
-        return insight
 
-    def get_valid_takeaway_ids(self, insight):
-        valid_takeaways = Takeaway.objects.filter(note__project_id=insight.project_id)
-        valid_takeaway_ids = [takeaway.id for takeaway in valid_takeaways]
-        return valid_takeaway_ids
+        takeaway = Takeaway.objects.filter(id=takeaway_id, note__project=insight.project).first()
+        if takeaway is None:
+            raise exceptions.NotFound('Takeaway not found.')
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        insight = self.get_insight(self.kwargs['insight_id'])
-        valid_takeaway_ids = self.get_valid_takeaway_ids(insight)
-        context["insight"] = insight
-        context['valid_takeaway_ids'] = valid_takeaway_ids
-        return context
-
-    def post(self, request, insight_id):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-
-    def delete(self, request, insight_id):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        takeaway_ids = [takeaway['id'] for takeaway in serializer.data['takeaways']]
-        Takeaway.objects.filter(id__in=takeaway_ids).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        insight.takeaways.add(takeaway)
+        return Response({'id': takeaway_id}, status=status.HTTP_201_CREATED)

@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from rest_framework import exceptions, serializers
 
 from note.models import Note
@@ -126,22 +128,3 @@ class InsightSerializer(serializers.ModelSerializer):
             'created_by',
             'takeaways',
         ]
-
-
-class InsightTakeawaySerializer(serializers.Serializer):
-    id = serializers.CharField()
-
-    def validate_id(self, value):
-        if value not in self.context['valid_takeaway_ids']:
-            raise exceptions.ValidationError(f'Takeaway {value} not in the insight project.')
-        return value
-
-
-class InsightTakeawaysSerializer(serializers.Serializer):
-    takeaways = InsightTakeawaySerializer(many=True)
-
-    def create(self, validated_data):
-        insight = self.context['insight']
-        for takeaway in validated_data['takeaways']:
-            insight.takeaways.add(takeaway['id'])
-        return insight

@@ -51,7 +51,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MASTER_DB_PASSWORD}
       MYSQL_DATABASE: "cradar"
-      MYSQL_ALLOW_EMPTY_PASSWORD: true
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--password=${MASTER_DB_PASSWORD}"]
       timeout: 1s
