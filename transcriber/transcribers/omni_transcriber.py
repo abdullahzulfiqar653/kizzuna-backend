@@ -1,7 +1,7 @@
 from transcriber.transcribers.docx_transcriber import docx_transcriber
 from transcriber.transcribers.openai_transcriber import openai_transcriber
+from transcriber.transcribers.pdfium_transcriber import pdfium_transcriber
 from transcriber.transcribers.text_transcriber import text_transcriber
-from transcriber.transcribers.tika_transcriber import tika_transcriber
 
 from .base_transcriber import BaseTranscriber
 
@@ -9,7 +9,7 @@ from .base_transcriber import BaseTranscriber
 class OmniTranscriber(BaseTranscriber):
     transcribers: list[BaseTranscriber] = [
         openai_transcriber,
-        tika_transcriber,
+        pdfium_transcriber,
         docx_transcriber,
         text_transcriber,
     ]
@@ -22,11 +22,11 @@ class OmniTranscriber(BaseTranscriber):
             for filetype in transcriber.supported_filetypes
         }
 
-    def transcribe(self, filepath: str, filetype: str) -> str:
+    def transcribe(self, filepath: str, filetype: str, language: str) -> str:
         self.check_filetype(filetype)
         for transcriber in self.transcribers:
             if filetype in transcriber.supported_filetypes:
-                return transcriber.transcribe(filepath, filetype)
+                return transcriber.transcribe(filepath, filetype, language)
 
 
 omni_transcriber = OmniTranscriber()
