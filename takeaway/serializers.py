@@ -87,7 +87,6 @@ class ProjectInsightSerializer(serializers.ModelSerializer):
     created_by = AuthUserSerializer(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     takeaway_count = serializers.IntegerField(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Insight
@@ -97,7 +96,6 @@ class ProjectInsightSerializer(serializers.ModelSerializer):
             'created_at',
             'created_by',
             'takeaway_count',
-            'tags',
         ]
 
     def create(self, validated_data):

@@ -14,8 +14,8 @@ from rest_framework.response import Response
 
 from note.models import Note
 from note.serializers import NoteSerializer
-from tag.models import Tag
-from tag.serializers import TagSerializer
+from tag.models import Keyword, Tag
+from tag.serializers import KeywordSerializer
 from takeaway.models import Takeaway, Highlight
 from takeaway.serializers import TakeawaySerializer, HighlightSerializer
 
@@ -128,9 +128,9 @@ class NoteHighlightCreateView(generics.CreateAPIView):
     serializer_class = HighlightSerializer
 
 
-class NoteTagListCreateView(generics.ListCreateAPIView):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+class NoteKeywordListCreateView(generics.ListCreateAPIView):
+    queryset = Keyword.objects.all()
+    serializer_class = KeywordSerializer
 
     def get_queryset(self):
         auth_user = self.request.user
@@ -138,7 +138,7 @@ class NoteTagListCreateView(generics.ListCreateAPIView):
         note = get_object_or_404(Note, id=note_id)
         if not note.project.users.contains(auth_user):
             raise exceptions.PermissionDenied
-        return Tag.objects.filter(note=note)
+        return Keyword.objects.filter(note=note)
 
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
@@ -152,37 +152,24 @@ class NoteTagListCreateView(generics.ListCreateAPIView):
         note = get_object_or_404(Note, id=report_id)
         if not note.project.users.contains(self.request.user):
             raise exceptions.PermissionDenied
-        tag = serializer.save()
-        note.tags.add(tag)
+        keyword = serializer.save()
+        note.keywords.add(keyword)
 
-class NoteTagDestroyView(generics.DestroyAPIView):
-    note_queryset = Note.objects.all()
-    tag_queryset = Tag.objects.all()
-    note_serializer_class = NoteSerializer
-    tag_serializer_class = TagSerializer
-
-    def destroy(self, request, report_id, tag_id):
-        try:
-            note = self.note_queryset.get(pk=report_id)
-            tag = self.tag_queryset.get(pk=tag_id)
-        except Note.DoesNotExist or Tag.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+class NoteKeywordDestroyView(generics.DestroyAPIView):
+    def destroy(self, request, report_id, keyword_id):
+        note = Note.objects.filter(pk=report_id, project__users=request.user).first()
+        if note is None:
+            raise exceptions.NotFound(f'Report {report_id} not found.')
         
-        if not note.project.users.contains(request.user):
-            raise exceptions.PermissionDenied
+        keyword = note.keywords.filter(pk=keyword_id).first()
+        if keyword is None:
+            raise exceptions.NotFound(f'Keyword {keyword_id} not found.')
+        
+        note.keywords.remove(keyword)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-        # Check if the tag is related to the note
-        if note.tags.filter(pk=tag_id).exists():
-            # Remove the association between note and tag
-            note.tags.remove(tag)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(
-                {"detail": "Tag is not associated with the specified report."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
-class NoteTakeawayTagGenerateView(generics.CreateAPIView):
+class NoteTagGenerateView(generics.CreateAPIView):
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
 

@@ -7,10 +7,10 @@ from django.db import models
 from shortuuid.django_fields import ShortUUIDField
 
 from project.models import Project
-from tag.models import Tag
+from tag.models import Keyword
+from takeaway.models import Highlight
 from user.models import User
 from workspace.models import Workspace
-from takeaway.models import Highlight
 
 
 def validate_file_size(value):
@@ -50,7 +50,6 @@ class Note(models.Model):
     author = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name='notes')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='notes')
     workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE, related_name='notes')
-    tags = models.ManyToManyField(Tag, blank=True)
     company_name = models.CharField(max_length=255)
     revenue = models.CharField(max_length=6, choices=Revenue.choices, null=True)
     user_participants = models.ManyToManyField(User)
@@ -67,7 +66,7 @@ class Note(models.Model):
     is_auto_tagged = models.BooleanField(default=False)
     content = models.TextField()
     summary = models.TextField()
-    keywords = models.TextField()
+    keywords = models.ManyToManyField(Keyword, blank=True)
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
     analyzing_token = models.IntegerField(default=0)
     analyzing_cost = models.DecimalField(default=0, decimal_places=7, max_digits=11)

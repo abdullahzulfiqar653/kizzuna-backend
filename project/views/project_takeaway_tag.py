@@ -4,7 +4,7 @@ from tag.models import Tag
 from tag.serializers import TagSerializer
 
 
-class ProjectTakeawayTagListView(generics.ListAPIView):
+class ProjectTagListView(generics.ListAPIView):
     serializer_class = TagSerializer
     ordering = ['name']
 

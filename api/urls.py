@@ -3,13 +3,13 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from note.views import (NoteHighlightCreateView, NoteRetrieveUpdateDeleteView,
-                        NoteTagDestroyView, NoteTagListCreateView,
+                        NoteKeywordDestroyView, NoteKeywordListCreateView,
                         NoteTakeawayListCreateView,
-                        NoteTakeawayTagGenerateView)
+                        NoteTagGenerateView)
 from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
                            ProjectNoteListCreateView,
                            ProjectRetrieveUpdateDeleteView,
-                           ProjectTakeawayListView, ProjectTakeawayTagListView)
+                           ProjectTakeawayListView, ProjectTagListView)
 from project.views.project_insight import ProjectInsightListCreateView
 from takeaway.views import (InsightRetrieveUpdateDeleteView,
                             InsightTakeawayCreateDeleteView,
@@ -34,15 +34,15 @@ urlpatterns = [
     path('reports/<str:pk>/', NoteRetrieveUpdateDeleteView.as_view(), name='note-retrieve-update-delete'),
     path('reports/<str:report_id>/takeaways/', NoteTakeawayListCreateView.as_view(), name='note-takeaway-list-create'),
     path('reports/<str:report_id>/highlights/', NoteHighlightCreateView.as_view(), name='note-highlight-create'),
-    path('reports/<str:report_id>/tags/', NoteTagListCreateView.as_view(), name='note-tag-list-create'),
-    path('reports/<str:report_id>/tags/<str:tag_id>/', NoteTagDestroyView.as_view(), name='note-tag-destroy'),
-    path('reports/<str:report_id>/generate-tags/', NoteTakeawayTagGenerateView.as_view(), name='note-takeaway-tag-generate'),
+    path('reports/<str:report_id>/keywords/', NoteKeywordListCreateView.as_view(), name='note-keyword-list-create'),
+    path('reports/<str:report_id>/keywords/<str:keyword_id>/', NoteKeywordDestroyView.as_view(), name='note-keyword-destroy'),
+    path('reports/<str:report_id>/tags/generate/', NoteTagGenerateView.as_view(), name='note-tag-generate'),
 
     path('projects/<str:pk>/', ProjectRetrieveUpdateDeleteView.as_view(), name='project-retrieve-update-delete'),
     path('projects/<str:project_id>/users/', ProjectAuthUserListView.as_view(), name='project-user-list'),
     path('projects/<str:project_id>/reports/', ProjectNoteListCreateView.as_view(), name='project-note-list-create'),
     path('projects/<str:project_id>/takeaways/', ProjectTakeawayListView.as_view(), name='project-takeaway-list'),
-    path('projects/<str:project_id>/takeaway-tags/', ProjectTakeawayTagListView.as_view(), name='project-takeaway-tag-list'),
+    path('projects/<str:project_id>/tags/', ProjectTagListView.as_view(), name='project-tag-list'),
     path('projects/<str:project_id>/companies/', ProjectCompanyListView.as_view(), name='project-company-list'),
     path('projects/<str:project_id>/insights/', ProjectInsightListCreateView.as_view(), name='project-insight-list-create'),
 

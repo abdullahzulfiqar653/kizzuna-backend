@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 from note.models import Note
-from tag.serializers import TagSerializer
+from tag.serializers import KeywordSerializer
 from takeaway.models import Highlight
 from takeaway.serializers import HighlightSerializer
 from user.serializers import AuthUserSerializer
@@ -35,7 +35,7 @@ class NoteSerializer(serializers.ModelSerializer):
     is_analyzing = serializers.BooleanField(read_only=True)
     is_auto_tagged = serializers.BooleanField(read_only=True)
     file_type = serializers.CharField(read_only=True)
-    tags = TagSerializer(many=True, required=False)
+    keywords = KeywordSerializer(many=True, required=False)
     content = serializers.CharField(required=False, default='', allow_blank=True)
     summary = serializers.CharField(required=False, default='', allow_blank=True)
     highlights = SkipIdValidatorHighlightSerializer(many=True, required=False)
@@ -51,7 +51,7 @@ class NoteSerializer(serializers.ModelSerializer):
             'is_analyzing',
             'is_auto_tagged',
             'file_type',
-            'tags',
+            'keywords',
             'summary',
             'title',
             'created_at',
