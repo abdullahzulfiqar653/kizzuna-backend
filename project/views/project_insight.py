@@ -8,6 +8,20 @@ from takeaway.serializers import ProjectInsightSerializer
 class ProjectInsightListCreateView(generics.ListCreateAPIView):
     serializer_class = ProjectInsightSerializer
     queryset = Insight.objects.all()
+    ordering_fields = [
+        'created_at',
+        'takeaway_count',
+        'created_by__first_name',
+        'created_by__last_name',
+        'title',
+    ]
+    search_fields = [
+        'title',
+        'created_by__username',
+        'created_by__first_name',
+        'created_by__last_name',
+    ]
+    ordering = ['-created_at']
 
     def get_queryset(self):
         return (
