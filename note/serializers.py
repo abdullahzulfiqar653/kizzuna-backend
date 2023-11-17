@@ -9,6 +9,8 @@ from user.serializers import AuthUserSerializer
 
 
 class SkipIdValidatorHighlightSerializer(HighlightSerializer):
+    id = serializers.CharField(read_only=False)
+
     class Meta:
         model = Highlight
         fields = [
