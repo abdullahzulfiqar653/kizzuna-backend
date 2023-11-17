@@ -2,19 +2,20 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from note.views import (NoteHighlightCreateView, NoteRetrieveUpdateDeleteView,
-                        NoteKeywordDestroyView, NoteKeywordListCreateView,
-                        NoteTakeawayListCreateView,
-                        NoteTagGenerateView)
+from note.views import (NoteHighlightCreateView, NoteKeywordDestroyView,
+                        NoteKeywordListCreateView,
+                        NoteRetrieveUpdateDeleteView, NoteTagGenerateView,
+                        NoteTakeawayListCreateView)
 from project.views import (ProjectAuthUserListView, ProjectCompanyListView,
                            ProjectNoteListCreateView,
-                           ProjectRetrieveUpdateDeleteView,
-                           ProjectTakeawayListView, ProjectTagListView)
+                           ProjectRetrieveUpdateDeleteView, ProjectTagListView,
+                           ProjectTakeawayListView)
 from project.views.project_insight import ProjectInsightListCreateView
 from takeaway.views import (InsightRetrieveUpdateDeleteView,
-                            InsightTakeawayCreateDeleteView,
+                            InsightTakeawayListCreateView,
                             TakeawayRetrieveUpdateDeleteView,
                             TakeawayTagCreateView, TakeawayTagDestroyView)
+from takeaway.views.insight_takeaway import InsightTakeawayDeleteView
 from user.views import AuthUserRetrieveUpdateView
 from workspace.views import (WorkspaceListCreateView,
                              WorkspaceProjectListCreateView,
@@ -23,11 +24,9 @@ from workspace.views import (WorkspaceListCreateView,
 from .views import (DoPasswordResetView, InvitationSignupCreateView,
                     InvitationStatusRetrieveView, InviteUserView,
                     PasswordUpdateView, RequestPasswordResetView, SignupView,
-                    TokenObtainPairAndRefreshView, api_root)
+                    TokenObtainPairAndRefreshView)
 
 urlpatterns = [
-    path('', api_root, name='api-root'),
-
     path('token/', TokenObtainPairAndRefreshView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
@@ -55,7 +54,8 @@ urlpatterns = [
     path('takeaways/<str:takeaway_id>/tags/<str:tag_id>/', TakeawayTagDestroyView.as_view(), name='takeaway-tag-destroy'),
 
     path('insights/<str:pk>/', InsightRetrieveUpdateDeleteView.as_view(), name='insight-retrieve-update-delete'),
-    path('insights/<str:insight_id>/takeaways/', InsightTakeawayCreateDeleteView.as_view(), name='insight-takeaway-create-delete'),
+    path('insights/<str:insight_id>/takeaways/', InsightTakeawayListCreateView.as_view(), name='insight-takeaway-list-create'),
+    path('insights/<str:insight_id>/takeaways/delete/', InsightTakeawayDeleteView.as_view(), name='insight-takeaway-delete'),
 
     path('signup/', SignupView.as_view(), name='signup-create'),
     path('invitation/signup/', InvitationSignupCreateView.as_view(), name='invited-signup-create'),

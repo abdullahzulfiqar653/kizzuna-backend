@@ -7,6 +7,7 @@ from note.serializers import NoteCompanySerializer
 
 class ProjectCompanyListView(generics.ListAPIView):
     serializer_class = NoteCompanySerializer
+    queryset = Note.objects.all()
     ordering = ['name']
 
     def get_queryset(self):

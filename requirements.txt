@@ -6,7 +6,7 @@ django-environ==0.10.0
 Django==4.2.3
 djangorestframework-simplejwt==5.2.2
 djangorestframework==3.14.0
-drf-yasg==1.21.7
+drf-spectacular==0.26.5
 faster-whisper==0.7.1
 langchain==0.0.249
 openai==0.27.8

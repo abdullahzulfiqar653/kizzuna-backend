@@ -7,6 +7,7 @@ from rest_framework.test import APITestCase
 from note.models import Note
 from project.models import Project
 from takeaway.models import Insight, Takeaway
+from takeaway.serializers import TakeawaySerializer
 from workspace.models import Workspace
 
 
@@ -21,8 +22,8 @@ class TestInsightTakeawayView(APITestCase):
         self.user = User.objects.create_user(username='user', password='password')
         self.outsider = User.objects.create_user(username='outsider', password='password')
 
-        workspace = Workspace.objects.create(name='workspace')
-        self.project = Project.objects.create(name='project', workspace=workspace)
+        self.workspace = Workspace.objects.create(name='workspace')
+        self.project = Project.objects.create(name='project', workspace=self.workspace)
         self.insight = Insight.objects.create(title='insight', project=self.project, created_by=self.user)
         self.project.users.add(self.user)
 
@@ -34,7 +35,15 @@ class TestInsightTakeawayView(APITestCase):
         self.insight.takeaways.add(self.takeaway_in_insight)
 
         self.url = f'/api/insights/{self.insight.id}/takeaways/'
+        self.delete_url = f'/api/insights/{self.insight.id}/takeaways/delete/'
         return super().setUp()
+    
+    def test_user_list_insight_takeaways(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url)
+        expected_result = TakeawaySerializer(self.insight.takeaways.all(), many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json(), expected_result)
 
     def test_user_create_insight_takeaways(self):
         self.client.force_authenticate(self.user)
@@ -55,10 +64,13 @@ class TestInsightTakeawayView(APITestCase):
 
     def test_user_create_nonproject_insight_takeaways(self):
         self.client.force_authenticate(self.user)
+        other_project = Project.objects.create(name='other project', workspace=self.workspace)
+        other_project_note = Note.objects.create(title='other project note', project=other_project, author=self.user)
+        other_project_takeaway = Takeaway.objects.create(title='other project takeaway', note=other_project_note, created_by=self.user)
         data = {
             'takeaways': [
                 {
-                    'id': 'random_id',
+                    'id': other_project_takeaway.id,
                 },
             ]
         }
@@ -74,9 +86,14 @@ class TestInsightTakeawayView(APITestCase):
                 },
             ]
         }
-        response = self.client.delete(self.url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        response = self.client.post(self.delete_url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(self.insight.takeaways.contains(self.takeaway_in_insight))
+    
+    def test_outsider_list_insight_takeaways(self):
+        self.client.force_authenticate(self.outsider)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_outsider_create_insight_takeaways(self):
         self.client.force_authenticate(self.outsider)
@@ -102,5 +119,5 @@ class TestInsightTakeawayView(APITestCase):
                 },
             ]
         }
-        response = self.client.delete(self.url, data=data)
+        response = self.client.post(self.delete_url, data=data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

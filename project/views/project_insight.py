@@ -7,6 +7,7 @@ from takeaway.serializers import ProjectInsightSerializer
 
 class ProjectInsightListCreateView(generics.ListCreateAPIView):
     serializer_class = ProjectInsightSerializer
+    queryset = Insight.objects.all()
 
     def get_queryset(self):
         return (

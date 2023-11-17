@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'transcriber',
     'rest_framework',
     'corsheaders',
-    'drf_yasg',
+    'drf_spectacular',
     'django_filters',
 ]
 
@@ -71,6 +71,7 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
@@ -83,6 +84,14 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'NON_FIELD_ERRORS_KEY': 'detail',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Raijin Backend API',
+    'DESCRIPTION': 'API description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
 }
 
 SIMPLE_JWT = {

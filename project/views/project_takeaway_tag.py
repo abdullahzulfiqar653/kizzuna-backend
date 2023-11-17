@@ -6,6 +6,7 @@ from tag.serializers import TagSerializer
 
 class ProjectTagListView(generics.ListAPIView):
     serializer_class = TagSerializer
+    queryset = Tag.objects.all()
     ordering = ['name']
 
     def get_queryset(self):

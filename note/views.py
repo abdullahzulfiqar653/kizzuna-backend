@@ -4,6 +4,7 @@ from textwrap import dedent
 
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import PydanticOutputParser
@@ -16,8 +17,8 @@ from note.models import Note
 from note.serializers import NoteSerializer
 from tag.models import Keyword, Tag
 from tag.serializers import KeywordSerializer
-from takeaway.models import Takeaway, Highlight
-from takeaway.serializers import TakeawaySerializer, HighlightSerializer
+from takeaway.models import Highlight, Takeaway
+from takeaway.serializers import HighlightSerializer, TakeawaySerializer
 
 from .models import Note
 
@@ -156,6 +157,8 @@ class NoteKeywordListCreateView(generics.ListCreateAPIView):
         note.keywords.add(keyword)
 
 class NoteKeywordDestroyView(generics.DestroyAPIView):
+    serializer_class = KeywordSerializer
+
     def destroy(self, request, report_id, keyword_id):
         note = Note.objects.filter(pk=report_id, project__users=request.user).first()
         if note is None:
@@ -169,6 +172,7 @@ class NoteKeywordDestroyView(generics.DestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema(request=None, responses={200: None})
 class NoteTagGenerateView(generics.CreateAPIView):
     def create(self, request, report_id):
         note = get_object_or_404(Note, id=report_id)
