@@ -15,6 +15,7 @@ from takeaway.views import (InsightRetrieveUpdateDeleteView,
                             InsightTakeawayListCreateView,
                             TakeawayRetrieveUpdateDeleteView,
                             TakeawayTagCreateView, TakeawayTagDestroyView)
+from takeaway.views.insight_tag import InsightTagListView
 from takeaway.views.insight_takeaway import InsightTakeawayDeleteView
 from user.views import AuthUserRetrieveUpdateView
 from workspace.views import (WorkspaceListCreateView,
@@ -56,6 +57,7 @@ urlpatterns = [
     path('insights/<str:pk>/', InsightRetrieveUpdateDeleteView.as_view(), name='insight-retrieve-update-delete'),
     path('insights/<str:insight_id>/takeaways/', InsightTakeawayListCreateView.as_view(), name='insight-takeaway-list-create'),
     path('insights/<str:insight_id>/takeaways/delete/', InsightTakeawayDeleteView.as_view(), name='insight-takeaway-delete'),
+    path('insights/<str:insight_id>/tags/', InsightTagListView.as_view(), name='insight-tag-list'),
 
     path('signup/', SignupView.as_view(), name='signup-create'),
     path('invitation/signup/', InvitationSignupCreateView.as_view(), name='invited-signup-create'),
