@@ -79,6 +79,7 @@ class Note(models.Model):
     def __str__(self):
         return self.title
     
+    @property
     def highlights(self):
         return Highlight.objects.filter(note=self)
     
