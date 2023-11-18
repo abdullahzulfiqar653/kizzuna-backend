@@ -27,6 +27,30 @@ class TestProjectNoteListCreateView(APITestCase):
         self.url = f"/api/projects/{self.project.id}/reports/"
         return super().setUp()
 
+    def test_user_list_report_filter_type(self):
+        Note.objects.create(
+            title="Sample report",
+            project=self.project,
+            author=self.user,
+            type="Report-type-1",
+        )
+        Note.objects.create(
+            title="Sample report with the same type",
+            project=self.project,
+            author=self.user,
+            type="Report-type-1",
+        )
+        Note.objects.create(
+            title="Sample report with a different type",
+            project=self.project,
+            author=self.user,
+            type="Report-type-2",
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.get(f"{self.url}?type=Report-type-1")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
+
     def test_user_create_report_exceed_usage_minutes(self):
         Note.objects.create(
             title="Use up all usage minutes.",
