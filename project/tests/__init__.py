@@ -1,3 +1,0 @@
-from .test_project import TestProjectRetrieveUpdateDeleteView
-from .test_project_note import TestProjectNoteListCreateView
-from .test_project_takeaway import TestProjectTakeawayListView
