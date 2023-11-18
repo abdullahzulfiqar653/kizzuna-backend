@@ -48,3 +48,24 @@ class TestProjectCompanyListView(APITestCase):
             {"name": "Report-type-2"},
         ]
         self.assertEqual(response.json(), expected_results)
+
+    def test_user_list_report_types_in_project_with_search(self):
+        Note.objects.create(
+            title="Sample report",
+            project=self.project,
+            author=self.user,
+            type="Report-type-1",
+        )
+        Note.objects.create(
+            title="Sample report with a different type",
+            project=self.project,
+            author=self.user,
+            type="Report-type-2",
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.get(f"{self.url}?search=Report-type-1")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        expected_results = [
+            {"name": "Report-type-1"},
+        ]
+        self.assertEqual(response.json(), expected_results)

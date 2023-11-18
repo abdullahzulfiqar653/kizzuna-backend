@@ -9,6 +9,7 @@ class ProjectTypeListView(generics.ListAPIView):
     serializer_class = NameOnlySerializer
     queryset = Note.objects.all()
     ordering = ["name"]
+    search_fields = ["name"]
 
     def get_queryset(self):
         project_id = self.kwargs["project_id"]
