@@ -26,67 +26,66 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     serializer_class = ProjectNoteSerializer
     filterset_class = NoteFilter
     ordering_fields = [
-        'created_at',
-        'takeaway_count',
-        'author__first_name',
-        'author__last_name',
-        'company_name',
-        'title',
+        "created_at",
+        "takeaway_count",
+        "author__first_name",
+        "author__last_name",
+        "company_name",
+        "title",
     ]
     search_fields = [
-        'title',
-        'author__username',
-        'author__first_name',
-        'author__last_name',
-        'company_name',
+        "title",
+        "author__username",
+        "author__first_name",
+        "author__last_name",
+        "company_name",
     ]
-    ordering = ['-created_at']
+    ordering = ["-created_at"]
 
     def get_queryset(self):
-        project_id = self.kwargs['project_id']
+        project_id = self.kwargs["project_id"]
         project = get_object_or_404(Project, id=project_id)
         if not project.users.contains(self.request.user):
             raise exceptions.PermissionDenied
-        return (
-            project.notes
-            .annotate(takeaway_count=Count('takeaways'))
-            .annotate(participant_count=Count('user_participants'))
+        return project.notes.annotate(
+            takeaway_count=Count("takeaways"),
+            participant_count=Count("user_participants"),
         )
 
     def get_project(self):
-        project_id = self.kwargs.get('project_id')
+        project_id = self.kwargs.get("project_id")
         project = get_object_or_404(Project, id=project_id)
         if not project.users.contains(self.request.user):
             raise exceptions.PermissionDenied
         return project
 
     def to_dict(self, form_data):
-        data_file = form_data.get('data')
+        data_file = form_data.get("data")
         if not isinstance(data_file, UploadedFile):
-            raise serializers.ValidationError('`data` field must be a blob.')
+            raise serializers.ValidationError("`data` field must be a blob.")
         data = json.load(data_file)
-        data['file'] = form_data.get('file')
+        data["file"] = form_data.get("file")
         return data
 
     def get_serializer(self, *args, **kwargs):
         # Convert data to json if the request is multipart form
-        data = kwargs.get('data')
+        data = kwargs.get("data")
 
         if data is None:
             # If it is not POST request, data is None
             return super().get_serializer(*args, **kwargs)
 
         if isinstance(data, QueryDict):
-            kwargs['data'] = self.to_dict(data)
-            data = kwargs['data']
+            kwargs["data"] = self.to_dict(data)
+            data = kwargs["data"]
 
         # In multipart form, null will be treated as string instead of converting to None
         # We need to manually handle the null
-        if 'revenue' not in data or data['revenue'] == 'null':
-            data['revenue'] = None
+        if "revenue" not in data or data["revenue"] == "null":
+            data["revenue"] = None
 
-        if 'file' not in data or data['file'] == 'null':
-            data['file'] = None
+        if "file" not in data or data["file"] == "null":
+            data["file"] = None
 
         return super().get_serializer(*args, **kwargs)
 
@@ -96,7 +95,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         if note.file:
             thread = Thread(
                 target=self.analyze,
-                kwargs={'note': note},
+                kwargs={"note": note},
             )
             thread.start()
 
@@ -106,8 +105,8 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             and note.file_type in openai_transcriber.supported_filetypes
         ):
             audio_info = mediainfo(note.file.path)
-            note.file_duration = round(float(audio_info['duration']))
-            note.analyzing_cost += note.file_duration / 60 * 0.006
+            note.file_duration_seconds = round(float(audio_info["duration"]))
+            note.analyzing_cost += note.file_duration_seconds / 60 * 0.006
             note.save()
 
     def transcribe(self, note):
@@ -123,7 +122,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         with get_openai_callback() as callback:
             generate_takeaways(note)
             generate_metadata(note)
-            note.analyzing_token += callback.total_tokens
+            note.analyzing_tokens += callback.total_tokens
             note.analyzing_cost += callback.total_cost
         note.save()
 
@@ -131,17 +130,18 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         note.is_analyzing = True
         note.save()
         try:
-            print('========> Start transcribing')
+            print("========> Start transcribing")
             start = time()
             self.transcribe(note)
             self.update_audio_filesize(note)
             end = time()
-            print(f'Elapsed time: {end - start} seconds')
-            print('========> Start summarizing')
+            print(f"Elapsed time: {end - start} seconds")
+            print("========> Start summarizing")
             self.summarize(note)
-            print('========> End analyzing')
+            print("========> End analyzing")
         except Exception as e:
             import traceback
+
             traceback.print_exc()
         note.is_analyzing = False
         note.save()
