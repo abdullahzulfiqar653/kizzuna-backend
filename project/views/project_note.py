@@ -3,7 +3,8 @@ from threading import Thread
 from time import time
 
 from django.core.files.uploadedfile import UploadedFile
-from django.db.models import Count
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce, Round
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404
 from langchain.callbacks import get_openai_callback
@@ -17,6 +18,7 @@ from project.generators.metadata_generator import generate_metadata
 from project.generators.takeaway_generator import generate_takeaways
 from project.models import Project
 from transcriber.transcribers import omni_transcriber, openai_transcriber
+from workspace.models import Workspace
 
 transcriber = omni_transcriber
 
@@ -89,8 +91,26 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
 
         return super().get_serializer(*args, **kwargs)
 
+    def check_eligibility(self, project: Project):
+        workspace = (
+            Workspace.objects.filter(id=project.workspace.id)
+            .annotate(
+                usage_minutes=Coalesce(
+                    Round(Sum("projects__notes__file_duration_seconds") / 60),
+                    0,
+                )
+            )
+            .annotate(
+                usage_tokens=Coalesce(Sum("projects__notes__analyzing_tokens"), 0)
+            )
+            .first()
+        )
+        if (workspace.usage_minutes > 60) or (workspace.usage_tokens > 50_000):
+            raise exceptions.PermissionDenied("Quota limit is hit.")
+
     def perform_create(self, serializer):
         project = self.get_project()
+        self.check_eligibility(project)
         note = serializer.save(author=self.request.user, project=project)
         if note.file:
             thread = Thread(
