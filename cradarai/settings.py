@@ -260,3 +260,8 @@ INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60  # 3 days
 # STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
 
 FILTERS_NULL_CHOICE_LABEL = "null"
+
+# To make the link rendered by django https
+# Ref: https://stackoverflow.com/a/59071836/9577282
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
