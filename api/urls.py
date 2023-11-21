@@ -58,7 +58,9 @@ urlpatterns = [
         TokenRefreshView.as_view(),
         name="token_refresh",
     ),
+    # =====================================================
     # Reports
+    # =====================================================
     path(
         "reports/<str:pk>/",
         NoteRetrieveUpdateDeleteView.as_view(),
@@ -89,7 +91,9 @@ urlpatterns = [
         NoteTagGenerateView.as_view(),
         name="note-tag-generate",
     ),
+    # =====================================================
     # Projects
+    # =====================================================
     path(
         "projects/<str:pk>/",
         ProjectRetrieveUpdateDeleteView.as_view(),
@@ -130,7 +134,9 @@ urlpatterns = [
         ProjectInsightListCreateView.as_view(),
         name="project-insight-list-create",
     ),
+    # =====================================================
     # Workspace
+    # =====================================================
     path(
         "workspaces/",
         WorkspaceListCreateView.as_view(),
@@ -146,7 +152,9 @@ urlpatterns = [
         WorkspaceUserListView.as_view(),
         name="workspace-user-list",
     ),
+    # =====================================================
     # Takeaway
+    # =====================================================
     path(
         "takeaways/<str:pk>/",
         TakeawayRetrieveUpdateDeleteView.as_view(),
@@ -162,7 +170,9 @@ urlpatterns = [
         TakeawayTagDestroyView.as_view(),
         name="takeaway-tag-destroy",
     ),
+    # =====================================================
     # Insight
+    # =====================================================
     path(
         "insights/<str:pk>/",
         InsightRetrieveUpdateDeleteView.as_view(),
@@ -183,7 +193,9 @@ urlpatterns = [
         InsightTagListView.as_view(),
         name="insight-tag-list",
     ),
+    # =====================================================
     # Auth
+    # =====================================================
     path(
         "signup/",
         SignupView.as_view(),

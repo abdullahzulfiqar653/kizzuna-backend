@@ -4,12 +4,12 @@ from tag.models import Keyword, Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
-    id = serializers.CharField(read_only=True)
-    name = serializers.CharField(max_length=50, validators=[]) # Remove the unique validator
+    takeaway_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Tag
-        fields = ['id', 'name']
+        fields = ["id", "name", "project", "takeaway_count"]
+        validators = []  # To skip unique together constraint
 
     def create(self, validated_data):
         instance, _ = Tag.objects.get_or_create(**validated_data)
@@ -18,11 +18,13 @@ class TagSerializer(serializers.ModelSerializer):
 
 class KeywordSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
-    name = serializers.CharField(max_length=50, validators=[]) # Remove the unique validator
+    name = serializers.CharField(
+        max_length=50, validators=[]  # Remove the unique validator
+    )
 
     class Meta:
         model = Keyword
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
     def create(self, validated_data):
         instance, _ = Keyword.objects.get_or_create(**validated_data)

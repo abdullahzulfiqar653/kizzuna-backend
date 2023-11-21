@@ -92,7 +92,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API description",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
+    "SCHEMA_PATH_PREFIX": "/api/",
 }
 
 SIMPLE_JWT = {

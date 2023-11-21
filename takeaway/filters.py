@@ -28,11 +28,11 @@ def tags_in_scope(request):
 
     project_id = kwargs.get("project_id")
     if project_id is not None:
-        return Tag.objects.filter(takeaway__note__project_id=project_id)
+        return Tag.objects.filter(takeaways__note__project_id=project_id)
 
     insight_id = kwargs.get("insight_id")
     if insight_id is not None:
-        return Tag.objects.filter(takeaway__insights=insight_id)
+        return Tag.objects.filter(takeaways__insights=insight_id)
 
     return Tag.objects.none()
 

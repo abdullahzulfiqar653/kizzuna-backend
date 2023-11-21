@@ -17,7 +17,7 @@ class TakeawayTagCreateView(generics.CreateAPIView):
         if not project.users.contains(request.user):
             raise exceptions.PermissionDenied
 
-        serializer = TagSerializer(data=request.data)
+        serializer = TagSerializer(data={**request.data, "project": project.id})
         serializer.is_valid(raise_exception=True)
         tag = serializer.save()
         takeaway.tags.add(tag)
@@ -48,5 +48,5 @@ class TakeawayTagDestroyView(generics.DestroyAPIView):
         else:
             return Response(
                 {"detail": "Tag is not associated with the specified takeaway."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
