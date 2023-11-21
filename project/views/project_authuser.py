@@ -1,10 +1,11 @@
-
+from django.contrib.auth.models import User as AuthUser
 from rest_framework import exceptions, generics
 
 from user.serializers import AuthUserSerializer
 
 
 class ProjectAuthUserListView(generics.ListAPIView):
+    queryset = AuthUser.objects.all()
     serializer_class = AuthUserSerializer
     ordering = ['last_name']
     search_fields = [

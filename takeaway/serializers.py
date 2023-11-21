@@ -87,7 +87,6 @@ class ProjectInsightSerializer(serializers.ModelSerializer):
     created_by = AuthUserSerializer(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     takeaway_count = serializers.IntegerField(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Insight
@@ -97,7 +96,6 @@ class ProjectInsightSerializer(serializers.ModelSerializer):
             'created_at',
             'created_by',
             'takeaway_count',
-            'tags',
         ]
 
     def create(self, validated_data):
@@ -141,7 +139,23 @@ class InsightTakeawaysSerializer(serializers.Serializer):
     takeaways = InsightTakeawaySerializer(many=True)
 
     def create(self, validated_data):
-        insight = self.context['insight']
-        for takeaway in validated_data['takeaways']:
-            insight.takeaways.add(takeaway['id'])
-        return insight
+        insight: Insight = self.context['insight']
+        takeaway_ids = {takeaway['id'] for takeaway in validated_data['takeaways']}
+        # Skip adding takeaways that are already in insight
+        takeaways_to_add = (
+            Takeaway.objects
+            .filter(id__in=takeaway_ids)
+            .exclude(insights=insight)
+        )
+        for takeaway in takeaways_to_add:
+            insight.takeaways.add(takeaway)
+        return {'takeaways': takeaways_to_add}
+
+    def delete(self):
+        insight: Insight = self.context['insight']
+        takeaway_ids = {takeaway['id'] for takeaway in self.validated_data['takeaways']}
+        # Only remove takeaways that are in insight
+        takeaways_to_remove = insight.takeaways.filter(id__in=takeaway_ids)
+        for takeaway in takeaways_to_remove:
+            insight.takeaways.remove(takeaway)
+        self.instance = {'takeaways': takeaways_to_remove}

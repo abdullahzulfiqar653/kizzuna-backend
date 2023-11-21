@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User as AuthUser
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
@@ -12,6 +13,7 @@ from .serializers import WorkspaceSerializer
 
 
 class WorkspaceUserListView(generics.ListAPIView):
+    queryset = AuthUser.objects.all()
     serializer_class = UserSerializer
 
     def list(self, request, pk=None):
