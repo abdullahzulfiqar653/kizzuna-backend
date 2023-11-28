@@ -6,6 +6,7 @@ from takeaway.serializers import TakeawaySerializer
 
 
 class ProjectTakeawayListView(generics.ListAPIView):
+    queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
     filterset_class = TakeawayFilter
     ordering_fields = [

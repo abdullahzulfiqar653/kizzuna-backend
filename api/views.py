@@ -27,17 +27,6 @@ from project.models import Project
 from user.models import Invitation
 
 
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({
-        'notes': reverse('note-list-create', request=request, format=format),
-        'projects': reverse('project-list-create', request=request, format=format),
-        'workspaces': reverse('workspace-list-create', request=request, format=format),
-        'tags': reverse('tag-list-create', request=request, format=format),
-        'users': reverse('user-list-create', request=request, format=format),
-        'takeaways': reverse('takeaway-list-create', request=request, format=format),
-    })
-
 # Signup
 class SignupView(generics.CreateAPIView):
     queryset = AuthUser.objects.all()

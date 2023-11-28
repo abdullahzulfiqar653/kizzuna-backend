@@ -12,7 +12,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workspace
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
     def validate_name(self, value):
         name = value
@@ -23,13 +23,19 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-
-        workspace = Workspace(
-            name=validated_data.get('name')
-        )
+        workspace = Workspace(name=validated_data.get("name"))
         workspace.save()
 
-        request = self.context['request']
+        request = self.context["request"]
         request.user.workspaces.add(workspace)
 
         return workspace
+
+
+class WorkspaceUsageSerializer(WorkspaceSerializer):
+    usage_minutes = serializers.IntegerField(read_only=True)
+    usage_tokens = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Workspace
+        fields = ["id", "name", "usage_minutes", "usage_tokens"]

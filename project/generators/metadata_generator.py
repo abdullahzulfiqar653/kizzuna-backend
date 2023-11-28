@@ -13,7 +13,7 @@ from langchain.text_splitter import TokenTextSplitter
 from pydantic import BaseModel, Field, constr
 
 from note.models import Note
-from tag.models import Tag
+from tag.models import Keyword
 
 llm = ChatOpenAI()
 
@@ -92,5 +92,5 @@ def generate_metadata(note: Note):
     note.sentiment = metadata.get('sentiment')
     note.save()
     for keyword in metadata['keywords']:
-        tag, is_created = Tag.objects.get_or_create(name=keyword)
-        note.tags.add(tag)
+        keyword, is_created = Keyword.objects.get_or_create(name=keyword)
+        note.keywords.add(keyword)

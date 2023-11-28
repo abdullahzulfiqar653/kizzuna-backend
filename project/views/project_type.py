@@ -5,10 +5,11 @@ from note.models import Note
 from note.serializers import NameOnlySerializer
 
 
-class ProjectCompanyListView(generics.ListAPIView):
+class ProjectTypeListView(generics.ListAPIView):
     serializer_class = NameOnlySerializer
     queryset = Note.objects.all()
     ordering = ["name"]
+    search_fields = ["name"]
 
     def get_queryset(self):
         project_id = self.kwargs["project_id"]
@@ -18,7 +19,7 @@ class ProjectCompanyListView(generics.ListAPIView):
 
         return (
             Note.objects.filter(project=project)
-            .annotate(name=F("company_name"))
+            .annotate(name=F("type"))
             .values("name")
             .distinct()
         )
