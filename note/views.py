@@ -22,8 +22,6 @@ from tag.serializers import KeywordSerializer
 from takeaway.models import Highlight, Takeaway
 from takeaway.serializers import HighlightSerializer, TakeawaySerializer
 
-from .models import Note
-
 encoder = encoding_for_model("gpt-3.5-turbo")
 
 
