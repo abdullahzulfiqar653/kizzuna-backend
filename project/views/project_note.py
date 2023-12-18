@@ -32,7 +32,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         "takeaway_count",
         "author__first_name",
         "author__last_name",
-        "company_name",
+        "organizations__name",
         "title",
     ]
     search_fields = [
@@ -40,7 +40,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         "author__username",
         "author__first_name",
         "author__last_name",
-        "company_name",
+        "organizations__name",
     ]
     ordering = ["-created_at"]
 
