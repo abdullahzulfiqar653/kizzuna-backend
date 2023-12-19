@@ -29,7 +29,7 @@ from takeaway.views import (
 )
 from takeaway.views.insight_tag import InsightTagListView
 from takeaway.views.insight_takeaway import InsightTakeawayDeleteView
-from user.views import AuthUserRetrieveUpdateView
+from user.views import AuthUserRetrieveUpdateDestroyView
 from workspace.views import (
     WorkspaceListCreateView,
     WorkspaceProjectListCreateView,
@@ -218,7 +218,7 @@ urlpatterns = [
     ),
     path(
         "auth-users/",
-        AuthUserRetrieveUpdateView.as_view(),
+        AuthUserRetrieveUpdateDestroyView.as_view(),
         name="auth-user-retrieve-update",
     ),
     path(
