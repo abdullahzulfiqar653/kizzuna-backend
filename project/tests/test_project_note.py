@@ -51,6 +51,31 @@ class TestProjectNoteListCreateView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
 
+    def test_user_list_report_search(self):
+        Note.objects.create(
+            title="Sample report",
+            project=self.project,
+            author=self.user,
+            type="Report-type-1",
+        )
+        Note.objects.create(
+            title="Sample report with search term",
+            project=self.project,
+            author=self.user,
+            type="Report-type-1",
+        )
+        Note.objects.create(
+            title="Another sample report with search term",
+            project=self.project,
+            author=self.user,
+            type="Report-type-2",
+        )
+        self.client.force_authenticate(self.user)
+        url = f"/api/projects/{self.project.id}/reports/?search=search%20term"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
+
     def test_user_create_report(self):
         data = {
             "title": "User can create report.",

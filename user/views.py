@@ -4,7 +4,7 @@ from rest_framework import generics
 from .serializers import UserProfileUpdateSerializer
 
 
-class AuthUserRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+class AuthUserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = AuthUser.objects.all()
     serializer_class = UserProfileUpdateSerializer
 
