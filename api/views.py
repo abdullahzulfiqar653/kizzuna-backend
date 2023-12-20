@@ -123,7 +123,7 @@ class InviteUserView(generics.CreateAPIView):
         email_template = dedent('''
             Hi, you are invited to join our project "{project}" in workspace "{workspace}".
             Click the following link to go to the project: 
-            {frontend_url}/dashboard/projects/{project_id}/reports
+            {frontend_url}/projects/{project_id}/reports
         ''')
         auth_user_emails = [auth_user.username for auth_user in auth_users]
         for email in auth_user_emails:
