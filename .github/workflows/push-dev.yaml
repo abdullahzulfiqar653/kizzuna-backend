@@ -4,38 +4,64 @@ on:
   push:
     branches:
     - dev
+
 jobs:
-  Deployment:
+  DeployRaijin:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
-
     steps:
       - uses: actions/checkout@v2
-      - name: rsync deployments
+
+      - name: rsync raijin
         uses: burnett01/rsync-deployments@5.1
         with:
           switches: -avzr --delete --exclude="frontend" --exclude="media" --exclude="db" --exclude=".env" --exclude="**/__pycache__" --exclude="credentials"
           path: .
           remote_path: /home/ubuntu/cradar-backend
-          remote_host: ${{ vars.DEV_IP_ADDR }}
+          remote_host: ${{ vars.IP_ADDR_RAIJIN_DEV }}
           remote_user: ubuntu
-          remote_key: ${{ secrets.DEPLOY_KEY_DEV }}
+          remote_key: ${{ secrets.DEPLOY_KEY_RAIJIN_DEV }}
 
-  RunningCommands:
-    name: Start Application
-    needs: Deployment
-    runs-on: ubuntu-latest
-    steps:
-      - name: executing remote ssh commands using password
+      - name: running raijin
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ vars.DEV_IP_ADDR }}
+          host: ${{ vars.IP_ADDR_RAIJIN_DEV }}
           username: ubuntu
-          key: ${{ secrets.DEPLOY_KEY_DEV }}
+          key: ${{ secrets.DEPLOY_KEY_RAIJIN_DEV }}
           port: 22
           script: |
             cd /home/ubuntu/cradar-backend
+            docker-compose stop backend
+            docker-compose up -d backend
+
+  DeployKizunna:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: rsync kizunna
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete --exclude="frontend" --exclude="media" --exclude="db" --exclude=".env" --exclude="**/__pycache__" --exclude="credentials"
+          path: .
+          remote_path: /home/ubuntu/kizunna-backend
+          remote_host: ${{ vars.IP_ADDR_KIZUNNA_DEV }}
+          remote_user: ubuntu
+          remote_key: ${{ secrets.DEPLOY_KEY_KIZUNNA_DEV }}
+
+      - name: running kizunna
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.IP_ADDR_KIZUNNA_DEV }}
+          username: ubuntu
+          key: ${{ secrets.DEPLOY_KEY_KIZUNNA_DEV }}
+          port: 22
+          script: |
+            cd /home/ubuntu/kizunna-backend
             docker-compose stop backend
             docker-compose up -d backend
