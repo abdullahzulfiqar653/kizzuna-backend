@@ -138,6 +138,7 @@ class NoteHighlightCreateView(generics.CreateAPIView):
 class NoteKeywordListCreateView(generics.ListCreateAPIView):
     queryset = Keyword.objects.all()
     serializer_class = KeywordSerializer
+    ordering = ["title"]
 
     def get_queryset(self):
         auth_user = self.request.user

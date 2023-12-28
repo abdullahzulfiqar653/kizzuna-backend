@@ -19,6 +19,7 @@ from project.views import (
     ProjectTakeawayListView,
 )
 from project.views.project_insight import ProjectInsightListCreateView
+from project.views.project_keyword import ProjectKeywordListView
 from project.views.project_type import ProjectTypeListView
 from takeaway.views import (
     InsightRetrieveUpdateDeleteView,
@@ -125,9 +126,14 @@ urlpatterns = [
         name="project-organization-list",
     ),
     path(
+        "projects/<str:project_id>/keywords/",
+        ProjectKeywordListView.as_view(),
+        name="project-keyword-list",
+    ),
+    path(
         "projects/<str:project_id>/types/",
         ProjectTypeListView.as_view(),
-        name="project-types-list",
+        name="project-type-list",
     ),
     path(
         "projects/<str:project_id>/insights/",

@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 
 from note.models import Note
 from project.models import Project
+from tag.models import Keyword
 from workspace.models import Workspace
 
 
@@ -50,6 +51,29 @@ class TestProjectNoteListCreateView(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
+
+    def test_user_list_report_filter_keyword(self):
+        note_with_keyword = Note.objects.create(
+            title="Report with keyword",
+            project=self.project,
+            author=self.user,
+        )
+        keyword = Keyword.objects.create(name="keyword")
+        note_with_keyword.keywords.add(keyword)
+
+        Note.objects.create(
+            title="Report without keyword",
+            project=self.project,
+            author=self.user,
+        )
+
+        self.client.force_authenticate(self.user)
+        url = f"/api/projects/{self.project.id}/reports/?keyword=keyword"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["id"], note_with_keyword.id)
 
     def test_user_list_report_search(self):
         Note.objects.create(

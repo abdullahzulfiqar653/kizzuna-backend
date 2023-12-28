@@ -9,7 +9,7 @@ from project.models import Project
 from workspace.models import Workspace
 
 
-class TestProjectCompanyListView(APITestCase):
+class TestProjectTypeListView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")

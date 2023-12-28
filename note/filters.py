@@ -2,6 +2,7 @@ from django_filters import rest_framework as filters
 
 from note.models import Note, Organization
 from project.models import Project
+from tag.models import Keyword
 
 
 def notes_in_project(request):
@@ -19,6 +20,11 @@ def organizations_in_project(request):
     return Organization.objects.filter(project_id=project_id)
 
 
+def keywords_in_project(request):
+    project_id = request.parser_context["kwargs"]["project_id"]
+    return Keyword.objects.filter(note__project=project_id)
+
+
 class NoteFilter(filters.FilterSet):
     organization = filters.ModelMultipleChoiceFilter(
         field_name="organizations__name",
@@ -34,5 +40,10 @@ class NoteFilter(filters.FilterSet):
         field_name="author__username",
         to_field_name="username",
         queryset=auth_users_in_project,
+    )
+    keyword = filters.ModelMultipleChoiceFilter(
+        field_name="keywords__name",
+        to_field_name="name",
+        queryset=keywords_in_project,
     )
     created_at = filters.DateFromToRangeFilter(field_name="created_at")
