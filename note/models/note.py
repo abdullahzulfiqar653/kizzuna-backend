@@ -41,6 +41,7 @@ class Note(models.Model):
         PDF = "pdf"
         TXT = "txt"
         WAV = "wav"
+        M4A = "m4a"
 
     class Sentiment(models.TextChoices):
         POSITIVE = "Positive"
