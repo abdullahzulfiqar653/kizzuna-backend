@@ -10,6 +10,7 @@ from note.views import (
     NoteTagGenerateView,
     NoteTakeawayListCreateView,
 )
+from note.views.note_tag import NoteTagListView
 from project.views import (
     ProjectAuthUserListView,
     ProjectNoteListCreateView,
@@ -86,6 +87,11 @@ urlpatterns = [
         "reports/<str:report_id>/keywords/<str:keyword_id>/",
         NoteKeywordDestroyView.as_view(),
         name="note-keyword-destroy",
+    ),
+    path(
+        "reports/<str:report_id>/tags/",
+        NoteTagListView.as_view(),
+        name="note-tag-list",
     ),
     path(
         "reports/<str:report_id>/tags/generate/",
