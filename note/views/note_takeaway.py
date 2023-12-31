@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, generics
 
 from note.models import Note
+from takeaway.filters import TakeawayFilter
 from takeaway.models import Takeaway
 from takeaway.serializers import TakeawaySerializer
 
@@ -9,6 +10,7 @@ from takeaway.serializers import TakeawaySerializer
 class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
+    filterset_class = TakeawayFilter
     ordering_fields = [
         "created_at",
         "created_by__first_name",
