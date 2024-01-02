@@ -1,9 +1,8 @@
-from transcriber.transcribers.docx_transcriber import docx_transcriber
-from transcriber.transcribers.openai_transcriber import openai_transcriber
-from transcriber.transcribers.pdfium_transcriber import pdfium_transcriber
-from transcriber.transcribers.text_transcriber import text_transcriber
-
 from .base_transcriber import BaseTranscriber
+from .docx_transcriber import docx_transcriber
+from .openai_transcriber import openai_transcriber
+from .pdfium_transcriber import pdfium_transcriber
+from .text_transcriber import text_transcriber
 
 
 class OmniTranscriber(BaseTranscriber):

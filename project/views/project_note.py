@@ -17,7 +17,7 @@ from note.serializers import ProjectNoteSerializer
 from project.generators.metadata_generator import generate_metadata
 from project.generators.takeaway_generator import generate_takeaways
 from project.models import Project
-from transcriber.transcribers import omni_transcriber, openai_transcriber
+from project.transcribers import omni_transcriber, openai_transcriber
 from workspace.models import Workspace
 
 transcriber = omni_transcriber
