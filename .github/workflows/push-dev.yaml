@@ -7,10 +7,8 @@ on:
 
 jobs:
   deploy-raijin-dev:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
@@ -37,10 +35,8 @@ jobs:
             docker-compose up -d backend
 
   deploy-kizunna-dev:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
