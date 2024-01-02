@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - stg
+
 jobs:
   deploy-raijin-stg:
     runs-on: ubuntu-latest
