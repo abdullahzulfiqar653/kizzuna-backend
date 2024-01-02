@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "note",
     "tag",
     "takeaway",
-    "transcriber",
     "rest_framework",
     "corsheaders",
     "drf_spectacular",
