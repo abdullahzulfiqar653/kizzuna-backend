@@ -154,5 +154,11 @@ class ProjectNoteSerializer(NoteSerializer):
         fields = list(set(NoteSerializer.Meta.fields) - {"content", "highlights"})
 
 
-class NameOnlySerializer(serializers.Serializer):
+class ProjectTypeSerializer(serializers.Serializer):
     name = serializers.CharField()
+    report_count = serializers.IntegerField()
+
+
+class ProjectSentimentSerializer(serializers.Serializer):
+    name = serializers.ChoiceField(choices=Note.Sentiment.choices)
+    report_count = serializers.IntegerField()

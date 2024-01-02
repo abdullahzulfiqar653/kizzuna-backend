@@ -1,9 +1,15 @@
-from .note import NameOnlySerializer, NoteSerializer, ProjectNoteSerializer
+from .note import (
+    NoteSerializer,
+    ProjectNoteSerializer,
+    ProjectSentimentSerializer,
+    ProjectTypeSerializer,
+)
 from .organization import OrganizationSerializer
 
 __all__ = [
     NoteSerializer,
     OrganizationSerializer,
     ProjectNoteSerializer,
-    NameOnlySerializer,
+    ProjectTypeSerializer,
+    ProjectSentimentSerializer,
 ]

@@ -21,6 +21,7 @@ from project.views import (
 )
 from project.views.project_insight import ProjectInsightListCreateView
 from project.views.project_keyword import ProjectKeywordListView
+from project.views.project_sentiment import ProjectSentimentListView
 from project.views.project_type import ProjectTypeListView
 from takeaway.views import (
     InsightRetrieveUpdateDeleteView,
@@ -135,6 +136,11 @@ urlpatterns = [
         "projects/<str:project_id>/keywords/",
         ProjectKeywordListView.as_view(),
         name="project-keyword-list",
+    ),
+    path(
+        "projects/<str:project_id>/sentiments/",
+        ProjectSentimentListView.as_view(),
+        name="project-sentiment-list",
     ),
     path(
         "projects/<str:project_id>/types/",

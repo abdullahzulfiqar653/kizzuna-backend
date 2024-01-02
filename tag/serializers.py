@@ -21,10 +21,11 @@ class KeywordSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         max_length=50, validators=[]  # Remove the unique validator
     )
+    report_count = serializers.IntegerField(default=None, read_only=True)
 
     class Meta:
         model = Keyword
-        fields = ["id", "name"]
+        fields = ["id", "name", "report_count"]
 
     def create(self, validated_data):
         instance, _ = Keyword.objects.get_or_create(**validated_data)

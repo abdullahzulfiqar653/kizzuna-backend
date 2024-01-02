@@ -2,13 +2,13 @@ from django.db.models import Count, F
 from rest_framework import exceptions, generics
 
 from note.models import Note
-from note.serializers import ProjectTypeSerializer
+from note.serializers.note import ProjectSentimentSerializer
 
 
-class ProjectTypeListView(generics.ListAPIView):
-    serializer_class = ProjectTypeSerializer
+class ProjectSentimentListView(generics.ListAPIView):
+    serializer_class = ProjectSentimentSerializer
     queryset = Note.objects.all()
-    ordering = ["-report_count", "name"]
+    ordering = ["-report_count"]
     search_fields = ["name"]
 
     def get_queryset(self):
@@ -19,7 +19,7 @@ class ProjectTypeListView(generics.ListAPIView):
 
         return (
             Note.objects.filter(project=project)
-            .annotate(name=F("type"))
+            .annotate(name=F("sentiment"))
             .values("name")
             .annotate(report_count=Count("*"))
         )

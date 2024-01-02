@@ -56,6 +56,7 @@ class TestProjectKeywordListView(APITestCase):
             {
                 "id": keyword_in_project.id,
                 "name": keyword_in_project.name,
+                "report_count": 1,
             }
         ]
         self.assertEqual(response.json(), expected_results)
