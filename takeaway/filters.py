@@ -15,6 +15,10 @@ def auth_users_in_scope(request):
     if project_id is not None:
         return Project.objects.get(id=project_id).users.all()
 
+    report_id = kwargs.get("report_id")
+    if report_id is not None:
+        return AuthUser.objects.filter(projects__notes__id=report_id)
+
     insight_id = kwargs.get("insight_id")
     if insight_id is not None:
         return AuthUser.objects.filter(created_takeaways__insights=insight_id)
@@ -29,6 +33,10 @@ def tags_in_scope(request):
     project_id = kwargs.get("project_id")
     if project_id is not None:
         return Tag.objects.filter(takeaways__note__project_id=project_id)
+
+    report_id = kwargs.get("report_id")
+    if report_id is not None:
+        return Tag.objects.filter(takeaways__note_id=report_id)
 
     insight_id = kwargs.get("insight_id")
     if insight_id is not None:
