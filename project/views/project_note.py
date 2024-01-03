@@ -7,6 +7,7 @@ from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce, Round
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404
+from django.utils import translation
 from langchain.callbacks import get_openai_callback
 from pydub.utils import mediainfo
 from rest_framework import exceptions, generics, serializers
@@ -146,22 +147,26 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             note.analyzing_cost += callback.total_cost
         note.save()
 
-    def analyze(self, note):
+    def analyze(self, note: Note):
         note.is_analyzing = True
         note.save()
-        try:
-            print("========> Start transcribing")
-            start = time()
-            self.transcribe(note)
-            self.update_audio_filesize(note)
-            end = time()
-            print(f"Elapsed time: {end - start} seconds")
-            print("========> Start summarizing")
-            self.summarize(note)
-            print("========> End analyzing")
-        except Exception as e:
-            import traceback
 
-            traceback.print_exc()
-        note.is_analyzing = False
-        note.save()
+        with translation.override(note.project.language):
+            print(note.project.language)
+            print(translation.get_language())
+            try:
+                print("========> Start transcribing")
+                start = time()
+                self.transcribe(note)
+                self.update_audio_filesize(note)
+                end = time()
+                print(f"Elapsed time: {end - start} seconds")
+                print("========> Start summarizing")
+                self.summarize(note)
+                print("========> End analyzing")
+            except Exception as e:
+                import traceback
+
+                traceback.print_exc()
+            note.is_analyzing = False
+            note.save()

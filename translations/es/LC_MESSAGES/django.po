@@ -1,0 +1,124 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-02 11:09+0000\n"
+"PO-Revision-Date: 2024-01-02 19:13+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: api/templates/password_reset_email.html:2
+#, python-format
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s."
+msgstr ""
+
+#: api/templates/password_reset_email.html:4
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+#: api/templates/password_reset_email.html:10
+msgid "Your username, in case you’ve forgotten:"
+msgstr ""
+
+#: api/templates/password_reset_email.html:12
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: api/templates/password_reset_email.html:14
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+#: project/generators/metadata_generator.py:31
+msgid ""
+"You are a skilled professional known for exceptional ability to summarize "
+"texts."
+msgstr ""
+"Usted es un profesional cualificado conocido por su excepcional capacidad "
+"para resumir textos."
+
+#: project/generators/metadata_generator.py:37
+msgid "Summarize the following text."
+msgstr "Resuma el siguiente texto."
+
+#: project/generators/metadata_generator.py:56
+msgid "Title of the meeting. Should be concise but informative."
+msgstr "Título de la reunión. Debe ser conciso pero informativo."
+
+#: project/generators/metadata_generator.py:61
+msgid "A short paragraph describing what the meeting is about."
+msgstr "Un breve párrafo en el que se describa el tema de la reunión."
+
+#: project/generators/metadata_generator.py:65
+msgid "What is the meeting type?"
+msgstr "¿Cuál es el tipo de reunión?"
+
+#: project/generators/metadata_generator.py:68
+msgid "The 3 main points of the text."
+msgstr "Los 3 puntos principales del texto."
+
+#: project/generators/metadata_generator.py:71
+msgid "The sentiment of the text."
+msgstr "El sentimiento del texto."
+
+#: project/generators/metadata_generator.py:74
+msgid "The list of relevant keywords of the text."
+msgstr "La lista de palabras clave relevantes del texto."
+
+#: project/generators/metadata_generator.py:87
+msgid "Follow the function parameter schema strictly."
+msgstr "Siga estrictamente el esquema de parámetros de la función."
+
+#: project/generators/metadata_generator.py:91
+msgid "Extract data from the following summaries."
+msgstr "Extraiga los datos de los siguientes resúmenes."
+
+#: project/generators/takeaway_generator.py:19
+msgid "Topic of the takeaway, for grouping the takeaways."
+msgstr "Tema de la comida para llevar, para agrupar las comidas para llevar."
+
+#: project/generators/takeaway_generator.py:23
+msgid ""
+"What the takeaway is about. This should be an important message, issue, "
+"learning point or pain point of the text."
+msgstr ""
+"De qué se trata. Debe ser un mensaje importante, un tema, un punto de "
+"aprendizaje o un punto doloroso del texto."
+
+#: project/generators/takeaway_generator.py:29
+msgid "The reason why the takeaway is important."
+msgstr "La razón por la que la comida para llevar es importante."
+
+#: project/generators/takeaway_generator.py:35
+msgid "A list of ten to twenty important takeaways of the text."
+msgstr "Una lista de diez a veinte conclusiones importantes del texto."
+
+#: project/generators/takeaway_generator.py:47
+msgid ""
+"You are an experienced product analyst. You are experienced in identifying "
+"pain points and takeaways from user interviews."
+msgstr ""
+"Usted es un analista de productos con experiencia. Tienes experiencia en "
+"identificar puntos de dolor y conclusiones de entrevistas con usuarios."
+
+#: project/generators/takeaway_generator.py:55
+msgid ""
+"Identify Important Takeaways/Issues/Learning Points in the below given text "
+"and reasons why they are important."
+msgstr ""
+"Identifique los puntos importantes del siguiente texto y las razones por "
+"las que son importantes."
