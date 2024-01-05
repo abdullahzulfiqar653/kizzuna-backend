@@ -62,7 +62,7 @@ def generate_takeaways(note: Note):
         ]
     )
     takeaways_chain = create_structured_output_chain(
-        TakeawaysSchema.schema(), llm, prompt, verbose=True
+        TakeawaysSchema.model_json_schema(), llm, prompt, verbose=True
     )
 
     text_splitter = TokenTextSplitter(
