@@ -72,7 +72,7 @@ def generate_takeaways(note: Note):
     )
 
     bot = AuthUser.objects.get(username="bot@raijin.ai")
-    doc = Document(page_content=note.content)
+    doc = Document(page_content=note.get_content_text())
     docs = text_splitter.split_documents([doc])
     outputs = [takeaways_chain.invoke(doc.page_content) for doc in docs]
     pprint(outputs)

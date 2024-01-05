@@ -75,7 +75,7 @@ class Note(models.Model):
     file_duration_seconds = models.IntegerField(null=True)
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
-    content = models.TextField()
+    content = models.JSONField(null=True)
     summary = models.TextField()
     keywords = models.ManyToManyField(Keyword, blank=True)
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
@@ -105,3 +105,6 @@ class Note(models.Model):
             chars = string.ascii_letters[26:]
             self.code = "".join(random.choice(chars) for _ in range(3))
         super().save(*args, **kwargs)
+
+    def get_content_text(self):
+        return "\n".join([block["text"] for block in self.content["blocks"]])

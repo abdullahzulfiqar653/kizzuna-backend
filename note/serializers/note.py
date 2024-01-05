@@ -1,4 +1,6 @@
 # note/serializers.py
+import logging
+
 from django.db.models import Count
 from rest_framework import serializers
 
@@ -9,6 +11,8 @@ from tag.serializers import KeywordSerializer
 from takeaway.models import Highlight
 from takeaway.serializers import HighlightSerializer
 from user.serializers import AuthUserSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class SkipIdValidatorHighlightSerializer(HighlightSerializer):
@@ -41,9 +45,7 @@ class NoteSerializer(serializers.ModelSerializer):
     is_auto_tagged = serializers.BooleanField(read_only=True)
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
-    content = serializers.CharField(required=False, default="", allow_blank=True)
     summary = serializers.CharField(required=False, default="", allow_blank=True)
-    highlights = SkipIdValidatorHighlightSerializer(many=True, required=False)
     organizations = OrganizationSerializer(many=True)
 
     class Meta:
@@ -69,27 +71,7 @@ class NoteSerializer(serializers.ModelSerializer):
             "is_published",
             "file",
             "sentiment",
-            "highlights",
         ]
-
-    def validate_highlights(self, highlights):
-        note_id = self.context["view"].kwargs["pk"]
-        highlight_ids = {
-            highlight["id"]
-            for highlight in highlights
-            if "id" in highlight and highlight["id"]
-        }
-        db_highlights = Highlight.objects.filter(note_id=note_id)
-        db_highlight_ids = {highlight.id for highlight in db_highlights}
-        extra = highlight_ids - db_highlight_ids
-        if extra:
-            raise serializers.ValidationError(
-                "The highlight ids provided must match the existing highlight ids. "
-                f"Provided list contains the following extra highlight ids: {extra}. "
-            )
-
-        self.db_highlights = db_highlights
-        return highlights
 
     def create(self, validated_data):
         project_id = self.context["view"].kwargs["project_id"]
@@ -105,26 +87,65 @@ class NoteSerializer(serializers.ModelSerializer):
 
         return note
 
-    def update(self, instance, validated_data):
-        project = instance.project
-        highlights = validated_data.pop("highlights", None)
+    def update(self, note: Note, validated_data):
+        request = self.context["request"]
+        project = note.project
         organizations = validated_data.pop("organizations", None)
-        instance: Note = super().update(instance, validated_data)
+        note = super().update(note, validated_data)
 
-        if highlights is not None:
-            get_highlight = {
-                highlight["id"]: highlight
-                for highlight in highlights
-                if "id" in highlight and highlight["id"]
+        # Extract highlights from rich text and update
+        if note.content is None:
+            note.highlights.delete()
+        else:  # note.content is not None
+            input_highlights = dict()
+            new_highlight_id = None
+            for block in note.content["blocks"]:
+                for srange in block.get("inlineStyleRanges", []):
+                    if srange["style"] != "HIGHLIGHT":
+                        continue
+                    highlight_id = srange.get("id")
+                    if highlight_id is None:
+                        if new_highlight_id is None:
+                            highlight = Highlight.objects.create(
+                                note=note,
+                                created_by=request.user,
+                            )
+                            highlight_id = highlight.id
+                            new_highlight_id = highlight_id
+                        else:  # new_highlight_id is not None
+                            # All the highlights without highlight id will consider as
+                            # one single new highlight
+                            highlight_id = new_highlight_id
+                        # Add the highlight id for the highlights in
+                        # the note.content inlineStyleRanges
+                        srange["id"] = highlight_id
+                    start = srange["offset"]
+                    end = srange["offset"] + srange["length"]
+                    highlighted_text = block["text"][start:end]
+                    input_highlights.setdefault(highlight_id, "")
+                    input_highlights[highlight_id] += highlighted_text
+
+            db_highlights = {
+                highlight.id: highlight
+                for highlight in Highlight.objects.filter(note=note)
             }
-            for db_highlight in self.db_highlights:
-                highlight = get_highlight.get(db_highlight.id)
+            highlights_to_update = []
+            for highlight_id, highlight_title in input_highlights.items():
+                highlight = db_highlights.get(highlight_id)
                 if highlight is None:
-                    db_highlight.delete()
-                else:
-                    db_highlight.start = highlight["start"]
-                    db_highlight.end = highlight["end"]
-                    db_highlight.save()
+                    # The highlight id in the note.content doesn't match with
+                    # any of the highlights in the db. Will skip it.
+                    logger.warn(
+                        f"The highlight {highlight_id} is not found and skipped."
+                    )
+                    continue
+                highlight.title = highlight_title
+                highlights_to_update.append(highlight)
+            Highlight.objects.bulk_update(highlights_to_update, ["title"])
+            note.highlights.exclude(id__in=input_highlights.keys()).delete()
+            # We save the note again as we have added the highlight id
+            # to the newly created highlight in the content state.
+            note.save()
 
         if organizations is not None:
             organizations_to_add = []
@@ -134,7 +155,7 @@ class NoteSerializer(serializers.ModelSerializer):
                     name=organization_name, project=project
                 )
                 organizations_to_add.append(organization)
-            instance.organizations.set(organizations_to_add)
+            note.organizations.set(organizations_to_add)
             # Clean up
             (
                 Organization.objects.filter(project=project)
@@ -143,7 +164,7 @@ class NoteSerializer(serializers.ModelSerializer):
                 .delete()
             )
 
-        return instance
+        return note
 
 
 class ProjectNoteSerializer(NoteSerializer):

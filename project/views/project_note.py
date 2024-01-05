@@ -136,7 +136,9 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         language = note.project.language
         transcript = transcriber.transcribe(filepath, filetype, language)
         if transcript is not None:
-            note.content = transcript
+            note.content = {
+                "blocks": [{"text": block} for block in transcript.split("\n")]
+            }
             note.save()
 
     def summarize(self, note):

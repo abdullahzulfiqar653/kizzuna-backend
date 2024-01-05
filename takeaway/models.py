@@ -45,13 +45,7 @@ class Takeaway(models.Model):
 
 
 class Highlight(Takeaway):
-    start = models.IntegerField()
-    end = models.IntegerField()
-
-    def save(self, *args, **kwargs):
-        content = " ".join(self.note.content.split(" "))
-        self.title = content[self.start : self.end]
-        return super().save(*args, **kwargs)
+    pass
 
 
 class Insight(models.Model):

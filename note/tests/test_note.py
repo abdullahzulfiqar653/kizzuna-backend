@@ -67,41 +67,116 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
         workspace = Workspace.objects.create(name="workspace")
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
-
         self.note = Note.objects.create(
             title="note",
             project=self.project,
             author=self.user,
-            content="This is a sample text only.",
         )
+        self.single_line_highlight = Highlight.objects.create(
+            title="sample", note=self.note, created_by=self.user
+        )
+        self.multiline_highlight = Highlight.objects.create(
+            title="only.This", note=self.note, created_by=self.user
+        )
+        self.note.content = {
+            "blocks": [
+                {
+                    "text": "This is a sample text only.",
+                    "inlineStyleRanges": [
+                        {
+                            "style": "HIGHLIGHT",
+                            "offset": 10,
+                            "length": 6,
+                            "id": self.single_line_highlight.id,
+                        },
+                        {
+                            "style": "HIGHLIGHT",
+                            "offset": 22,
+                            "length": 5,
+                            "id": self.multiline_highlight.id,
+                        },
+                    ],
+                },
+                {
+                    "text": "This is a sample text in the second block.",
+                    "inlineStyleRanges": [
+                        {
+                            "style": "HIGHLIGHT",
+                            "offset": 0,
+                            "length": 4,
+                            "id": self.multiline_highlight.id,
+                        },
+                    ],
+                },
+            ]
+        }
+        self.highlight_count = 2
+        self.note.save()
         return super().setUp()
 
-    def test_highlight_remain_after_user_edit_note_content(self):
-        highlight = Highlight.objects.create(
-            start=10,
-            end=16,
-            note=self.note,
-            created_by=self.user,
-        )
+    def test_create_single_line_highlight(self):
         self.client.force_authenticate(self.user)
         url = f"/api/reports/{self.note.id}/"
-        data = {
-            "content": "This is an edited sample text.",
-            "highlights": [
-                {
-                    "id": highlight.id,
-                    "start": 18,
-                    "end": 24,
-                }
-            ],
-        }
+        content = self.note.content
+        # Add a new highlight "text" from the second block.
+        content["blocks"][1]["inlineStyleRanges"].append(
+            {
+                "style": "HIGHLIGHT",
+                "offset": 17,
+                "length": 4,
+            }
+        )
+        data = {"content": content}
         response = self.client.patch(url, data=data)
-        highlight.refresh_from_db()
+        self.note.refresh_from_db()
+        self.assertEqual(self.note.highlights.count(), self.highlight_count + 1)
+        last_created_highlight = self.note.highlights.order_by("created_at").last()
+        self.assertEqual(last_created_highlight.title, "text")
+
+    def test_create_multiline_highlight(self):
+        self.client.force_authenticate(self.user)
+        url = f"/api/reports/{self.note.id}/"
+        content = self.note.content
+        # Add a new highlight "text" that spans the first and second block.
+        content["blocks"][0]["inlineStyleRanges"].append(
+            {
+                "style": "HIGHLIGHT",
+                "offset": 22,
+                "length": 5,
+            }
+        )
+        content["blocks"][1]["inlineStyleRanges"].append(
+            {
+                "style": "HIGHLIGHT",
+                "offset": 0,
+                "length": 4,
+            }
+        )
+        data = {"content": content}
+        response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(self.note.highlights.contains(highlight))
-        self.assertEqual(highlight.title, "sample")
-        self.assertEqual(highlight.start, 18)
-        self.assertEqual(highlight.end, 24)
+        self.note.refresh_from_db()
+        self.assertEqual(self.note.highlights.count(), self.highlight_count + 1)
+        last_created_highlight = self.note.highlights.order_by("created_at").last()
+        self.assertTrue(last_created_highlight.title, "only.This")
+
+    def test_remove_content(self):
+        self.client.force_authenticate(self.user)
+        url = f"/api/reports/{self.note.id}/"
+        data = {"content": None}
+        response = self.client.patch(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.note.refresh_from_db()
+        self.assertEqual(self.note.highlights.count(), 0)
+
+    def test_remove_all_highlights_with_content(self):
+        self.client.force_authenticate(self.user)
+        url = f"/api/reports/{self.note.id}/"
+        data = {"content": {"blocks": [{"text": "Text with no highlights."}]}}
+        response = self.client.patch(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.note.refresh_from_db()
+        self.assertEqual(self.note.highlights.count(), 0)
 
     def test_user_update_note_organization(self):
         self.client.force_authenticate(self.user)

@@ -117,7 +117,7 @@ def generate_metadata(note: Note):
         chunk_overlap=config.chunk_overlap,
     )
 
-    doc = Document(page_content=note.content)
+    doc = Document(page_content=note.get_content_text())
     docs = text_splitter.split_documents([doc])
 
     output = map_reduce_chain.invoke(docs)
