@@ -219,7 +219,7 @@ urlpatterns = [
         name="invited-signup-create",
     ),
     path(
-        "invitation/status/",
+        "invitation/<str:token>/",
         InvitationStatusRetrieveView.as_view(),
         name="invitation-status-retrieve",
     ),
