@@ -12,7 +12,7 @@ djangorestframework-simplejwt = "==5.2.2"
 djangorestframework = "==3.14.0"
 drf-spectacular = "==0.26.5"
 faster-whisper = "==0.7.1"
-langchain = "==0.0.353"
+langchain = "==0.0.354"
 openai = "==0.27.8"
 pydub = "==0.25.1"
 shortuuid = "==1.0.11"
@@ -29,6 +29,8 @@ mysqlclient = "==2.1.1"
 [dev-packages]
 ipykernel = "*"
 pyperclip = "*"
+ipdb = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.10"
