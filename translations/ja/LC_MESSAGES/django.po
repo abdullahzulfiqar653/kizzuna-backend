@@ -1,0 +1,115 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-02 09:03+0000\n"
+"PO-Revision-Date: 2024-01-02 19:10+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: api/templates/password_reset_email.html:2
+#, python-format
+msgid ""
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s."
+msgstr ""
+
+#: api/templates/password_reset_email.html:4
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+#: api/templates/password_reset_email.html:10
+msgid "Your username, in case you’ve forgotten:"
+msgstr ""
+
+#: api/templates/password_reset_email.html:12
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: api/templates/password_reset_email.html:14
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+#: project/generators/metadata_generator.py:29
+msgid ""
+"You are a skilled professional known for exceptional ability to summarize "
+"texts."
+msgstr ""
+"あなたは、文章を要約する卓越した能力で知られる熟練したプロフェッショナルで"
+"す。"
+
+#: project/generators/metadata_generator.py:34
+msgid "Summarize the following text."
+msgstr "以下の文章を要約せよ。"
+
+#: project/generators/metadata_generator.py:54
+msgid "Title of the meeting. Should be concise but informative."
+msgstr "会議のタイトル。簡潔に、しかし有益に。"
+
+#: project/generators/metadata_generator.py:57
+msgid "A short paragraph describing what the meeting is about."
+msgstr "会議の内容を説明する短い段落。"
+
+#: project/generators/metadata_generator.py:59
+msgid "What is the meeting type?"
+msgstr "ミーティングのタイプは？"
+
+#: project/generators/metadata_generator.py:60
+msgid "The 3 main points of the text."
+msgstr "本文の3つのポイント。"
+
+#: project/generators/metadata_generator.py:62
+msgid "The sentiment of the text."
+msgstr "文章の感情。"
+
+#: project/generators/metadata_generator.py:65
+msgid "The list of relevant keywords of the text."
+msgstr "テキストの関連キーワードのリスト。"
+
+#: project/generators/takeaway_generator.py:18
+msgid "Topic of the takeaway, for grouping the takeaways."
+msgstr "持ち帰りをグループ化するための、持ち帰りのトピック。"
+
+#: project/generators/takeaway_generator.py:22
+msgid ""
+"What the takeaway is about. This should be an important message, issue, "
+"learning point or pain point of the text."
+msgstr ""
+"要点は何か。本文の重要なメッセージ、問題点、学習ポイント、痛点であること。"
+
+#: project/generators/takeaway_generator.py:28
+msgid "The reason why the takeaway is important."
+msgstr "持ち帰りが重要な理由。"
+
+#: project/generators/takeaway_generator.py:34
+msgid "A list of ten to twenty important takeaways of the text."
+msgstr "テキストから得られる10～20の重要な収穫のリスト。"
+
+#: project/generators/takeaway_generator.py:46
+msgid ""
+"You are an experienced product analyst. You are experienced in identifying "
+"pain points and takeaways from user interviews."
+msgstr ""
+"あなたは経験豊富な製品アナリストです。ユーザーインタビューからペインポイント"
+"や収穫を特定する経験をお持ちの方。"
+
+#: project/generators/takeaway_generator.py:54
+msgid ""
+"Identify Important Takeaways/Issues/Learning Points in the below given text "
+"and reasons why they are important."
+msgstr ""
+"以下の文章から、重要な要点／問題／学習ポイントを特定し、それが重要である理由"
+"を説明する。"

@@ -1,8 +1,0 @@
-<!-- templates/note/note_detail.html -->
-<h1>Attachment Detail</h1>
-<p>Name: {{ attachment.file.name }}</p>
-<p>Transcribed Content: {{ attachment.transcribed_content }}</p>
-<a href="{% url 'transcribe-create' note.id attachment.id %}">Transcribe</a>
-<!-- Add other note details here -->
-<!-- <a href="{% url 'note-update' note.id %}">Edit Note</a>
-<a href="{% url 'note-delete' note.id %}">Delete Note</a> -->

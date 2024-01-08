@@ -1,8 +1,0 @@
-<!-- templates/project/project_list.html -->
-<h1>Project List</h1>
-<ul>
-  {% for project in projects %}
-    <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
-  {% endfor %}
-</ul>
-<a href="{% url 'project-create' %}">Create New Project</a>

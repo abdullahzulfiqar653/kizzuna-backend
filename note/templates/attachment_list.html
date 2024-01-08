@@ -1,8 +1,0 @@
-<!-- templates/attachment/attachment_list.html -->
-<h1>attachment Listddd</h1>
-<ul>
-  {% for attachment in attachments %}
-    <li><a href="{% url 'attachment-detail' note.id attachment.id %}">{{ attachment.file.name }}</a></li>
-  {% endfor %}
-</ul>
-<a href="{% url 'attachment-create' note.id %}">Create New attachment</a>
