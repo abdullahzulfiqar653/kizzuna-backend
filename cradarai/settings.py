@@ -46,13 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "user",
-    "workspace",
-    "project",
-    "note",
-    "tag",
-    "takeaway",
-    "transcriber",
+    "api",
     "rest_framework",
     "corsheaders",
     "drf_spectacular",
@@ -97,8 +91,8 @@ SPECTACULAR_SETTINGS = {
 
 SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
-    "TOKEN_OBTAIN_SERIALIZER": "api.serializers.CustomTokenObtainPairSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "api.serializers.CustomTokenRefreshSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "api.serializers.auth.CustomTokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "api.serializers.auth.CustomTokenRefreshSerializer",
 }
 
 # Set SESSION_ENGINE to 'django.contrib.sessions.backends.db' for database-backed sessions
@@ -135,18 +129,17 @@ WSGI_APPLICATION = "cradarai.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": env("MASTER_DB_NAME"),
         "USER": env("MASTER_DB_USERNAME"),
         "PASSWORD": env("MASTER_DB_PASSWORD"),
         "HOST": env("MASTER_DB_HOST"),
         "PORT": env("MASTER_DB_PORT"),
         "ATOMIC_REQUESTS": True,
-        "OPTIONS": {
-            "sql_mode": "STRICT_TRANS_TABLES",
-        },
     },
 }
+
+AUTH_USER_MODEL = "api.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -177,6 +170,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
+
+LOCALE_PATHS = [os.path.join(BASE_DIR, "translations")]
 
 
 # Static files (CSS, JavaScript, Images)

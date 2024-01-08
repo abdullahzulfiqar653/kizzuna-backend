@@ -1,7 +1,0 @@
-<!-- templates/note/note_form.html -->
-<h1>Create/Edit Note</h1>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <input type="submit" value="Save">
-</form>
