@@ -2,43 +2,43 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from note.views import (
+from api.views.insight.insight import InsightRetrieveUpdateDeleteView
+from api.views.insight.insight_tag import InsightTagListView
+from api.views.insight.insight_takeaway import (
+    InsightTakeawayDeleteView,
+    InsightTakeawayListCreateView,
+)
+from api.views.note.note import NoteRetrieveUpdateDeleteView
+from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
-    NoteRetrieveUpdateDeleteView,
-    NoteTagGenerateView,
-    NoteTakeawayListCreateView,
 )
-from note.views.note_tag import NoteTagListView
-from project.views import (
-    ProjectAuthUserListView,
-    ProjectNoteListCreateView,
-    ProjectOrganizationListView,
-    ProjectRetrieveUpdateDeleteView,
-    ProjectTagListView,
-    ProjectTakeawayListView,
-)
-from project.views.project_insight import ProjectInsightListCreateView
-from project.views.project_keyword import ProjectKeywordListView
-from project.views.project_sentiment import ProjectSentimentListView
-from project.views.project_type import ProjectTypeListView
-from takeaway.views import (
-    InsightRetrieveUpdateDeleteView,
-    InsightTakeawayListCreateView,
-    TakeawayRetrieveUpdateDeleteView,
+from api.views.note.note_tag import NoteTagListView
+from api.views.note.note_tag_generate import NoteTagGenerateView
+from api.views.note.note_takeaway import NoteTakeawayListCreateView
+from api.views.project.project import ProjectRetrieveUpdateDeleteView
+from api.views.project.project_insight import ProjectInsightListCreateView
+from api.views.project.project_keyword import ProjectKeywordListView
+from api.views.project.project_note import ProjectNoteListCreateView
+from api.views.project.project_organization import ProjectOrganizationListView
+from api.views.project.project_sentiment import ProjectSentimentListView
+from api.views.project.project_tag import ProjectTagListView
+from api.views.project.project_takeaway import ProjectTakeawayListView
+from api.views.project.project_type import ProjectTypeListView
+from api.views.project.project_user import ProjectUserListView
+from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
+from api.views.takeaway.takeaway_tag import (
     TakeawayTagCreateView,
     TakeawayTagDestroyView,
 )
-from takeaway.views.insight_tag import InsightTagListView
-from takeaway.views.insight_takeaway import InsightTakeawayDeleteView
-from user.views import AuthUserRetrieveUpdateDestroyView
-from workspace.views import (
+from api.views.user import UserRetrieveUpdateDestroyView
+from api.views.workspace import (
     WorkspaceListCreateView,
     WorkspaceProjectListCreateView,
     WorkspaceUserListView,
 )
 
-from .views import (
+from .views.auth import (
     DoPasswordResetView,
     InvitationSignupCreateView,
     InvitationStatusRetrieveView,
@@ -103,7 +103,7 @@ urlpatterns = [
     ),
     path(
         "projects/<str:project_id>/users/",
-        ProjectAuthUserListView.as_view(),
+        ProjectUserListView.as_view(),
         name="project-user-list",
     ),
     path(
@@ -230,7 +230,7 @@ urlpatterns = [
     ),
     path(
         "auth-users/",
-        AuthUserRetrieveUpdateDestroyView.as_view(),
+        UserRetrieveUpdateDestroyView.as_view(),
         name="auth-user-retrieve-update",
     ),
     path(

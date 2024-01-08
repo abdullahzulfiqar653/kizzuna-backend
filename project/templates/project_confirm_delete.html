@@ -1,7 +1,0 @@
-<!-- templates/project/project_confirm_delete.html -->
-<h1>Delete Project</h1>
-<p>Are you sure you want to delete "{{ project.name }}"?</p>
-<form method="post">
-  {% csrf_token %}
-  <input type="submit" value="Confirm Delete">
-</form>
