@@ -11,15 +11,15 @@ from .user import User
 from .workspace import Workspace
 
 __all__ = [
-    Takeaway,
-    Highlight,
-    Insight,
-    Note,
-    Organization,
-    Project,
-    Tag,
-    User,
-    Keyword,
-    Invitation,
-    Workspace,
+    "Takeaway",
+    "Highlight",
+    "Insight",
+    "Note",
+    "Organization",
+    "Project",
+    "Tag",
+    "User",
+    "Keyword",
+    "Invitation",
+    "Workspace",
 ]

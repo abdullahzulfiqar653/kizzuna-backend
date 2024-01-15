@@ -26,7 +26,7 @@ class TestInsightTagView(APITestCase):
             username="outsider", password="password"
         )
 
-        self.workspace = Workspace.objects.create(name="workspace")
+        self.workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=self.workspace)
         self.insight = Insight.objects.create(
             title="insight", project=self.project, created_by=self.user

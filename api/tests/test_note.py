@@ -25,7 +25,7 @@ class TestNoteKeywordDestroyView(APITestCase):
             username="outsider", password="password"
         )
 
-        workspace = Workspace.objects.create(name="workspace")
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
 
@@ -64,7 +64,7 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(username="user", password="password")
 
-        workspace = Workspace.objects.create(name="workspace")
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         self.note = Note.objects.create(
