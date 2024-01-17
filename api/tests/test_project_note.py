@@ -226,7 +226,7 @@ class TestProjectNoteListCreateView(APITestCase):
         self.client.force_authenticate(self.user)
         url = f"/api/projects/{self.project.id}/reports/"
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_outsider_create_report(self):
         data = {

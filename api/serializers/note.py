@@ -46,7 +46,7 @@ class NoteSerializer(serializers.ModelSerializer):
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
     summary = serializers.CharField(required=False, default="", allow_blank=True)
-    organizations = OrganizationSerializer(many=True)
+    organizations = OrganizationSerializer(many=True, required=False)
 
     class Meta:
         model = Note
