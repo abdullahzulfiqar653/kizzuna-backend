@@ -63,6 +63,7 @@ class Note(models.Model):
     code = models.CharField(max_length=5)
     takeaway_sequence = models.IntegerField(default=0)
 
+    url = models.URLField(max_length=255, null=True)
     file = models.FileField(
         upload_to="attachments/",
         validators=[validate_file_size, validate_file_type],

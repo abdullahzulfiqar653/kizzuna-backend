@@ -1,5 +1,8 @@
+import json
 import logging
+import tempfile
 import unittest
+from unittest.mock import Mock, patch
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -109,6 +112,14 @@ class TestProjectNoteListCreateView(APITestCase):
                     "name": "Test company",
                 }
             ],
+            "keywords": [
+                {
+                    "name": "Keyword 1",
+                },
+                {
+                    "name": "Keyword 2",
+                },
+            ],
         }
         self.client.force_authenticate(self.user)
         url = f"/api/projects/{self.project.id}/reports/"
@@ -118,6 +129,51 @@ class TestProjectNoteListCreateView(APITestCase):
         response_json = response.json()
         note = Note.objects.get(id=response_json["id"])
         self.assertEqual(note.organizations.count(), 1)
+        self.assertEqual(note.keywords.count(), 2)
+
+    @patch("api.views.project.project_note.ProjectNoteListCreateView.analyze")
+    def test_user_create_report_with_file(self, mocked_analyze: Mock):
+        data = {
+            "title": "User can create report.",
+            "organizations": [
+                {
+                    "name": "Test company",
+                }
+            ],
+        }
+        with (
+            tempfile.NamedTemporaryFile("r+", suffix=".txt") as file,
+            tempfile.NamedTemporaryFile("r+", suffix=".json") as data_file,
+        ):
+            file.write("File content.")
+            file.seek(0)
+
+            json.dump(data, data_file)
+            data_file.seek(0)
+
+            self.client.force_authenticate(self.user)
+            url = f"/api/projects/{self.project.id}/reports/"
+            payload = {"file": file, "data": data_file}
+            response = self.client.post(url, data=payload, format="multipart")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            mocked_analyze.assert_called_once()
+
+    @patch("api.views.project.project_note.ProjectNoteListCreateView.analyze")
+    def test_user_create_report_with_url(self, mocked_analyze: Mock):
+        data = {
+            "title": "User can create report.",
+            "url": "www.example.com",
+            "organizations": [
+                {
+                    "name": "Test company",
+                }
+            ],
+        }
+        self.client.force_authenticate(self.user)
+        url = f"/api/projects/{self.project.id}/reports/"
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        mocked_analyze.assert_called_once()
 
     @unittest.expectedFailure
     def test_user_create_report_exceed_usage_minutes(self):

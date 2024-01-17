@@ -5,7 +5,7 @@ from .pdfium_transcriber import pdfium_transcriber
 from .text_transcriber import text_transcriber
 
 
-class OmniTranscriber(BaseTranscriber):
+class TranscriberRouter(BaseTranscriber):
     transcribers: list[BaseTranscriber] = [
         openai_transcriber,
         pdfium_transcriber,
@@ -28,4 +28,4 @@ class OmniTranscriber(BaseTranscriber):
                 return transcriber.transcribe(filepath, filetype, language)
 
 
-omni_transcriber = OmniTranscriber()
+transcriber_router = TranscriberRouter()

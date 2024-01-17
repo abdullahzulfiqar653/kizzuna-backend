@@ -1,6 +1,5 @@
 import json
 from threading import Thread
-from time import time
 
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count, Sum
@@ -8,25 +7,20 @@ from django.db.models.functions import Coalesce, Round
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404
 from django.utils import translation
-from langchain.callbacks import get_openai_callback
-from pydub.utils import mediainfo
 from rest_framework import exceptions, generics, serializers
 
+from api.ai.analyzer import NewNoteAnalyzer
 from api.filters.note import NoteFilter
-from api.generators.metadata_generator import generate_metadata
-from api.generators.takeaway_generator import generate_takeaways
 from api.models.note import Note
 from api.models.project import Project
 from api.models.workspace import Workspace
 from api.serializers.note import ProjectNoteSerializer
-from api.transcribers import omni_transcriber, openai_transcriber
-
-transcriber = omni_transcriber
 
 
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
     queryset = Note.objects.all()
     serializer_class = ProjectNoteSerializer
+    analyzer = NewNoteAnalyzer()
     filterset_class = NoteFilter
     ordering_fields = [
         "created_at",
@@ -89,6 +83,11 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         if "file" not in data or data["file"] == "null":
             data["file"] = None
 
+        if "url" in data and "://" not in data["url"]:
+            # Django URLValidator returns invalid if no schema
+            # so we manually add in the schema if not provided
+            data["url"] = "http://" + data["url"]
+
         return super().get_serializer(*args, **kwargs)
 
     def check_eligibility(self, project: Project):
@@ -112,62 +111,19 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         project = self.get_project()
         # self.check_eligibility(project)
         note = serializer.save(author=self.request.user, project=project)
-        if note.file:
+        if note.file or note.url:
             thread = Thread(
                 target=self.analyze,
                 kwargs={"note": note},
             )
             thread.start()
 
-    def update_audio_filesize(self, note):
-        if (
-            openai_transcriber in transcriber.transcribers
-            and note.file_type in openai_transcriber.supported_filetypes
-        ):
-            audio_info = mediainfo(note.file.path)
-            note.file_duration_seconds = round(float(audio_info["duration"]))
-            note.analyzing_cost += note.file_duration_seconds / 60 * 0.006
-            note.save()
-
-    def transcribe(self, note):
-        filepath = note.file.path
-        filetype = note.file_type
-        language = note.project.language
-        transcript = transcriber.transcribe(filepath, filetype, language)
-        if transcript is not None:
-            note.content = {
-                "blocks": [{"text": block} for block in transcript.split("\n")]
-            }
-            note.save()
-
-    def summarize(self, note):
-        with get_openai_callback() as callback:
-            generate_takeaways(note)
-            generate_metadata(note)
-            note.analyzing_tokens += callback.total_tokens
-            note.analyzing_cost += callback.total_cost
-        note.save()
-
     def analyze(self, note: Note):
         note.is_analyzing = True
         note.save()
 
         with translation.override(note.project.language):
-            print(note.project.language)
-            print(translation.get_language())
-            try:
-                print("========> Start transcribing")
-                start = time()
-                self.transcribe(note)
-                self.update_audio_filesize(note)
-                end = time()
-                print(f"Elapsed time: {end - start} seconds")
-                print("========> Start summarizing")
-                self.summarize(note)
-                print("========> End analyzing")
-            except Exception as e:
-                import traceback
+            self.analyzer.analyze(note)
 
-                traceback.print_exc()
-            note.is_analyzing = False
-            note.save()
+        note.is_analyzing = False
+        note.save()
