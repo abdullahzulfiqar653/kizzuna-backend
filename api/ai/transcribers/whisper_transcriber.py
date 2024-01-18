@@ -1,7 +1,7 @@
 from faster_whisper import WhisperModel
 
+from ..translator import google_translator
 from .base_transcriber import BaseTranscriber
-from .google_translator import google_translator
 
 
 class WhisperTranscriber(BaseTranscriber):

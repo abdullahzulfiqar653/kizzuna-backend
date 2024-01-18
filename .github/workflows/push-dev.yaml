@@ -61,4 +61,5 @@ jobs:
           script: |
             cd /home/ubuntu/kizunna-backend
             docker-compose build backend
+            docker-compose stop backend
             docker-compose up -d backend

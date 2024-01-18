@@ -5,6 +5,7 @@ from django.db.models import Count
 from rest_framework import serializers
 
 from api.models.highlight import Highlight
+from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.organization import Organization
 from api.serializers.organization import OrganizationSerializer
@@ -45,7 +46,7 @@ class NoteSerializer(serializers.ModelSerializer):
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
     summary = serializers.CharField(required=False, default="", allow_blank=True)
-    organizations = OrganizationSerializer(many=True)
+    organizations = OrganizationSerializer(many=True, required=False)
 
     class Meta:
         model = Note
@@ -68,12 +69,14 @@ class NoteSerializer(serializers.ModelSerializer):
             "type",
             "is_published",
             "file",
+            "url",
             "sentiment",
         ]
 
     def create(self, validated_data):
         project_id = self.context["view"].kwargs["project_id"]
-        organizations = validated_data.pop("organizations", None)
+        organizations = validated_data.pop("organizations", [])
+        keywords = validated_data.pop("keywords", [])
         note = Note.objects.create(**validated_data)
 
         for organization_dict in organizations:
@@ -83,6 +86,11 @@ class NoteSerializer(serializers.ModelSerializer):
             )
             note.organizations.add(organization)
 
+        for keyword_dict in keywords:
+            keyword_name = keyword_dict["name"]
+            keyword, _ = Keyword.objects.get_or_create(name=keyword_name)
+            note.keywords.add(keyword)
+
         return note
 
     def update(self, note: Note, validated_data):
@@ -91,7 +99,30 @@ class NoteSerializer(serializers.ModelSerializer):
         organizations = validated_data.pop("organizations", None)
         note = super().update(note, validated_data)
 
+        note = self.extract_highlights_from_content_state(note)
+
+        if organizations is not None:
+            organizations_to_add = []
+            for organization_dict in organizations:
+                organization_name = organization_dict["name"]
+                organization, _ = Organization.objects.get_or_create(
+                    name=organization_name, project=project
+                )
+                organizations_to_add.append(organization)
+            note.organizations.set(organizations_to_add)
+            # Clean up
+            (
+                Organization.objects.filter(project=project)
+                .annotate(note_count=Count("notes"))
+                .filter(note_count=0)
+                .delete()
+            )
+
+        return note
+
+    def extract_highlights_from_content_state(self, note):
         # Extract highlights from rich text and update
+        request = self.context["request"]
         if note.content is None:
             note.highlights.delete()
         else:  # note.content is not None
@@ -144,24 +175,6 @@ class NoteSerializer(serializers.ModelSerializer):
             # We save the note again as we have added the highlight id
             # to the newly created highlight in the content state.
             note.save()
-
-        if organizations is not None:
-            organizations_to_add = []
-            for organization_dict in organizations:
-                organization_name = organization_dict["name"]
-                organization, _ = Organization.objects.get_or_create(
-                    name=organization_name, project=project
-                )
-                organizations_to_add.append(organization)
-            note.organizations.set(organizations_to_add)
-            # Clean up
-            (
-                Organization.objects.filter(project=project)
-                .annotate(note_count=Count("notes"))
-                .filter(note_count=0)
-                .delete()
-            )
-
         return note
 
 
