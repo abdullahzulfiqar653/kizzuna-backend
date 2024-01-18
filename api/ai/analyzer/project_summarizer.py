@@ -57,7 +57,6 @@ class ProjectSummarizer:
         project.save()
 
     def summarize_all_projects(self):
-        print("Start summarizing:")
         for project in Project.objects.all():
             print(f"Summarizing project <{project.id}: {project.name}>")
             self.summarize_project(project)

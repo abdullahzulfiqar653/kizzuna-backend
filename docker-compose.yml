@@ -68,7 +68,7 @@ services:
   
   beat:
     image: backend
-    command: celery -A cradarai beat --loglevel=info --uid=nobody --gid=nogroup
+    command: celery -A cradarai beat --loglevel=info --uid=nobody --gid=nogroup -s /tmp/celerybeat-schedule
     volumes: *volumes
     depends_on:
       - backend
