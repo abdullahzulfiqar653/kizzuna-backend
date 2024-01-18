@@ -1,26 +1,23 @@
 import json
-from threading import Thread
 
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce, Round
 from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404
-from django.utils import translation
 from rest_framework import exceptions, generics, serializers
 
-from api.ai.analyzer import NewNoteAnalyzer
 from api.filters.note import NoteFilter
 from api.models.note import Note
 from api.models.project import Project
 from api.models.workspace import Workspace
 from api.serializers.note import ProjectNoteSerializer
+from api.tasks import analyze_note
 
 
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
     queryset = Note.objects.all()
     serializer_class = ProjectNoteSerializer
-    analyzer = NewNoteAnalyzer()
     filterset_class = NoteFilter
     ordering_fields = [
         "created_at",
@@ -112,18 +109,4 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         # self.check_eligibility(project)
         note = serializer.save(author=self.request.user, project=project)
         if note.file or note.url:
-            thread = Thread(
-                target=self.analyze,
-                kwargs={"note": note},
-            )
-            thread.start()
-
-    def analyze(self, note: Note):
-        note.is_analyzing = True
-        note.save()
-
-        with translation.override(note.project.language):
-            self.analyzer.analyze(note)
-
-        note.is_analyzing = False
-        note.save()
+            analyze_note.delay(note.id)

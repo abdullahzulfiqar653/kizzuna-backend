@@ -1,3 +1,4 @@
+from decimal import Decimal
 from time import time
 
 from django.utils import translation
@@ -35,7 +36,7 @@ class NewNoteAnalyzer:
         ):
             audio_info = mediainfo(note.file.path)
             note.file_duration_seconds = round(float(audio_info["duration"]))
-            note.analyzing_cost += note.file_duration_seconds / 60 * 0.006
+            note.analyzing_cost += note.file_duration_seconds * Decimal("0.0001")
             note.save()
 
     def download(self, note):

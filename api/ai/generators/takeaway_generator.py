@@ -8,11 +8,10 @@ from langchain.text_splitter import TokenTextSplitter
 from langchain_community.chat_models import ChatOpenAI
 from pydantic import BaseModel, Field
 
+from api.ai import config
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.user import User
-
-from . import config
 
 
 def generate_takeaways(note: Note):

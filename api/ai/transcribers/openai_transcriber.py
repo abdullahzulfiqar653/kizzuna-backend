@@ -4,11 +4,9 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_community.chat_models import ChatOpenAI
 from tiktoken import encoding_for_model
 
-from .base_transcriber import BaseTranscriber
+from api.ai import config
 
-model = "gpt-3.5-turbo-1106"
-chunk_size = 7000
-chunk_overlap = 100
+from .base_transcriber import BaseTranscriber
 
 
 class OpenAITranscriber(BaseTranscriber):
@@ -38,14 +36,14 @@ class OpenAITranscriber(BaseTranscriber):
         return self.paragraphing(segments)
 
     def paragraphing(self, segments):
-        encoder = encoding_for_model(model)
+        encoder = encoding_for_model(config.model)
         chain = self.get_paragraphing_chain()
         current_chunk_size = 0
         chunk = []
         paragraphs = []
         for segment in segments:
             segment_size = len(encoder.encode(segment))
-            if current_chunk_size + segment_size < chunk_size:
+            if current_chunk_size + segment_size < config.chunk_size:
                 current_chunk_size += segment_size
                 chunk.append(segment)
             else:
@@ -61,7 +59,7 @@ class OpenAITranscriber(BaseTranscriber):
         return "\n".join(paragraphs)
 
     def get_paragraphing_chain(self):
-        llm = ChatOpenAI(model=model)
+        llm = ChatOpenAI(model=config.model)
         prompt = ChatPromptTemplate.from_messages(
             [
                 (

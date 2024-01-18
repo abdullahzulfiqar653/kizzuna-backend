@@ -20,4 +20,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose port 8000 for the Django development server
 EXPOSE 8000
 
-ENTRYPOINT ["sh", "docker-entrypoint.sh"]
+CMD ["sh", "docker-entrypoint.sh"]

@@ -15,6 +15,7 @@ class Project(models.Model):
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     users = models.ManyToManyField(User, related_name="projects")
