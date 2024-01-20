@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 00:23+0000\n"
-"PO-Revision-Date: 2024-01-20 09:09+0800\n"
+"POT-Creation-Date: 2024-01-20 00:22+0000\n"
+"PO-Revision-Date: 2024-01-20 09:10+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: ja\n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.4.2\n"
 
 #: api/ai/analyzer/project_summarizer.py:22
@@ -28,96 +28,101 @@ msgid ""
 "report and provide strategic guidance to assist the user in making informed "
 "decisions."
 msgstr ""
-"以下は、一週間を通じてユーザーが作成した各レポートの個別サマリーである。ユー"
-"ザーにその週のレポートの包括的な概要を提供し、戦略的な提言を行うために、エグ"
-"ゼクティブサマリーを作成しています。このサマリーには、各レポートからの重要な"
-"洞察をまとめ、ユーザーが十分な情報に基づいた意思決定を行えるよう、戦略的な指"
-"針を示す必要があります。"
+"Hieronder volgen individuele samenvattingen voor elk rapport dat de "
+"gebruiker gedurende de week heeft gegenereerd. Om de gebruiker een "
+"uitgebreid overzicht te bieden van de rapporten van de week en strategische "
+"aanbevelingen te geven, stellen we graag een samenvatting samen. Deze "
+"samenvatting moet de belangrijkste inzichten uit elk rapport samenvatten en "
+"strategische richtlijnen bieden om de gebruiker te helpen weloverwogen "
+"beslissingen te nemen."
 
 #: api/ai/generators/metadata_generator.py:32
 msgid ""
 "You are a skilled professional known for exceptional ability to summarize "
 "texts."
 msgstr ""
-"あなたは、文章を要約する卓越した能力で知られる熟練したプロフェッショナルで"
-"す。"
+"Je bent een ervaren professional die bekend staat om zijn uitzonderlijke "
+"vermogen om teksten samen te vatten."
 
 #: api/ai/generators/metadata_generator.py:38
 msgid "Summarize the following text."
-msgstr "以下の文章を要約せよ。"
+msgstr "Vat de volgende tekst samen."
 
 #: api/ai/generators/metadata_generator.py:57
 msgid "Title of the meeting. Should be concise but informative."
-msgstr "会議のタイトル。簡潔に、しかし有益に。"
+msgstr "Titel van de vergadering. Moet beknopt maar informatief zijn."
 
 #: api/ai/generators/metadata_generator.py:62
 msgid "A short paragraph describing what the meeting is about."
-msgstr "会議の内容を説明する短い段落。"
+msgstr "Een korte alinea die beschrijft waar de vergadering over gaat."
 
 #: api/ai/generators/metadata_generator.py:66
 msgid "What is the meeting type?"
-msgstr "ミーティングのタイプは？"
+msgstr "Wat is het type vergadering?"
 
 #: api/ai/generators/metadata_generator.py:68
 msgid "Summary of the text."
-msgstr "本文の要約。"
+msgstr "Samenvatting van de tekst."
 
 #: api/ai/generators/metadata_generator.py:70
 msgid "The sentiment of the text."
-msgstr "文章の感情。"
+msgstr "Het sentiment van de tekst."
 
 #: api/ai/generators/metadata_generator.py:73
 msgid "The list of relevant keywords of the text."
-msgstr "テキストの関連キーワードのリスト。"
+msgstr "De lijst met relevante trefwoorden van de tekst."
 
 #: api/ai/generators/metadata_generator.py:86
 msgid "Follow the function parameter schema strictly."
-msgstr "関数パラメータスキーマに厳密に従いなさい。"
+msgstr "Volg het functieparameterschema strikt."
 
 #: api/ai/generators/metadata_generator.py:90
 msgid "Extract data from the following summaries."
-msgstr "以下の要約からデータを抽出してください。"
+msgstr "Extraheer gegevens uit de volgende samenvattingen."
 
 #: api/ai/generators/takeaway_generator.py:20
 msgid "Topic of the takeaway, for grouping the takeaways."
-msgstr "持ち帰りをグループ化するための、持ち帰りのトピック。"
+msgstr "Onderwerp van de takeaway, voor het groeperen van de takeaways."
 
 #: api/ai/generators/takeaway_generator.py:24
 msgid ""
 "What the takeaway is about. This should be an important message, issue, "
 "learning point or pain point of the text."
 msgstr ""
-"要点は何か。本文の重要なメッセージ、問題点、学習ポイント、痛点であること。"
+"Waar gaat de takeaway over. Dit moet een belangrijke boodschap, kwestie, "
+"leerpunt of pijnpunt van de tekst zijn."
 
 #: api/ai/generators/takeaway_generator.py:30
 msgid "The reason why the takeaway is important."
-msgstr "持ち帰りが重要な理由。"
+msgstr "De reden waarom de takeaway belangrijk is."
 
 #: api/ai/generators/takeaway_generator.py:36
 msgid "A list of ten to twenty important takeaways of the text."
-msgstr "テキストから得られる10～20の重要な収穫のリスト。"
+msgstr "Een lijst van tien tot twintig belangrijke takeaways van de tekst."
 
 #: api/ai/generators/takeaway_generator.py:48
 msgid ""
 "You are an experienced product analyst. You are experienced in identifying "
 "pain points and takeaways from user interviews."
 msgstr ""
-"あなたは経験豊富な製品アナリストです。ユーザーインタビューからペインポイント"
-"や収穫を特定する経験をお持ちの方。"
+"Je bent een ervaren productanalist. Je hebt ervaring met het identificeren "
+"van pijnpunten en 'takeaways' uit gebruikersinterviews."
 
 #: api/ai/generators/takeaway_generator.py:56
 msgid ""
 "Identify Important Takeaways/Issues/Learning Points in the below given text "
 "and reasons why they are important."
 msgstr ""
-"以下の文章から、重要な要点／問題／学習ポイントを特定し、それが重要である理由"
-"を説明する。"
+"Identificeer belangrijke afhaalpunten/problemen/leerpunten in de "
+"onderstaande tekst en redenen waarom ze belangrijk zijn."
 
 #: api/ai/transcribers/openai_transcriber.py:68
 msgid ""
 "Break the below text into paragraphs, and follow identically the words that "
 "were given - the only thing that should change is the paragraph breaks"
-msgstr "以下のテキストを段落に分割し、指定された単語と同じように従います"
+msgstr ""
+"Verdeel de onderstaande tekst in alinea's en volg identiek de woorden die "
+"zijn gegeven - het enige dat moet veranderen zijn de alinea-einden"
 
 #: api/templates/password_reset_email.html:2
 #, python-format
@@ -125,25 +130,22 @@ msgid ""
 "You're receiving this email because you requested a password reset for your "
 "user account at %(site_name)s."
 msgstr ""
-"この電子メールを受け取っているのは、%(site_name)s のユーザ・アカウントのパス"
-"ワード・リセットを要求したためです。"
+"Je ontvangt deze e-mail omdat je een nieuw wachtwoord hebt aangevraagd voor "
+"je gebruikersaccount bij %(site_name)s."
 
 #: api/templates/password_reset_email.html:4
 msgid "Please go to the following page and choose a new password:"
-msgstr "以下のページにアクセスして、新しいパスワードを選択してください："
+msgstr "Ga naar de volgende pagina en kies een nieuw wachtwoord:"
 
 #: api/templates/password_reset_email.html:10
 msgid "Your username, in case you’ve forgotten:"
-msgstr "ユーザー名はお忘れの場合に備えてください："
+msgstr "Je gebruikersnaam, voor het geval je het vergeten bent:"
 
 #: api/templates/password_reset_email.html:12
 msgid "Thanks for using our site!"
-msgstr "当サイトをご利用いただきありがとうございます！"
+msgstr "Bedankt voor het gebruik van onze site!"
 
 #: api/templates/password_reset_email.html:14
 #, python-format
 msgid "The %(site_name)s team"
-msgstr "%(site_name)sチーム"
-
-#~ msgid "The 3 main points of the text."
-#~ msgstr "本文の3つのポイント。"
+msgstr "Het %(site_name)s team"
