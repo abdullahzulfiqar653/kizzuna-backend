@@ -31,7 +31,8 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/kizunna-backend
-            docker image prune
+            docker image prune -f
+            docker builder prune -af
             docker-compose build backend
             docker-compose stop
             docker-compose up -d
