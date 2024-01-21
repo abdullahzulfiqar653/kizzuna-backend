@@ -24,8 +24,6 @@ services:
       dockerfile: Dockerfile
     env_file:
       - frontend/.env.local
-    volumes:
-      - ./frontend:/app
     ports:
       - "3000:4173"
     healthcheck:
@@ -64,18 +62,18 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - postgres-data:/var/lib/postgresql
+      - postgres-data:/var/lib/postgresql/data
   
   beat:
     image: backend
-    command: celery -A cradarai beat --loglevel=info --uid=nobody --gid=nogroup -s /tmp/celerybeat-schedule
+    command: celery -A cradarai beat --loglevel=info -s /tmp/celerybeat-schedule
     volumes: *volumes
     depends_on:
       - backend
 
   worker:
     image: backend
-    command: celery -A cradarai worker --loglevel=info --uid=nobody --gid=nogroup
+    command: celery -A cradarai worker --loglevel=info
     volumes: *volumes
     depends_on:
       - backend
