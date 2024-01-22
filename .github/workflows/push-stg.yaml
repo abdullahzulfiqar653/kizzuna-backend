@@ -36,3 +36,34 @@ jobs:
             docker-compose build backend
             docker-compose stop
             docker-compose up -d
+
+  deploy-kizunna-stg:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: rsync kizunna
+        uses: burnett01/rsync-deployments@5.1
+        with:
+          switches: -avzr --delete --exclude="frontend" --exclude="media" --exclude="db" --exclude=".env" --exclude="**/__pycache__" --exclude="credentials"
+          path: .
+          remote_path: /home/ubuntu/kizunna-backend
+          remote_host: ${{ vars.IP_ADDR_KIZUNNA_STG }}
+          remote_user: ubuntu
+          remote_key: ${{ secrets.DEPLOY_KEY_KIZUNNA_STG }}
+
+      - name: running kizunna
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.IP_ADDR_KIZUNNA_STG }}
+          username: ubuntu
+          key: ${{ secrets.DEPLOY_KEY_KIZUNNA_STG }}
+          port: 22
+          script: |
+            cd /home/ubuntu/kizunna-backend
+            docker image prune -f
+            docker builder prune -af
+            docker-compose build backend
+            docker-compose stop
+            docker-compose up -d
