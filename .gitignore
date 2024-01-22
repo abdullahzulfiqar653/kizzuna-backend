@@ -8,3 +8,4 @@ media
 note/test
 credentials
 .vscode
+celerybeat-schedule

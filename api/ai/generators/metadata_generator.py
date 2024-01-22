@@ -16,10 +16,9 @@ from langchain.text_splitter import TokenTextSplitter
 from langchain_community.chat_models import ChatOpenAI
 from pydantic import BaseModel, Field, constr
 
+from api.ai import config
 from api.models.keyword import Keyword
 from api.models.note import Note
-
-from . import config
 
 
 def generate_metadata(note: Note):

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from time import time
 
 from django.utils import translation
@@ -17,15 +18,16 @@ web_downloader = WebDownloader()
 
 
 class NewNoteAnalyzer:
+    def to_content_state(self, text):
+        return {"blocks": [{"text": block} for block in text.split("\n")]}
+
     def transcribe(self, note):
         filepath = note.file.path
         filetype = note.file_type
         language = note.project.language
         transcript = transcriber.transcribe(filepath, filetype, language)
         if transcript is not None:
-            note.content = {
-                "blocks": [{"text": block} for block in transcript.split("\n")]
-            }
+            note.content = self.to_content_state(transcript)
             note.save()
 
     def update_audio_filesize(self, note):
@@ -35,15 +37,15 @@ class NewNoteAnalyzer:
         ):
             audio_info = mediainfo(note.file.path)
             note.file_duration_seconds = round(float(audio_info["duration"]))
-            note.analyzing_cost += note.file_duration_seconds / 60 * 0.006
+            note.analyzing_cost += note.file_duration_seconds * Decimal("0.0001")
             note.save()
 
     def download(self, note):
         if youtube_downloader.is_youtube_link(note.url):
             content = youtube_downloader.download(note.url)
+            note.content = self.to_content_state(content)
         else:
-            content = web_downloader.download(note.url)
-        note.content = content
+            note.content = web_downloader.download(note.url)
         note.save()
 
     def summarize(self, note):
@@ -51,7 +53,7 @@ class NewNoteAnalyzer:
             generate_takeaways(note)
             generate_metadata(note)
             note.analyzing_tokens += callback.total_tokens
-            note.analyzing_cost += callback.total_cost
+            note.analyzing_cost += Decimal(callback.total_cost)
         note.save()
 
     def analyze(self, note: Note):

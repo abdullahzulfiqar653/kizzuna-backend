@@ -31,5 +31,8 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/cradar-backend
+            docker image prune -f
+            docker builder prune -af
             docker-compose build backend
-            docker-compose up -d backend
+            docker-compose stop
+            docker-compose up -d

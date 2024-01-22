@@ -131,7 +131,7 @@ class TestProjectNoteListCreateView(APITestCase):
         self.assertEqual(note.organizations.count(), 1)
         self.assertEqual(note.keywords.count(), 2)
 
-    @patch("api.views.project.project_note.ProjectNoteListCreateView.analyze")
+    @patch("api.tasks.analyze.delay")
     def test_user_create_report_with_file(self, mocked_analyze: Mock):
         data = {
             "title": "User can create report.",
@@ -158,7 +158,7 @@ class TestProjectNoteListCreateView(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             mocked_analyze.assert_called_once()
 
-    @patch("api.views.project.project_note.ProjectNoteListCreateView.analyze")
+    @patch("api.tasks.analyze.delay")
     def test_user_create_report_with_url(self, mocked_analyze: Mock):
         data = {
             "title": "User can create report.",
