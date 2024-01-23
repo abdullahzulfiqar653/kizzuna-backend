@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 00:22+0000\n"
+"POT-Creation-Date: 2024-01-23 10:25+0000\n"
 "PO-Revision-Date: 2024-01-20 09:06+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,8 +29,8 @@ msgid ""
 "decisions."
 msgstr ""
 "Di seguito sono riportati i singoli riepiloghi di ogni rapporto generato "
-"dall'utente nel corso della settimana. Per offrire all'utente una "
-"panoramica completa dei rapporti della settimana e fornire raccomandazioni "
+"dall'utente nel corso della settimana. Per offrire all'utente una panoramica"
+" completa dei rapporti della settimana e fornire raccomandazioni "
 "strategiche, è opportuno compilare un riepilogo esecutivo. Questo riepilogo "
 "dovrebbe racchiudere le intuizioni chiave di ogni rapporto e fornire una "
 "guida strategica per aiutare l'utente a prendere decisioni informate."
@@ -59,25 +59,47 @@ msgstr "Un breve paragrafo che descriva il tema della riunione."
 msgid "What is the meeting type?"
 msgstr "Qual è il tipo di riunione?"
 
-#: api/ai/generators/metadata_generator.py:68
-msgid "Summary of the text."
+#: api/ai/generators/metadata_generator.py:69
+#, fuzzy
+#| msgid "Summary of the text."
+msgid "Summary of the text in point form."
 msgstr "Sintesi del testo."
 
-#: api/ai/generators/metadata_generator.py:70
+#: api/ai/generators/metadata_generator.py:72
 msgid "The sentiment of the text."
 msgstr "Il sentimento del testo."
 
-#: api/ai/generators/metadata_generator.py:73
+#: api/ai/generators/metadata_generator.py:75
 msgid "The list of relevant keywords of the text."
 msgstr "L'elenco delle parole chiave rilevanti del testo."
 
-#: api/ai/generators/metadata_generator.py:86
+#: api/ai/generators/metadata_generator.py:88
 msgid "Follow the function parameter schema strictly."
 msgstr "Seguire rigorosamente lo schema dei parametri della funzione."
 
-#: api/ai/generators/metadata_generator.py:90
+#: api/ai/generators/metadata_generator.py:92
 msgid "Extract data from the following summaries."
 msgstr "Estrarre i dati dai seguenti riepiloghi."
+
+#: api/ai/generators/tag_generator.py:42
+msgid "The id and the corresponding generated tags."
+msgstr "L&#39;ID e i tag generati corrispondenti."
+
+#: api/ai/generators/tag_generator.py:45
+msgid "ID of the takeaway. For example: '322xBv9XpAbD'"
+msgstr "ID del takeaway. Ad esempio: &#39;322xBv9XpAbD&#39;"
+
+#: api/ai/generators/tag_generator.py:48
+msgid "List of generated tags"
+msgstr "Elenco dei tag generati"
+
+#: api/ai/generators/tag_generator.py:52
+msgid "A list of takeaways with their relevant tags."
+msgstr "Un elenco di takeaway con i relativi tag."
+
+#: api/ai/generators/tag_generator.py:61
+msgid "Generate tags for each of the given takeaways."
+msgstr "Genera tag per ciascuno dei takeaway indicati."
 
 #: api/ai/generators/takeaway_generator.py:20
 msgid "Topic of the takeaway, for grouping the takeaways."
@@ -115,14 +137,14 @@ msgstr ""
 "Identificate i punti importanti da cui trarre spunto e le ragioni per cui "
 "sono importanti nel testo che segue."
 
-#: api/ai/transcribers/openai_transcriber.py:68
+#: api/ai/paragrapher.py:40
 msgid ""
 "Break the below text into paragraphs, and follow identically the words that "
 "were given - the only thing that should change is the paragraph breaks"
 msgstr ""
-"Suddividete il testo sottostante in paragrafi e seguite le stesse parole "
-"che sono state date - l'unica cosa che dovrebbe cambiare sono le "
-"interruzioni di paragrafo"
+"Suddividete il testo sottostante in paragrafi e seguite le stesse parole che"
+" sono state date - l'unica cosa che dovrebbe cambiare sono le interruzioni "
+"di paragrafo"
 
 #: api/templates/password_reset_email.html:2
 #, python-format

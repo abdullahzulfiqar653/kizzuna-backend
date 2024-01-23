@@ -39,11 +39,7 @@ def generate_tags(note: Note):
 
 def get_chain():
     class TakeawaySchema(BaseModel):
-        __doc__ = gettext(
-            """
-            The id and the corresponding generated tags.
-            """
-        )
+        __doc__ = gettext("The id and the corresponding generated tags.")
 
         id: str = Field(
             description=gettext("ID of the takeaway. For example: '322xBv9XpAbD'")
