@@ -15,6 +15,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "summarize-projects": {
         "task": "api.tasks.summarize_projects",
-        "schedule": crontab(minute=0, hour=9, day_of_week=1),
+        "schedule": crontab(minute=0, hour=0, day_of_week=1),
     },
 }

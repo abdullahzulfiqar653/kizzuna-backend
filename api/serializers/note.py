@@ -45,7 +45,7 @@ class NoteSerializer(serializers.ModelSerializer):
     is_auto_tagged = serializers.BooleanField(read_only=True)
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
-    summary = serializers.CharField(required=False, default="", allow_blank=True)
+    summary = serializers.JSONField(required=False, default=[])
     organizations = OrganizationSerializer(many=True, required=False)
 
     class Meta:
