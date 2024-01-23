@@ -68,8 +68,8 @@ class TakeawayFilter(filters.FilterSet):
     report_id = filters.ModelMultipleChoiceFilter(
         field_name="note", to_field_name="id", queryset=notes_in_scope
     )
-    status = filters.MultipleChoiceFilter(choices=Takeaway.Status.choices)
+    priority = filters.MultipleChoiceFilter(choices=Takeaway.Priority.choices)
 
     class Meta:
         model = Takeaway
-        fields = ["status", "tag", "created_by"]
+        fields = ["priority", "tag", "created_by"]

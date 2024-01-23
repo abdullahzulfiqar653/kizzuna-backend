@@ -6,10 +6,10 @@ from api.models.user import User
 
 
 class Takeaway(models.Model):
-    class Status(models.TextChoices):
-        OPEN = "Open"
-        ONHOLD = "Onhold"
-        CLOSE = "Closed"
+    class Priority(models.TextChoices):
+        LOW = "Low"
+        MED = "Med"
+        HIGH = "High"
 
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     title = models.TextField()
@@ -25,7 +25,7 @@ class Takeaway(models.Model):
     upvoted_by = models.ManyToManyField(
         User, related_name="upvoted_takeaways", related_query_name="upvoted_takeaways"
     )
-    status = models.CharField(max_length=6, choices=Status.choices, default=Status.OPEN)
+    priority = models.CharField(max_length=4, choices=Priority.choices, null=True)
     note = models.ForeignKey(
         "api.Note", on_delete=models.CASCADE, related_name="takeaways"
     )

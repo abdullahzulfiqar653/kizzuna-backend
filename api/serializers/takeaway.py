@@ -29,7 +29,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "title",
             "tags",
             "description",
-            "status",
+            "priority",
             "created_by",
             "report",
             "created_at",
