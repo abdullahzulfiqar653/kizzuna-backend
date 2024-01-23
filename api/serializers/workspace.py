@@ -33,7 +33,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         return workspace
 
 
-class WorkspaceUsageSerializer(WorkspaceSerializer):
+class WorkspaceDetailSerializer(WorkspaceSerializer):
     usage_minutes = serializers.IntegerField(read_only=True)
     usage_tokens = serializers.IntegerField(read_only=True)
 

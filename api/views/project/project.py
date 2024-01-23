@@ -4,12 +4,12 @@ from rest_framework import generics
 
 from api.models.project import Project
 from api.models.workspace import Workspace
-from api.serializers.project import ProjectUsageSerializer
+from api.serializers.project import ProjectDetailSerializer
 
 
 class ProjectRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
-    serializer_class = ProjectUsageSerializer
+    serializer_class = ProjectDetailSerializer
 
     def get_queryset(self):
         return self.request.user.projects.prefetch_related(
