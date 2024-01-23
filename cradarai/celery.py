@@ -12,7 +12,6 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 
 app.autodiscover_tasks()
 
-print("register celery")
 app.conf.beat_schedule = {
     "summarize-projects": {
         "task": "api.tasks.summarize_projects",
