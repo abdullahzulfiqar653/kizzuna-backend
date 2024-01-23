@@ -5,10 +5,10 @@ from django.db.models.query import QuerySet
 from django.utils.translation import gettext
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain.prompts import ChatPromptTemplate
+from langchain_community.chat_models import ChatOpenAI
 from langchain_community.utils.openai_functions import (
     convert_pydantic_to_openai_function,
 )
-from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field, constr
 from tiktoken import encoding_for_model
 
