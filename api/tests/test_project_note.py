@@ -31,7 +31,7 @@ class TestProjectNoteListCreateView(APITestCase):
         self.project.users.add(self.user)
         return super().setUp()
 
-    def test_user_list_report_filter_type(self):
+    def test_user_list_report_filter_report_type(self):
         Note.objects.create(
             title="Sample report",
             project=self.project,
@@ -55,6 +55,8 @@ class TestProjectNoteListCreateView(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
+        for report in response.json():
+            self.assertEqual(report["type"], "Report-type-1")
 
     def test_user_list_report_filter_keyword(self):
         note_with_keyword = Note.objects.create(

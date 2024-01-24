@@ -2,11 +2,11 @@ from django.db.models import Count, F
 from rest_framework import exceptions, generics
 
 from api.models.note import Note
-from api.serializers.note import ProjectTypeSerializer
+from api.serializers.note import ProjectNoteTypeSerializer
 
 
-class ProjectTypeListView(generics.ListAPIView):
-    serializer_class = ProjectTypeSerializer
+class ProjectNoteTypeListView(generics.ListAPIView):
+    serializer_class = ProjectNoteTypeSerializer
     queryset = Note.objects.all()
     ordering = ["-report_count", "name"]
     search_fields = ["name"]

@@ -17,6 +17,7 @@ class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         takeaway: Takeaway = self.get_object()
         note: Note = takeaway.note
 
+        # Clean up highlight
         if hasattr(takeaway, "highlight"):
             # This takeaway is a highlight.
             # Need to remove the highlight from note.content

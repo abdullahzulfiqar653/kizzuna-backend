@@ -16,8 +16,8 @@ class ProjectKeywordListView(generics.ListAPIView):
         if project is None:
             raise exceptions.NotFound
         return (
-            Keyword.objects.filter(note__project=project)
-            .values("id", "name", "note")
+            Keyword.objects.filter(notes__project=project)
+            .values("id", "name", "notes")
             .values("id", "name")
             .annotate(report_count=Count("*"))
         )

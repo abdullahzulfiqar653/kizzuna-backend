@@ -20,11 +20,12 @@ from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_insight import ProjectInsightListCreateView
 from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
+from api.views.project.project_note_type import ProjectNoteTypeListView
 from api.views.project.project_organization import ProjectOrganizationListView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_tag import ProjectTagListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
-from api.views.project.project_type import ProjectTypeListView
+from api.views.project.project_takeaway_type import ProjectTakeawayTypeListView
 from api.views.project.project_user import ProjectUserListView
 from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
 from api.views.takeaway.takeaway_tag import (
@@ -137,9 +138,14 @@ urlpatterns = [
         name="project-sentiment-list",
     ),
     path(
-        "projects/<str:project_id>/types/",
-        ProjectTypeListView.as_view(),
-        name="project-type-list",
+        "projects/<str:project_id>/report-types/",
+        ProjectNoteTypeListView.as_view(),
+        name="project-note-type-list",
+    ),
+    path(
+        "projects/<str:project_id>/takeaway-types/",
+        ProjectTakeawayTypeListView.as_view(),
+        name="project-takeaway-type-list",
     ),
     path(
         "projects/<str:project_id>/insights/",

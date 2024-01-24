@@ -41,12 +41,10 @@ class TestNoteTagListView(APITestCase):
         self.tag1 = Tag.objects.create(
             name="tag 1",
             project=self.project,
-            takeaway_count=2,
         )
         self.tag2 = Tag.objects.create(
             name="tag 2",
             project=self.project,
-            takeaway_count=1,
         )
 
         self.takeaway1.tags.add(self.tag1)
@@ -57,13 +55,25 @@ class TestNoteTagListView(APITestCase):
         return super().setUp()
 
     def test_user_list_report_tags(self):
+        expected_data = [
+            {
+                "id": self.tag1.id,
+                "name": self.tag1.name,
+                "project": self.tag1.project.id,
+                "takeaway_count": 2,
+            },
+            {
+                "id": self.tag2.id,
+                "name": self.tag2.name,
+                "project": self.tag2.project.id,
+                "takeaway_count": 1,
+            },
+        ]
+
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.json()
-        self.assertEqual(len(data), 2)
-        self.assertIn(self.tag1.id, [tag["id"] for tag in data])
-        self.assertIn(self.tag2.id, [tag["id"] for tag in data])
+        self.assertCountEqual(response.json(), expected_data)
 
     def test_outsider_list_report_tags(self):
         self.client.force_authenticate(self.outsider)

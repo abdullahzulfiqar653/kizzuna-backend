@@ -4,6 +4,7 @@ from api.models.highlight import Highlight
 from api.models.insight import Insight
 from api.models.note import Note
 from api.models.takeaway import Takeaway
+from api.models.takeaway_type import TakeawayType
 from api.serializers.tag import TagSerializer
 from api.serializers.user import UserSerializer
 
@@ -20,6 +21,7 @@ class BriefNoteSerializer(serializers.ModelSerializer):
 class TakeawaySerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+    type = serializers.CharField(source="type.name", required=False)
     report = BriefNoteSerializer(source="note", read_only=True)
 
     class Meta:
@@ -28,6 +30,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "id",
             "title",
             "tags",
+            "type",
             "description",
             "priority",
             "created_by",
@@ -41,6 +44,13 @@ class TakeawaySerializer(serializers.ModelSerializer):
         note = Note.objects.filter(id=report_id).first()
         if note is None or not note.project.users.contains(request.user):
             exceptions.NotFound("Report is not found.")
+
+        takeaway_type_data = validated_data.pop("type", None)
+        if takeaway_type_data is not None:
+            takeaway_type, _ = TakeawayType.objects.get_or_create(
+                name=takeaway_type_data["name"], project=note.project
+            )
+            validated_data["type"] = takeaway_type
 
         validated_data["created_by"] = request.user
         validated_data["note"] = note

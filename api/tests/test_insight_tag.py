@@ -10,7 +10,6 @@ from api.models.tag import Tag
 from api.models.takeaway import Takeaway
 from api.models.user import User
 from api.models.workspace import Workspace
-from api.serializers.tag import TagSerializer
 
 
 # Create your tests here.
@@ -60,12 +59,25 @@ class TestInsightTagView(APITestCase):
         return super().setUp()
 
     def test_user_list_insight_tags(self):
-        expected_result = TagSerializer([self.tag1, self.tag2], many=True).data
+        expected_result = [
+            {
+                "id": self.tag1.id,
+                "name": self.tag1.name,
+                "project": self.tag1.project.id,
+                "takeaway_count": 1,
+            },
+            {
+                "id": self.tag2.id,
+                "name": self.tag2.name,
+                "project": self.tag2.project.id,
+                "takeaway_count": 1,
+            },
+        ]
 
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json(), expected_result)
+        self.assertCountEqual(response.json(), expected_result)
 
     def test_outsider_list_insight_tags(self):
         self.client.force_authenticate(self.outsider)

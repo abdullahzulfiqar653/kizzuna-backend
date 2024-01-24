@@ -76,7 +76,7 @@ class Note(models.Model):
     is_auto_tagged = models.BooleanField(default=False)
     content = models.JSONField(null=True)
     summary = models.JSONField(default=list)
-    keywords = models.ManyToManyField(Keyword, blank=True)
+    keywords = models.ManyToManyField(Keyword, blank=True, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
     analyzing_tokens = models.IntegerField(default=0)
     analyzing_cost = models.DecimalField(default=0, decimal_places=7, max_digits=11)

@@ -22,7 +22,7 @@ def organizations_in_project(request):
 
 def keywords_in_project(request):
     project_id = request.parser_context["kwargs"]["project_id"]
-    return Keyword.objects.filter(note__project=project_id)
+    return Keyword.objects.filter(notes__project=project_id)
 
 
 class NoteFilter(filters.FilterSet):

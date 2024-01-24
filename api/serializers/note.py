@@ -186,7 +186,7 @@ class ProjectNoteSerializer(NoteSerializer):
         fields = list(set(NoteSerializer.Meta.fields) - {"content", "highlights"})
 
 
-class ProjectTypeSerializer(serializers.Serializer):
+class ProjectNoteTypeSerializer(serializers.Serializer):
     name = serializers.CharField()
     report_count = serializers.IntegerField()
 

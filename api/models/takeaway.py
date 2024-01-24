@@ -2,6 +2,7 @@ from django.db import models
 from shortuuid.django_fields import ShortUUIDField
 
 from api.models.tag import Tag
+from api.models.takeaway_type import TakeawayType
 from api.models.user import User
 
 
@@ -14,7 +15,11 @@ class Takeaway(models.Model):
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     title = models.TextField()
     description = models.TextField(blank=True)
+    type = models.ForeignKey(
+        TakeawayType, on_delete=models.PROTECT, related_name="takeaways", null=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name="takeaways")
     created_by = models.ForeignKey(
         User,

@@ -1,6 +1,5 @@
 import json
 
-from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
@@ -34,7 +33,6 @@ def generate_tags(note: Note):
         results.extend(result["takeaways"])
     tags = save_tags(note, results)
     save_takeaway_tags(note, tags, results)
-    update_takeaway_count(note, tags)
 
 
 def get_chain():
@@ -109,13 +107,3 @@ def save_takeaway_tags(note: Takeaway, tags: QuerySet[Tag], results):
             tag = get_tag[tag_name.lower()]
             takeaway_tags.append(TakeawayTag(takeaway=takeaway, tag=tag))
     TakeawayTag.objects.bulk_create(takeaway_tags, ignore_conflicts=True)
-
-
-def update_takeaway_count(note: Note, tags: QuerySet[Tag]):
-    tag_names = [tag.name for tag in tags]
-    tags = Tag.objects.filter(name__in=tag_names, project=note.project).annotate(
-        new_takeaway_count=Count("takeaways")
-    )
-    for tag in tags:
-        tag.takeaway_count = tag.new_takeaway_count
-    Tag.objects.bulk_update(tags, ["takeaway_count"])
