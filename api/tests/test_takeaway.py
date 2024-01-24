@@ -88,6 +88,17 @@ class TestTakeawayRetrieveUpdateDeleteView(APITestCase):
         self.takeaway.refresh_from_db()
         self.assertEqual(self.takeaway.priority, Takeaway.Priority.HIGH)
 
+    def test_user_update_takeaway_priority(self):
+        url = f"/api/takeaways/{self.takeaway.id}/"
+        data = {
+            "type": "new takeaway type",
+        }
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.takeaway.refresh_from_db()
+        self.assertEqual(self.takeaway.type.name, "new takeaway type")
+
     def test_user_delete_takeaway(self):
         self.assertTrue(Takeaway.objects.filter(id=self.takeaway.id).exists())
         url = f"/api/takeaways/{self.takeaway.id}/"

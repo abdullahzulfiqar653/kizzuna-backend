@@ -56,6 +56,15 @@ class TakeawaySerializer(serializers.ModelSerializer):
         validated_data["note"] = note
         return super().create(validated_data)
 
+    def update(self, takeaway, validated_data):
+        takeaway_type_data = validated_data.pop("type", None)
+        if takeaway_type_data is not None:
+            takeaway_type, _ = TakeawayType.objects.get_or_create(
+                name=takeaway_type_data["name"], project=takeaway.note.project
+            )
+            takeaway.type = takeaway_type
+        return super().update(takeaway, validated_data)
+
 
 class HighlightSerializer(TakeawaySerializer):
     class Meta:
