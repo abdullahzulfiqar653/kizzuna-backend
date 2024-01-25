@@ -41,6 +41,7 @@ from api.views.workspace import (
 
 from .views.auth import (
     DoPasswordResetView,
+    GoogleLoginView,
     InvitationSignupCreateView,
     InvitationStatusRetrieveView,
     InviteUserView,
@@ -51,16 +52,6 @@ from .views.auth import (
 )
 
 urlpatterns = [
-    path(
-        "token/",
-        TokenObtainPairAndRefreshView.as_view(),
-        name="token_obtain_pair",
-    ),
-    path(
-        "token/refresh/",
-        TokenRefreshView.as_view(),
-        name="token_refresh",
-    ),
     # =====================================================
     # Reports
     # =====================================================
@@ -214,6 +205,21 @@ urlpatterns = [
     # =====================================================
     # Auth
     # =====================================================
+    path(
+        "token/",
+        TokenObtainPairAndRefreshView.as_view(),
+        name="token_obtain_pair",
+    ),
+    path(
+        "token/refresh/",
+        TokenRefreshView.as_view(),
+        name="token_refresh",
+    ),
+    path(
+        "token/google/",
+        GoogleLoginView.as_view(),
+        name="google-token-obtain-pair",
+    ),
     path(
         "signup/",
         SignupView.as_view(),
