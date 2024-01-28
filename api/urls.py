@@ -18,6 +18,7 @@ from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_insight import ProjectInsightListCreateView
+from api.views.project.project_invitation import ProjectInvitationCreateView
 from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
 from api.views.project.project_note_type import ProjectNoteTypeListView
@@ -44,7 +45,6 @@ from .views.auth import (
     GoogleLoginView,
     InvitationSignupCreateView,
     InvitationStatusRetrieveView,
-    InviteUserView,
     PasswordUpdateView,
     RequestPasswordResetView,
     SignupView,
@@ -143,6 +143,11 @@ urlpatterns = [
         ProjectInsightListCreateView.as_view(),
         name="project-insight-list-create",
     ),
+    path(
+        "projects/<str:project_id>/invitations/",
+        ProjectInvitationCreateView.as_view(),
+        name="project-invite",
+    ),
     # =====================================================
     # Workspace
     # =====================================================
@@ -234,11 +239,6 @@ urlpatterns = [
         "invitation/<str:token>/",
         InvitationStatusRetrieveView.as_view(),
         name="invitation-status-retrieve",
-    ),
-    path(
-        "users/invite/",
-        InviteUserView.as_view(),
-        name="user-invite",
     ),
     path(
         "auth-users/",

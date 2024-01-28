@@ -10,9 +10,6 @@ class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
 
-    def get_queryset(self):
-        return Takeaway.objects.filter(note__project__users=self.request.user)
-
     def destroy(self, request, *args, **kwargs):
         takeaway: Takeaway = self.get_object()
         note: Note = takeaway.note

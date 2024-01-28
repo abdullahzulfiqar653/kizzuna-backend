@@ -20,6 +20,12 @@ class TestWorkspaceListCreateView(APITestCase):
         response = self.client.post("/api/workspaces/", {"name": "workspace name"})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_user_list_workspace(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get("/api/workspaces/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Workspace.objects.count(), 0)
+
     def test_user_create_workspace(self):
         self.client.force_authenticate(self.user)
         response = self.client.post("/api/workspaces/", {"name": "workspace name"})

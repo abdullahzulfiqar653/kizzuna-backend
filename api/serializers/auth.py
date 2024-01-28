@@ -215,7 +215,6 @@ class CustomTokenRefreshSerializer(TokenRefreshSerializer):
 
 class InviteUserSerializer(serializers.Serializer):
     emails = serializers.ListField(child=serializers.EmailField(), allow_empty=False)
-    project_id = serializers.CharField()
 
 
 class InvitationStatusSerializer(serializers.ModelSerializer):

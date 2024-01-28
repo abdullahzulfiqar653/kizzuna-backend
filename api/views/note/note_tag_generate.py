@@ -2,19 +2,16 @@ from decimal import Decimal
 
 from drf_spectacular.utils import extend_schema
 from langchain.callbacks import get_openai_callback
-from rest_framework import exceptions, generics, status
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from api.ai.generators.tag_generator import generate_tags
-from api.models.note import Note
 
 
 @extend_schema(request=None, responses={200: None})
 class NoteTagGenerateView(generics.CreateAPIView):
     def create(self, request, report_id):
-        note = Note.objects.filter(id=report_id, project__users=request.user).first()
-        if note is None:
-            raise exceptions.NotFound("Report not found.")
+        note = request.note
 
         # Call OpenAI
         try:

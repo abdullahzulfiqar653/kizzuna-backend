@@ -4,7 +4,6 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce, Round
 from django.http.request import QueryDict
-from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, generics, serializers
 
 from api.filters.note import NoteFilter
@@ -37,20 +36,9 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]
 
     def get_queryset(self):
-        project_id = self.kwargs["project_id"]
-        project = get_object_or_404(Project, id=project_id)
-        if not project.users.contains(self.request.user):
-            raise exceptions.PermissionDenied
-        return project.notes.annotate(
+        return self.request.project.notes.annotate(
             takeaway_count=Count("takeaways"),
         )
-
-    def get_project(self):
-        project_id = self.kwargs.get("project_id")
-        project = get_object_or_404(Project, id=project_id)
-        if not project.users.contains(self.request.user):
-            raise exceptions.PermissionDenied
-        return project
 
     def to_dict(self, form_data):
         data_file = form_data.get("data")
@@ -105,8 +93,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             raise exceptions.PermissionDenied("Quota limit is hit.")
 
     def perform_create(self, serializer):
-        project = self.get_project()
         # self.check_eligibility(project)
-        note = serializer.save(author=self.request.user, project=project)
+        note = serializer.save(author=self.request.user, project=self.request.project)
         if note.file or note.url:
             analyze_note.delay(note.id)

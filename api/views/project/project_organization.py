@@ -1,4 +1,4 @@
-from rest_framework import exceptions, generics
+from rest_framework import generics
 
 from api.models.organization import Organization
 from api.serializers.organization import OrganizationSerializer
@@ -11,9 +11,4 @@ class ProjectOrganizationListView(generics.ListAPIView):
     search_fields = ["name"]
 
     def get_queryset(self):
-        project_id = self.kwargs["project_id"]
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return Organization.objects.filter(project=project_id)
+        return Organization.objects.filter(project=self.request.project)

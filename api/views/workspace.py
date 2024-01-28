@@ -1,6 +1,4 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import generics
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from api.models.project import Project
@@ -16,12 +14,7 @@ class WorkspaceUserListView(generics.ListAPIView):
     serializer_class = UserSerializer
 
     def list(self, request, pk=None):
-        workspace = get_object_or_404(Workspace, pk=pk)
-
-        if not workspace.members.contains(request.user):
-            raise PermissionDenied
-
-        members = workspace.members.all()
+        members = self.request.workspace.members.all()
         serializer = UserSerializer(members, many=True)
         return Response(serializer.data)
 
@@ -41,10 +34,7 @@ class WorkspaceProjectListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        workspace_id = self.kwargs["workspace_id"]
-        workspace = user.workspaces.filter(id=workspace_id).first()
-        if workspace is None:
-            raise PermissionDenied("Do not have permission to access the workspace.")
+        workspace = self.request.workspace
         return Project.objects.filter(workspace=workspace, users=user).select_related(
             "workspace"
         )

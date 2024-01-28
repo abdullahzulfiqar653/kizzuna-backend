@@ -10,27 +10,9 @@ from api.models.note import Note
 from api.models.organization import Organization
 from api.serializers.organization import OrganizationSerializer
 from api.serializers.tag import KeywordSerializer
-from api.serializers.takeaway import HighlightSerializer
 from api.serializers.user import UserSerializer
 
 logger = logging.getLogger(__name__)
-
-
-class SkipIdValidatorHighlightSerializer(HighlightSerializer):
-    id = serializers.CharField(read_only=False)
-
-    class Meta:
-        model = Highlight
-        fields = [
-            "id",
-            "start",
-            "end",
-        ]
-        extra_kwargs = {
-            "id": {
-                "validators": [],
-            },
-        }
 
 
 class NoteSerializer(serializers.ModelSerializer):

@@ -1,5 +1,5 @@
 from django.db.models import Count
-from rest_framework import exceptions, generics
+from rest_framework import generics
 
 from api.models.note import Note
 from api.serializers.note import NoteSerializer
@@ -10,13 +10,7 @@ class NoteRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = NoteSerializer
 
     def get_queryset(self):
-        return super().get_queryset().annotate(takeaway_count=Count("takeaways"))
-
-    def retrieve(self, request, pk):
-        note = Note.objects.filter(id=pk).first()
-        if note is None or not note.project.users.contains(request.user):
-            raise exceptions.NotFound("Report not found.")
-        return super().retrieve(request, pk)
+        return Note.objects.annotate(takeaway_count=Count("takeaways"))
 
 
 # def attachment_create(request, note_id):

@@ -242,6 +242,6 @@ class TestProjectNoteListCreateView(APITestCase):
         self.client.force_authenticate(self.outsider)
         url = f"/api/projects/{self.project.id}/reports/"
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         # Assert that the endpoint doesn't create the note.
         self.assertEqual(self.project.notes.count(), 0)
