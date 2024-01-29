@@ -35,6 +35,12 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", cast=list)
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.kizunna\.com/?$",
+    r"^https://.*\.raijin\.ai/?$",
+    "http://localhost:5173",
+    "http://localhost:8000",
+]
 FRONTEND_URL = env("FRONTEND_URL")
 
 # Application definition
@@ -54,6 +60,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -61,7 +68,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 REST_FRAMEWORK = {
@@ -188,10 +194,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-CORS_ORIGIN_ALLOW_ALL = (
-    True  # Allow requests from any origin, change it to a specific domain in production
-)
 
 # Set your AWS credentials and region. You can also store these in environment variables.# AWS_ACCESS_KEY_ID = 'access_key'
 # AWS_ACCESS_KEY_ID = 'access_key'
