@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 00:23+0000\n"
+"POT-Creation-Date: 2024-01-23 10:25+0000\n"
 "PO-Revision-Date: 2024-01-20 09:09+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -28,19 +28,13 @@ msgid ""
 "report and provide strategic guidance to assist the user in making informed "
 "decisions."
 msgstr ""
-"以下は、一週間を通じてユーザーが作成した各レポートの個別サマリーである。ユー"
-"ザーにその週のレポートの包括的な概要を提供し、戦略的な提言を行うために、エグ"
-"ゼクティブサマリーを作成しています。このサマリーには、各レポートからの重要な"
-"洞察をまとめ、ユーザーが十分な情報に基づいた意思決定を行えるよう、戦略的な指"
-"針を示す必要があります。"
+"以下は、一週間を通じてユーザーが作成した各レポートの個別サマリーである。ユーザーにその週のレポートの包括的な概要を提供し、戦略的な提言を行うために、エグゼクティブサマリーを作成しています。このサマリーには、各レポートからの重要な洞察をまとめ、ユーザーが十分な情報に基づいた意思決定を行えるよう、戦略的な指針を示す必要があります。"
 
 #: api/ai/generators/metadata_generator.py:32
 msgid ""
 "You are a skilled professional known for exceptional ability to summarize "
 "texts."
-msgstr ""
-"あなたは、文章を要約する卓越した能力で知られる熟練したプロフェッショナルで"
-"す。"
+msgstr "あなたは、文章を要約する卓越した能力で知られる熟練したプロフェッショナルです。"
 
 #: api/ai/generators/metadata_generator.py:38
 msgid "Summarize the following text."
@@ -58,25 +52,47 @@ msgstr "会議の内容を説明する短い段落。"
 msgid "What is the meeting type?"
 msgstr "ミーティングのタイプは？"
 
-#: api/ai/generators/metadata_generator.py:68
-msgid "Summary of the text."
+#: api/ai/generators/metadata_generator.py:69
+#, fuzzy
+#| msgid "Summary of the text."
+msgid "Summary of the text in point form."
 msgstr "本文の要約。"
 
-#: api/ai/generators/metadata_generator.py:70
+#: api/ai/generators/metadata_generator.py:72
 msgid "The sentiment of the text."
 msgstr "文章の感情。"
 
-#: api/ai/generators/metadata_generator.py:73
+#: api/ai/generators/metadata_generator.py:75
 msgid "The list of relevant keywords of the text."
 msgstr "テキストの関連キーワードのリスト。"
 
-#: api/ai/generators/metadata_generator.py:86
+#: api/ai/generators/metadata_generator.py:88
 msgid "Follow the function parameter schema strictly."
 msgstr "関数パラメータスキーマに厳密に従いなさい。"
 
-#: api/ai/generators/metadata_generator.py:90
+#: api/ai/generators/metadata_generator.py:92
 msgid "Extract data from the following summaries."
 msgstr "以下の要約からデータを抽出してください。"
+
+#: api/ai/generators/tag_generator.py:42
+msgid "The id and the corresponding generated tags."
+msgstr "ID と対応する生成されたタグ。"
+
+#: api/ai/generators/tag_generator.py:45
+msgid "ID of the takeaway. For example: '322xBv9XpAbD'"
+msgstr "テイクアウトのID。例: 「322xBv9XpAbD」"
+
+#: api/ai/generators/tag_generator.py:48
+msgid "List of generated tags"
+msgstr "生成されたタグのリスト"
+
+#: api/ai/generators/tag_generator.py:52
+msgid "A list of takeaways with their relevant tags."
+msgstr "関連するタグを含む要点のリスト。"
+
+#: api/ai/generators/tag_generator.py:61
+msgid "Generate tags for each of the given takeaways."
+msgstr "指定された要点ごとにタグを生成します。"
 
 #: api/ai/generators/takeaway_generator.py:20
 msgid "Topic of the takeaway, for grouping the takeaways."
@@ -86,8 +102,7 @@ msgstr "持ち帰りをグループ化するための、持ち帰りのトピッ
 msgid ""
 "What the takeaway is about. This should be an important message, issue, "
 "learning point or pain point of the text."
-msgstr ""
-"要点は何か。本文の重要なメッセージ、問題点、学習ポイント、痛点であること。"
+msgstr "要点は何か。本文の重要なメッセージ、問題点、学習ポイント、痛点であること。"
 
 #: api/ai/generators/takeaway_generator.py:30
 msgid "The reason why the takeaway is important."
@@ -101,19 +116,15 @@ msgstr "テキストから得られる10～20の重要な収穫のリスト。"
 msgid ""
 "You are an experienced product analyst. You are experienced in identifying "
 "pain points and takeaways from user interviews."
-msgstr ""
-"あなたは経験豊富な製品アナリストです。ユーザーインタビューからペインポイント"
-"や収穫を特定する経験をお持ちの方。"
+msgstr "あなたは経験豊富な製品アナリストです。ユーザーインタビューからペインポイントや収穫を特定する経験をお持ちの方。"
 
 #: api/ai/generators/takeaway_generator.py:56
 msgid ""
 "Identify Important Takeaways/Issues/Learning Points in the below given text "
 "and reasons why they are important."
-msgstr ""
-"以下の文章から、重要な要点／問題／学習ポイントを特定し、それが重要である理由"
-"を説明する。"
+msgstr "以下の文章から、重要な要点／問題／学習ポイントを特定し、それが重要である理由を説明する。"
 
-#: api/ai/transcribers/openai_transcriber.py:68
+#: api/ai/paragrapher.py:40
 msgid ""
 "Break the below text into paragraphs, and follow identically the words that "
 "were given - the only thing that should change is the paragraph breaks"
@@ -124,9 +135,7 @@ msgstr "以下のテキストを段落に分割し、指定された単語と同
 msgid ""
 "You're receiving this email because you requested a password reset for your "
 "user account at %(site_name)s."
-msgstr ""
-"この電子メールを受け取っているのは、%(site_name)s のユーザ・アカウントのパス"
-"ワード・リセットを要求したためです。"
+msgstr "この電子メールを受け取っているのは、%(site_name)s のユーザ・アカウントのパスワード・リセットを要求したためです。"
 
 #: api/templates/password_reset_email.html:4
 msgid "Please go to the following page and choose a new password:"

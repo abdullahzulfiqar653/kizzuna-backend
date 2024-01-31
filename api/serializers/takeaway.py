@@ -1,9 +1,9 @@
 from rest_framework import exceptions, serializers
 
-from api.models.highlight import Highlight
 from api.models.insight import Insight
 from api.models.note import Note
 from api.models.takeaway import Takeaway
+from api.models.takeaway_type import TakeawayType
 from api.serializers.tag import TagSerializer
 from api.serializers.user import UserSerializer
 
@@ -20,6 +20,7 @@ class BriefNoteSerializer(serializers.ModelSerializer):
 class TakeawaySerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+    type = serializers.CharField(source="type.name", required=False)
     report = BriefNoteSerializer(source="note", read_only=True)
 
     class Meta:
@@ -28,102 +29,35 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "id",
             "title",
             "tags",
+            "type",
             "description",
-            "status",
+            "priority",
             "created_by",
             "report",
             "created_at",
         ]
 
     def create(self, validated_data):
-        report_id = self.context["view"].kwargs["report_id"]
         request = self.context["request"]
-        note = Note.objects.filter(id=report_id).first()
-        if note is None or not note.project.users.contains(request.user):
-            exceptions.NotFound("Report is not found.")
-
-        validated_data["created_by"] = request.user
-        validated_data["note"] = note
-        return super().create(validated_data)
-
-
-class HighlightSerializer(TakeawaySerializer):
-    class Meta:
-        model = Highlight
-        fields = [
-            "id",
-            "start",
-            "end",
-        ]
-
-    def validate(self, data):
-        start = data["start"]
-        end = data["end"]
-        if not (0 <= start < end):
-            raise serializers.ValidationError(
-                "start and end must satisfy the condition: " "0 <= start < end."
+        takeaway_type_data = validated_data.pop("type", None)
+        if takeaway_type_data is not None:
+            takeaway_type, _ = TakeawayType.objects.get_or_create(
+                name=takeaway_type_data["name"], project=request.note.project
             )
-        return super().validate(data)
+            validated_data["type"] = takeaway_type
 
-    def create(self, validated_data):
-        report_id = self.context["view"].kwargs["report_id"]
-        note = Note.objects.filter(id=report_id).first()
-        request = self.context["request"]
-        if note is None or not note.project.users.contains(request.user):
-            exceptions.NotFound("Report is not found.")
-
-        request = self.context["request"]
         validated_data["created_by"] = request.user
-        validated_data["note"] = note
+        validated_data["note"] = request.note
         return super().create(validated_data)
 
-    def to_representation(self, instance):
-        # Overwriting TakeawaySerializer.to_representation with rest_framework original function
-        return super(TakeawaySerializer, self).to_representation(instance)
-
-
-class ProjectInsightSerializer(serializers.ModelSerializer):
-    id = serializers.CharField(read_only=True)
-    created_by = UserSerializer(read_only=True)
-    created_at = serializers.DateTimeField(read_only=True)
-    takeaway_count = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Insight
-        fields = [
-            "id",
-            "title",
-            "created_at",
-            "created_by",
-            "takeaway_count",
-        ]
-
-    def create(self, validated_data):
-        project_id = self.context["view"].kwargs["project_id"]
-        request = self.context["request"]
-        project = request.user.projects.filter(id=project_id).first()
-        if project is None:
-            exceptions.NotFound("Project not found.")
-        validated_data["project"] = project
-        validated_data["created_by"] = request.user
-        return super().create(validated_data)
-
-
-class InsightSerializer(serializers.ModelSerializer):
-    takeaways = TakeawaySerializer(many=True, read_only=True)
-    created_by = UserSerializer(read_only=True)
-    created_at = serializers.DateTimeField(read_only=True)
-
-    class Meta:
-        model = Insight
-        fields = [
-            "id",
-            "title",
-            "description",
-            "created_at",
-            "created_by",
-            "takeaways",
-        ]
+    def update(self, takeaway, validated_data):
+        takeaway_type_data = validated_data.pop("type", None)
+        if takeaway_type_data is not None:
+            takeaway_type, _ = TakeawayType.objects.get_or_create(
+                name=takeaway_type_data["name"], project=takeaway.note.project
+            )
+            takeaway.type = takeaway_type
+        return super().update(takeaway, validated_data)
 
 
 class InsightTakeawaySerializer(serializers.Serializer):

@@ -66,14 +66,14 @@ services:
   
   beat:
     image: backend
-    command: celery -A cradarai beat --loglevel=info -s /tmp/celerybeat-schedule
+    command: celery --app=cradarai beat --loglevel=info --schedule=/tmp/celerybeat-schedule
     volumes: *volumes
     depends_on:
       - backend
 
   worker:
     image: backend
-    command: celery -A cradarai worker --loglevel=info
+    command: celery --app=cradarai worker --loglevel=info --pool=gevent --concurrency=20
     volumes: *volumes
     depends_on:
       - backend

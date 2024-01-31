@@ -31,7 +31,7 @@ class TestProjectNoteListCreateView(APITestCase):
         self.project.users.add(self.user)
         return super().setUp()
 
-    def test_user_list_report_filter_type(self):
+    def test_user_list_report_filter_report_type(self):
         Note.objects.create(
             title="Sample report",
             project=self.project,
@@ -55,6 +55,8 @@ class TestProjectNoteListCreateView(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
+        for report in response.json():
+            self.assertEqual(report["type"], "Report-type-1")
 
     def test_user_list_report_filter_keyword(self):
         note_with_keyword = Note.objects.create(
@@ -131,7 +133,7 @@ class TestProjectNoteListCreateView(APITestCase):
         self.assertEqual(note.organizations.count(), 1)
         self.assertEqual(note.keywords.count(), 2)
 
-    @patch("api.tasks.analyze.delay")
+    @patch("api.tasks.analyze_note.delay")
     def test_user_create_report_with_file(self, mocked_analyze: Mock):
         data = {
             "title": "User can create report.",
@@ -158,7 +160,7 @@ class TestProjectNoteListCreateView(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             mocked_analyze.assert_called_once()
 
-    @patch("api.tasks.analyze.delay")
+    @patch("api.tasks.analyze_note.delay")
     def test_user_create_report_with_url(self, mocked_analyze: Mock):
         data = {
             "title": "User can create report.",
@@ -240,6 +242,6 @@ class TestProjectNoteListCreateView(APITestCase):
         self.client.force_authenticate(self.outsider)
         url = f"/api/projects/{self.project.id}/reports/"
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         # Assert that the endpoint doesn't create the note.
         self.assertEqual(self.project.notes.count(), 0)

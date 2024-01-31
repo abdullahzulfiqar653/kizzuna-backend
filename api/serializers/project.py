@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from api.models.project import Project
-from api.serializers.workspace import WorkspaceSerializer, WorkspaceUsageSerializer
+from api.serializers.workspace import WorkspaceDetailSerializer, WorkspaceSerializer
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -33,9 +33,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class ProjectUsageSerializer(ProjectSerializer):
-    workspace = WorkspaceUsageSerializer(read_only=True)
+class ProjectDetailSerializer(ProjectSerializer):
+    workspace = WorkspaceDetailSerializer(read_only=True)
 
     class Meta:
         model = Project
-        fields = ["id", "name", "description", "workspace", "language"]
+        fields = ["id", "name", "description", "workspace", "language", "summary"]

@@ -10,7 +10,7 @@ class Workspace(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     owned_by = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name="owned_workspaces"
+        User, on_delete=models.CASCADE, related_name="owned_workspaces"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

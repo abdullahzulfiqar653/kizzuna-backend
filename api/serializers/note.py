@@ -10,27 +10,9 @@ from api.models.note import Note
 from api.models.organization import Organization
 from api.serializers.organization import OrganizationSerializer
 from api.serializers.tag import KeywordSerializer
-from api.serializers.takeaway import HighlightSerializer
 from api.serializers.user import UserSerializer
 
 logger = logging.getLogger(__name__)
-
-
-class SkipIdValidatorHighlightSerializer(HighlightSerializer):
-    id = serializers.CharField(read_only=False)
-
-    class Meta:
-        model = Highlight
-        fields = [
-            "id",
-            "start",
-            "end",
-        ]
-        extra_kwargs = {
-            "id": {
-                "validators": [],
-            },
-        }
 
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -45,7 +27,7 @@ class NoteSerializer(serializers.ModelSerializer):
     is_auto_tagged = serializers.BooleanField(read_only=True)
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
-    summary = serializers.CharField(required=False, default="", allow_blank=True)
+    summary = serializers.JSONField(required=False, default=[])
     organizations = OrganizationSerializer(many=True, required=False)
 
     class Meta:
@@ -186,7 +168,7 @@ class ProjectNoteSerializer(NoteSerializer):
         fields = list(set(NoteSerializer.Meta.fields) - {"content", "highlights"})
 
 
-class ProjectTypeSerializer(serializers.Serializer):
+class ProjectNoteTypeSerializer(serializers.Serializer):
     name = serializers.CharField()
     report_count = serializers.IntegerField()
 

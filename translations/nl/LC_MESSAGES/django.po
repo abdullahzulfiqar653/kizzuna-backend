@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 00:22+0000\n"
+"POT-Creation-Date: 2024-01-23 10:25+0000\n"
 "PO-Revision-Date: 2024-01-20 09:10+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -60,25 +60,47 @@ msgstr "Een korte alinea die beschrijft waar de vergadering over gaat."
 msgid "What is the meeting type?"
 msgstr "Wat is het type vergadering?"
 
-#: api/ai/generators/metadata_generator.py:68
-msgid "Summary of the text."
+#: api/ai/generators/metadata_generator.py:69
+#, fuzzy
+#| msgid "Summary of the text."
+msgid "Summary of the text in point form."
 msgstr "Samenvatting van de tekst."
 
-#: api/ai/generators/metadata_generator.py:70
+#: api/ai/generators/metadata_generator.py:72
 msgid "The sentiment of the text."
 msgstr "Het sentiment van de tekst."
 
-#: api/ai/generators/metadata_generator.py:73
+#: api/ai/generators/metadata_generator.py:75
 msgid "The list of relevant keywords of the text."
 msgstr "De lijst met relevante trefwoorden van de tekst."
 
-#: api/ai/generators/metadata_generator.py:86
+#: api/ai/generators/metadata_generator.py:88
 msgid "Follow the function parameter schema strictly."
 msgstr "Volg het functieparameterschema strikt."
 
-#: api/ai/generators/metadata_generator.py:90
+#: api/ai/generators/metadata_generator.py:92
 msgid "Extract data from the following summaries."
 msgstr "Extraheer gegevens uit de volgende samenvattingen."
+
+#: api/ai/generators/tag_generator.py:42
+msgid "The id and the corresponding generated tags."
+msgstr "De id en de bijbehorende gegenereerde tags."
+
+#: api/ai/generators/tag_generator.py:45
+msgid "ID of the takeaway. For example: '322xBv9XpAbD'"
+msgstr "ID van de afhaalmaaltijd. Bijvoorbeeld: &#39;322xBv9XpAbD&#39;"
+
+#: api/ai/generators/tag_generator.py:48
+msgid "List of generated tags"
+msgstr "Lijst met gegenereerde tags"
+
+#: api/ai/generators/tag_generator.py:52
+msgid "A list of takeaways with their relevant tags."
+msgstr "Een lijst met afhaalrestaurants met hun relevante tags."
+
+#: api/ai/generators/tag_generator.py:61
+msgid "Generate tags for each of the given takeaways."
+msgstr "Genereer tags voor elk van de gegeven afhaalrestaurants."
 
 #: api/ai/generators/takeaway_generator.py:20
 msgid "Topic of the takeaway, for grouping the takeaways."
@@ -116,7 +138,7 @@ msgstr ""
 "Identificeer belangrijke afhaalpunten/problemen/leerpunten in de "
 "onderstaande tekst en redenen waarom ze belangrijk zijn."
 
-#: api/ai/transcribers/openai_transcriber.py:68
+#: api/ai/paragrapher.py:40
 msgid ""
 "Break the below text into paragraphs, and follow identically the words that "
 "were given - the only thing that should change is the paragraph breaks"

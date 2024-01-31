@@ -1,8 +1,10 @@
 from datetime import datetime
 
+import requests
 from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.models import update_last_login
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -13,6 +15,7 @@ from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer,
     TokenRefreshSerializer,
 )
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.models.invitation import Invitation
 from api.models.user import User
@@ -53,6 +56,52 @@ class SignupSerializer(serializers.Serializer):
         user.save()
 
         return user
+
+
+class GoogleLoginSerializer(serializers.Serializer):
+    google_access_token = serializers.CharField(write_only=True)
+    access_token = serializers.CharField(read_only=True)
+    refresh_token = serializers.CharField(read_only=True)
+
+    def get_user_info(self, google_access_token):
+        google_response = requests.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers={"Authorization": f"Bearer {google_access_token}"},
+        )
+        if google_response.status_code == 401:
+            raise exceptions.AuthenticationFailed(
+                "Failed to authenticate google access token."
+            )
+        user_info = google_response.json()
+        return user_info
+
+    def create(self, validated_data):
+        # Get user info from Google
+        google_access_token = validated_data.get("google_access_token")
+        user_info = self.get_user_info(google_access_token)
+
+        # Get or create user
+        user, created = User.objects.get_or_create(
+            username=user_info.get("email"),
+            defaults={
+                "first_name": user_info.get("given_name"),
+                "last_name": user_info.get("family_name"),
+                "email": user_info.get("email"),
+            },
+        )
+        if created:
+            user.set_unusable_password()
+            user.save()
+
+        # Generate access and refresh token
+        refresh = RefreshToken.for_user(user)
+        data = {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+        }
+
+        update_last_login(None, user)
+        return data
 
 
 class PasswordUpdateSerializer(serializers.Serializer):
@@ -166,7 +215,6 @@ class CustomTokenRefreshSerializer(TokenRefreshSerializer):
 
 class InviteUserSerializer(serializers.Serializer):
     emails = serializers.ListField(child=serializers.EmailField(), allow_empty=False)
-    project_id = serializers.CharField()
 
 
 class InvitationStatusSerializer(serializers.ModelSerializer):

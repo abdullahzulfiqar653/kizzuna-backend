@@ -24,7 +24,7 @@ class TestProjectTypeListView(APITestCase):
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
-        self.url = f"/api/projects/{self.project.id}/types/"
+        self.url = f"/api/projects/{self.project.id}/report-types/"
         return super().setUp()
 
     def test_user_list_report_types_in_project(self):

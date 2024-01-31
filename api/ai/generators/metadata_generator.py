@@ -65,7 +65,9 @@ def generate_metadata(note: Note):
         meeting_type: MeetingType = Field(
             description=gettext("What is the meeting type?")
         )
-        summary: str = Field(description=gettext("Summary of the text."))
+        summary: list[str] = Field(
+            description=gettext("Summary of the text in point form.")
+        )
         sentiment: Optional[Note.Sentiment] = Field(
             description=gettext("The sentiment of the text.")
         )

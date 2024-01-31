@@ -25,24 +25,16 @@ class InsightTakeawayListCreateView(generics.ListCreateAPIView):
     ]
 
     def get_serializer_class(self):
-        if self.request.method == "GET":
-            return TakeawaySerializer
-        elif self.request.method in ("POST", "DELETE"):
-            return InsightTakeawaysSerializer
-        else:
-            raise exceptions.MethodNotAllowed("Only GET, POST and DELETE are allowed.")
-
-    def get_insight(self, insight_id):
-        insight = Insight.objects.filter(
-            id=insight_id, project__users=self.request.user
-        ).first()
-        if insight is None:
-            raise exceptions.NotFound("Insight not found.")
-        return insight
+        match self.request.method:
+            case "GET":
+                return TakeawaySerializer
+            case "POST":
+                return InsightTakeawaysSerializer
+            case _:
+                raise exceptions.MethodNotAllowed("Only GET and POST are allowed.")
 
     def get_queryset(self):
-        insight = self.get_insight(self.kwargs["insight_id"])
-        return insight.takeaways.all()
+        return self.request.insight.takeaways.all()
 
     def get_valid_takeaways(self, insight: Insight):
         # Can add or remove any takeaways in the project to the insight
@@ -50,9 +42,8 @@ class InsightTakeawayListCreateView(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        insight = self.get_insight(self.kwargs["insight_id"])
-        valid_takeaways = self.get_valid_takeaways(insight)
-        context["insight"] = insight
+        valid_takeaways = self.get_valid_takeaways(self.request.insight)
+        context["insight"] = self.request.insight
         context["valid_takeaway_ids"] = valid_takeaways.values_list("id", flat=True)
         return context
 
@@ -61,32 +52,18 @@ class InsightTakeawayDeleteView(generics.GenericAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = InsightTakeawaysSerializer
 
-    def get_insight(self, insight_id) -> Insight:
-        insight = Insight.objects.filter(
-            id=insight_id, project__users=self.request.user
-        ).first()
-        if insight is None:
-            raise exceptions.NotFound("Insight not found.")
-        return insight
-
     def get_valid_takeaways(self, insight: Insight):
         # Can add or remove any takeaways in the project to the insight
         return Takeaway.objects.filter(note__project=insight.project)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        insight = self.get_insight(self.kwargs["insight_id"])
-        valid_takeaways = self.get_valid_takeaways(insight)
-        context["insight"] = insight
+        valid_takeaways = self.get_valid_takeaways(self.request.insight)
+        context["insight"] = self.request.insight
         context["valid_takeaway_ids"] = valid_takeaways.values_list("id", flat=True)
         return context
 
     def post(self, request, insight_id):
-        insight = Insight.objects.filter(
-            id=insight_id, project__users=request.user
-        ).first()
-        if insight is None:
-            raise exceptions.NotFound("Insight not found.")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.delete()

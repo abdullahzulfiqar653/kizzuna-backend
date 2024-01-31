@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 00:52+0000\n"
+"POT-Creation-Date: 2024-01-23 10:25+0000\n"
 "PO-Revision-Date: 2024-01-20 09:13+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -16,8 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && "
-"(n%100<12 || n%100>14) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 "X-Generator: Poedit 3.4.2\n"
 
 #: api/ai/analyzer/project_summarizer.py:22
@@ -61,25 +60,47 @@ msgstr "Krótki akapit opisujący, czego dotyczy spotkanie."
 msgid "What is the meeting type?"
 msgstr "Jaki jest typ spotkania?"
 
-#: api/ai/generators/metadata_generator.py:68
-msgid "Summary of the text."
+#: api/ai/generators/metadata_generator.py:69
+#, fuzzy
+#| msgid "Summary of the text."
+msgid "Summary of the text in point form."
 msgstr "Podsumowanie tekstu."
 
-#: api/ai/generators/metadata_generator.py:70
+#: api/ai/generators/metadata_generator.py:72
 msgid "The sentiment of the text."
 msgstr "Nastrój tekstu."
 
-#: api/ai/generators/metadata_generator.py:73
+#: api/ai/generators/metadata_generator.py:75
 msgid "The list of relevant keywords of the text."
 msgstr "Lista odpowiednich słów kluczowych tekstu."
 
-#: api/ai/generators/metadata_generator.py:86
+#: api/ai/generators/metadata_generator.py:88
 msgid "Follow the function parameter schema strictly."
 msgstr "Ściśle przestrzegaj schematu parametrów funkcji."
 
-#: api/ai/generators/metadata_generator.py:90
+#: api/ai/generators/metadata_generator.py:92
 msgid "Extract data from the following summaries."
 msgstr "Wyodrębnij dane z następujących podsumowań."
+
+#: api/ai/generators/tag_generator.py:42
+msgid "The id and the corresponding generated tags."
+msgstr "Identyfikator i odpowiadające mu wygenerowane tagi."
+
+#: api/ai/generators/tag_generator.py:45
+msgid "ID of the takeaway. For example: '322xBv9XpAbD'"
+msgstr "Identyfikator dania na wynos. Na przykład: „322xBv9XpAbD”"
+
+#: api/ai/generators/tag_generator.py:48
+msgid "List of generated tags"
+msgstr "Lista wygenerowanych tagów"
+
+#: api/ai/generators/tag_generator.py:52
+msgid "A list of takeaways with their relevant tags."
+msgstr "Lista dań na wynos z odpowiednimi tagami."
+
+#: api/ai/generators/tag_generator.py:61
+msgid "Generate tags for each of the given takeaways."
+msgstr "Wygeneruj tagi dla każdego z podanych dań na wynos."
 
 #: api/ai/generators/takeaway_generator.py:20
 msgid "Topic of the takeaway, for grouping the takeaways."
@@ -117,7 +138,7 @@ msgstr ""
 "Zidentyfikuj ważne wnioski/problemy/punkty nauki w poniższym tekście i "
 "powody, dla których są one ważne."
 
-#: api/ai/transcribers/openai_transcriber.py:68
+#: api/ai/paragrapher.py:40
 msgid ""
 "Break the below text into paragraphs, and follow identically the words that "
 "were given - the only thing that should change is the paragraph breaks"
@@ -132,8 +153,8 @@ msgid ""
 "You're receiving this email because you requested a password reset for your "
 "user account at %(site_name)s."
 msgstr ""
-"Otrzymujesz tę wiadomość e-mail, ponieważ poprosiłeś o zresetowanie hasła "
-"do konta użytkownika w %(site_name)s."
+"Otrzymujesz tę wiadomość e-mail, ponieważ poprosiłeś o zresetowanie hasła do"
+" konta użytkownika w %(site_name)s."
 
 #: api/templates/password_reset_email.html:4
 msgid "Please go to the following page and choose a new password:"

@@ -41,7 +41,11 @@ class ProjectSummarizer:
 
         cutoff = timezone.now() - datetime.timedelta(weeks=20)
         notes = project.notes.filter(created_at__gt=cutoff).order_by("-created_at")
-        note_summaries_list = notes.values_list("summary", flat=True)
+        note_summaries_list = [
+            summary_item
+            for summary in notes.values_list("summary", flat=True)
+            for summary_item in summary
+        ]
         filtered_note_summaries_list = list(
             filter(lambda s: s.strip(), note_summaries_list)
         )

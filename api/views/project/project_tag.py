@@ -1,4 +1,4 @@
-from rest_framework import exceptions, generics
+from rest_framework import generics
 
 from api.models.tag import Tag
 from api.serializers.tag import TagSerializer
@@ -11,9 +11,4 @@ class ProjectTagListView(generics.ListAPIView):
     ordering_fields = ["created_at", "takeway_count", "name"]
 
     def get_queryset(self):
-        project_id = self.kwargs["project_id"]
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return Tag.objects.filter(takeaways__note__project=project)
+        return Tag.objects.filter(takeaways__note__project=self.request.project)

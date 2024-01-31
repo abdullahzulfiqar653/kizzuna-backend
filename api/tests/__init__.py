@@ -7,8 +7,11 @@ from .test_note_takeaway import *
 from .test_project import *
 from .test_project_keyword import *
 from .test_project_note import *
+from .test_project_note_type import *
 from .test_project_organization import *
 from .test_project_sentiment import *
 from .test_project_takeaway import *
-from .test_project_type import *
+from .test_project_takeaway_type import *
+from .test_takeaway import *
 from .test_takeaway_tag import *
+from .test_workspace import *

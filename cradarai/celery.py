@@ -12,10 +12,9 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 
 app.autodiscover_tasks()
 
-print("register celery")
 app.conf.beat_schedule = {
     "summarize-projects": {
         "task": "api.tasks.summarize_projects",
-        "schedule": crontab(minute=0, hour=9, day_of_week=1),
+        "schedule": crontab(minute=0, hour=0, day_of_week=1),
     },
 }

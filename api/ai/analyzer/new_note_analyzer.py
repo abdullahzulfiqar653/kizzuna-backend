@@ -8,6 +8,7 @@ from pydub.utils import mediainfo
 from api.ai.downloaders.web_downloader import WebDownloader
 from api.ai.downloaders.youtube_downloader import YoutubeDownloader
 from api.ai.generators.metadata_generator import generate_metadata
+from api.ai.generators.tag_generator import generate_tags
 from api.ai.generators.takeaway_generator import generate_takeaways
 from api.ai.transcribers import openai_transcriber, transcriber_router
 from api.models.note import Note
@@ -52,6 +53,7 @@ class NewNoteAnalyzer:
         with get_openai_callback() as callback:
             generate_takeaways(note)
             generate_metadata(note)
+            generate_tags(note)
             note.analyzing_tokens += callback.total_tokens
             note.analyzing_cost += Decimal(callback.total_cost)
         note.save()
