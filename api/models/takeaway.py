@@ -16,7 +16,7 @@ class Takeaway(models.Model):
     title = models.TextField()
     description = models.TextField(blank=True)
     type = models.ForeignKey(
-        TakeawayType, on_delete=models.PROTECT, related_name="takeaways", null=True
+        TakeawayType, on_delete=models.SET_NULL, related_name="takeaways", null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
