@@ -51,12 +51,16 @@ class TakeawaySerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, takeaway, validated_data):
-        takeaway_type_data = validated_data.pop("type", None)
-        if takeaway_type_data is not None:
-            takeaway_type, _ = TakeawayType.objects.get_or_create(
-                name=takeaway_type_data["name"], project=takeaway.note.project
-            )
-            takeaway.type = takeaway_type
+        if "type" in validated_data:
+            takeaway_type_data = validated_data.pop("type")
+            if takeaway_type_data["name"]:
+                takeaway_type, _ = TakeawayType.objects.get_or_create(
+                    name=takeaway_type_data["name"], project=takeaway.note.project
+                )
+                takeaway.type = takeaway_type
+            else:
+                # User remove takeaway type
+                takeaway.type = None
         return super().update(takeaway, validated_data)
 
 

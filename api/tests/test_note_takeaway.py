@@ -72,7 +72,7 @@ class TestNoteTakeawayListCreateView(APITestCase):
     def test_user_create_takeaway_with_null_type(self):
         data = {
             "title": "takeaway title",
-            "type": "",
+            "type": None,
             "priority": "Low",
         }
         self.client.force_authenticate(self.user)
