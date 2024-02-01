@@ -1,4 +1,4 @@
-from rest_framework import exceptions, generics
+from rest_framework import generics
 
 from api.models.user import User
 from api.serializers.user import UserSerializer
@@ -15,9 +15,4 @@ class ProjectUserListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        project_id = self.kwargs["project_id"]
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return project.users.all()
+        return self.request.project.users.all()

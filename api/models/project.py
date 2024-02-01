@@ -7,14 +7,22 @@ from api.models.workspace import Workspace
 
 class Project(models.Model):
     class Language(models.TextChoices):
-        EN = "en"
-        ID = "id"
-        JA = "ja"
-        ES = "es"
+        ENGLISH = "en"
+        INDONESIAN = "id"
+        JAPANESE = "ja"
+        SPANISH = "es"
+        ITALIAN = "it"
+        PORTUGUESE = "pt"
+        GERMAN = "de"
+        POLISH = "pl"
+        FRENCH = "fr"
+        DUTCH = "nl"
+        SWEDISH = "sv"
 
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     users = models.ManyToManyField(User, related_name="projects")
@@ -22,7 +30,7 @@ class Project(models.Model):
         Workspace, on_delete=models.CASCADE, related_name="projects"
     )
     language = models.CharField(
-        max_length=2, choices=Language.choices, default=Language.EN
+        max_length=2, choices=Language.choices, default=Language.ENGLISH
     )
 
     def __str__(self):

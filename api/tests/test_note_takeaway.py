@@ -23,7 +23,7 @@ class TestNoteTakeawayListCreateView(APITestCase):
             username="outsider", password="password"
         )
 
-        workspace = Workspace.objects.create(name="workspace")
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
 
@@ -53,3 +53,18 @@ class TestNoteTakeawayListCreateView(APITestCase):
         response = self.client.get(f"{self.url}?tag={self.tag.name}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 1)
+
+    def test_user_create_takeaway(self):
+        data = {
+            "title": "takeaway title",
+            "type": "takeaway type",
+            "priority": "Low",
+        }
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        takeaway_id = response.json()["id"]
+        takeaway = Takeaway.objects.get(id=takeaway_id)
+        self.assertEqual(takeaway.title, "takeaway title")
+        self.assertEqual(takeaway.type.name, "takeaway type")
+        self.assertEqual(takeaway.priority, "Low")

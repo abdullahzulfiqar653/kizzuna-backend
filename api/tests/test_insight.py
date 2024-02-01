@@ -22,7 +22,7 @@ class TestInsightRetrieveUpdateDeleteView(APITestCase):
             username="outsider", password="password"
         )
 
-        workspace = Workspace.objects.create(name="workspace")
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.insight = Insight.objects.create(
             title="insight", project=self.project, created_by=self.user

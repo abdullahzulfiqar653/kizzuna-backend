@@ -1,8 +1,8 @@
 from django.db.models import Count
-from rest_framework import exceptions, generics
+from rest_framework import generics
 
 from api.models.insight import Insight
-from api.serializers.takeaway import ProjectInsightSerializer
+from api.serializers.insight import ProjectInsightSerializer
 
 
 class ProjectInsightListCreateView(generics.ListCreateAPIView):
@@ -24,11 +24,4 @@ class ProjectInsightListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]
 
     def get_queryset(self):
-        project_id = self.kwargs["project_id"]
-        project = self.request.user.projects.filter(id=project_id).first()
-        if project is None:
-            raise exceptions.NotFound
-
-        return Insight.objects.annotate(takeaway_count=Count("takeaways")).filter(
-            project=project
-        )
+        return self.request.project.insights.annotate(takeaway_count=Count("takeaways"))

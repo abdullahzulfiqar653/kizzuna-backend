@@ -1,5 +1,8 @@
+import json
 import logging
+import tempfile
 import unittest
+from unittest.mock import Mock, patch
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -23,12 +26,12 @@ class TestProjectNoteListCreateView(APITestCase):
             username="outsider", password="password"
         )
 
-        workspace = Workspace.objects.create(name="workspace")
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         return super().setUp()
 
-    def test_user_list_report_filter_type(self):
+    def test_user_list_report_filter_report_type(self):
         Note.objects.create(
             title="Sample report",
             project=self.project,
@@ -52,6 +55,8 @@ class TestProjectNoteListCreateView(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
+        for report in response.json():
+            self.assertEqual(report["type"], "Report-type-1")
 
     def test_user_list_report_filter_keyword(self):
         note_with_keyword = Note.objects.create(
@@ -109,6 +114,14 @@ class TestProjectNoteListCreateView(APITestCase):
                     "name": "Test company",
                 }
             ],
+            "keywords": [
+                {
+                    "name": "Keyword 1",
+                },
+                {
+                    "name": "Keyword 2",
+                },
+            ],
         }
         self.client.force_authenticate(self.user)
         url = f"/api/projects/{self.project.id}/reports/"
@@ -118,6 +131,51 @@ class TestProjectNoteListCreateView(APITestCase):
         response_json = response.json()
         note = Note.objects.get(id=response_json["id"])
         self.assertEqual(note.organizations.count(), 1)
+        self.assertEqual(note.keywords.count(), 2)
+
+    @patch("api.tasks.analyze_note.delay")
+    def test_user_create_report_with_file(self, mocked_analyze: Mock):
+        data = {
+            "title": "User can create report.",
+            "organizations": [
+                {
+                    "name": "Test company",
+                }
+            ],
+        }
+        with (
+            tempfile.NamedTemporaryFile("r+", suffix=".txt") as file,
+            tempfile.NamedTemporaryFile("r+", suffix=".json") as data_file,
+        ):
+            file.write("File content.")
+            file.seek(0)
+
+            json.dump(data, data_file)
+            data_file.seek(0)
+
+            self.client.force_authenticate(self.user)
+            url = f"/api/projects/{self.project.id}/reports/"
+            payload = {"file": file, "data": data_file}
+            response = self.client.post(url, data=payload, format="multipart")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            mocked_analyze.assert_called_once()
+
+    @patch("api.tasks.analyze_note.delay")
+    def test_user_create_report_with_url(self, mocked_analyze: Mock):
+        data = {
+            "title": "User can create report.",
+            "url": "www.example.com",
+            "organizations": [
+                {
+                    "name": "Test company",
+                }
+            ],
+        }
+        self.client.force_authenticate(self.user)
+        url = f"/api/projects/{self.project.id}/reports/"
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        mocked_analyze.assert_called_once()
 
     @unittest.expectedFailure
     def test_user_create_report_exceed_usage_minutes(self):
@@ -170,7 +228,7 @@ class TestProjectNoteListCreateView(APITestCase):
         self.client.force_authenticate(self.user)
         url = f"/api/projects/{self.project.id}/reports/"
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_outsider_create_report(self):
         data = {
@@ -184,6 +242,6 @@ class TestProjectNoteListCreateView(APITestCase):
         self.client.force_authenticate(self.outsider)
         url = f"/api/projects/{self.project.id}/reports/"
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         # Assert that the endpoint doesn't create the note.
         self.assertEqual(self.project.notes.count(), 0)

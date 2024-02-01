@@ -1,27 +1,17 @@
 import json
-from threading import Thread
-from time import time
 
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce, Round
 from django.http.request import QueryDict
-from django.shortcuts import get_object_or_404
-from django.utils import translation
-from langchain.callbacks import get_openai_callback
-from pydub.utils import mediainfo
 from rest_framework import exceptions, generics, serializers
 
 from api.filters.note import NoteFilter
-from api.generators.metadata_generator import generate_metadata
-from api.generators.takeaway_generator import generate_takeaways
 from api.models.note import Note
 from api.models.project import Project
 from api.models.workspace import Workspace
 from api.serializers.note import ProjectNoteSerializer
-from api.transcribers import omni_transcriber, openai_transcriber
-
-transcriber = omni_transcriber
+from api.tasks import analyze_note
 
 
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
@@ -46,20 +36,9 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]
 
     def get_queryset(self):
-        project_id = self.kwargs["project_id"]
-        project = get_object_or_404(Project, id=project_id)
-        if not project.users.contains(self.request.user):
-            raise exceptions.PermissionDenied
-        return project.notes.annotate(
+        return self.request.project.notes.annotate(
             takeaway_count=Count("takeaways"),
         )
-
-    def get_project(self):
-        project_id = self.kwargs.get("project_id")
-        project = get_object_or_404(Project, id=project_id)
-        if not project.users.contains(self.request.user):
-            raise exceptions.PermissionDenied
-        return project
 
     def to_dict(self, form_data):
         data_file = form_data.get("data")
@@ -89,6 +68,11 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         if "file" not in data or data["file"] == "null":
             data["file"] = None
 
+        if "url" in data and "://" not in data["url"]:
+            # Django URLValidator returns invalid if no schema
+            # so we manually add in the schema if not provided
+            data["url"] = "http://" + data["url"]
+
         return super().get_serializer(*args, **kwargs)
 
     def check_eligibility(self, project: Project):
@@ -109,65 +93,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             raise exceptions.PermissionDenied("Quota limit is hit.")
 
     def perform_create(self, serializer):
-        project = self.get_project()
         # self.check_eligibility(project)
-        note = serializer.save(author=self.request.user, project=project)
-        if note.file:
-            thread = Thread(
-                target=self.analyze,
-                kwargs={"note": note},
-            )
-            thread.start()
-
-    def update_audio_filesize(self, note):
-        if (
-            openai_transcriber in transcriber.transcribers
-            and note.file_type in openai_transcriber.supported_filetypes
-        ):
-            audio_info = mediainfo(note.file.path)
-            note.file_duration_seconds = round(float(audio_info["duration"]))
-            note.analyzing_cost += note.file_duration_seconds / 60 * 0.006
-            note.save()
-
-    def transcribe(self, note):
-        filepath = note.file.path
-        filetype = note.file_type
-        language = note.project.language
-        transcript = transcriber.transcribe(filepath, filetype, language)
-        if transcript is not None:
-            note.content = {
-                "blocks": [{"text": block} for block in transcript.split("\n")]
-            }
-            note.save()
-
-    def summarize(self, note):
-        with get_openai_callback() as callback:
-            generate_takeaways(note)
-            generate_metadata(note)
-            note.analyzing_tokens += callback.total_tokens
-            note.analyzing_cost += callback.total_cost
-        note.save()
-
-    def analyze(self, note: Note):
-        note.is_analyzing = True
-        note.save()
-
-        with translation.override(note.project.language):
-            print(note.project.language)
-            print(translation.get_language())
-            try:
-                print("========> Start transcribing")
-                start = time()
-                self.transcribe(note)
-                self.update_audio_filesize(note)
-                end = time()
-                print(f"Elapsed time: {end - start} seconds")
-                print("========> Start summarizing")
-                self.summarize(note)
-                print("========> End analyzing")
-            except Exception as e:
-                import traceback
-
-                traceback.print_exc()
-            note.is_analyzing = False
-            note.save()
+        note = serializer.save(author=self.request.user, project=self.request.project)
+        if note.file or note.url:
+            analyze_note.delay(note.id)

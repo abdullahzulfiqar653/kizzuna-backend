@@ -4,6 +4,7 @@ from api.models.note import Note
 from api.models.project import Project
 from api.models.tag import Tag
 from api.models.takeaway import Takeaway
+from api.models.takeaway_type import TakeawayType
 from api.models.user import User
 
 
@@ -56,6 +57,17 @@ def notes_in_scope(request):
     return Note.objects.none()
 
 
+def takeaway_types_in_scope(request):
+    "Return the list of takeaway types in project"
+    kwargs = request.parser_context["kwargs"]
+
+    project_id = kwargs.get("project_id")
+    if project_id is not None:
+        return TakeawayType.objects.filter(takeaways__note__project_id=project_id)
+
+    return TakeawayType.objects.none()
+
+
 class TakeawayFilter(filters.FilterSet):
     created_by = filters.ModelMultipleChoiceFilter(
         field_name="created_by__username",
@@ -68,8 +80,14 @@ class TakeawayFilter(filters.FilterSet):
     report_id = filters.ModelMultipleChoiceFilter(
         field_name="note", to_field_name="id", queryset=notes_in_scope
     )
-    status = filters.MultipleChoiceFilter(choices=Takeaway.Status.choices)
+    priority = filters.MultipleChoiceFilter(choices=Takeaway.Priority.choices)
+    type = filters.ModelMultipleChoiceFilter(
+        field_name="type__name", to_field_name="name", queryset=takeaway_types_in_scope
+    )
+    report_type = filters.ModelMultipleChoiceFilter(
+        field_name="note__type", to_field_name="type", queryset=notes_in_scope
+    )
 
     class Meta:
         model = Takeaway
-        fields = ["status", "tag", "created_by"]
+        fields = ["priority", "tag", "created_by", "type", "report_type"]

@@ -18,13 +18,15 @@ from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_insight import ProjectInsightListCreateView
+from api.views.project.project_invitation import ProjectInvitationCreateView
 from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
+from api.views.project.project_note_type import ProjectNoteTypeListView
 from api.views.project.project_organization import ProjectOrganizationListView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_tag import ProjectTagListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
-from api.views.project.project_type import ProjectTypeListView
+from api.views.project.project_takeaway_type import ProjectTakeawayTypeListView
 from api.views.project.project_user import ProjectUserListView
 from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
 from api.views.takeaway.takeaway_tag import (
@@ -40,9 +42,9 @@ from api.views.workspace import (
 
 from .views.auth import (
     DoPasswordResetView,
+    GoogleLoginView,
     InvitationSignupCreateView,
     InvitationStatusRetrieveView,
-    InviteUserView,
     PasswordUpdateView,
     RequestPasswordResetView,
     SignupView,
@@ -50,16 +52,6 @@ from .views.auth import (
 )
 
 urlpatterns = [
-    path(
-        "token/",
-        TokenObtainPairAndRefreshView.as_view(),
-        name="token_obtain_pair",
-    ),
-    path(
-        "token/refresh/",
-        TokenRefreshView.as_view(),
-        name="token_refresh",
-    ),
     # =====================================================
     # Reports
     # =====================================================
@@ -137,14 +129,24 @@ urlpatterns = [
         name="project-sentiment-list",
     ),
     path(
-        "projects/<str:project_id>/types/",
-        ProjectTypeListView.as_view(),
-        name="project-type-list",
+        "projects/<str:project_id>/report-types/",
+        ProjectNoteTypeListView.as_view(),
+        name="project-note-type-list",
+    ),
+    path(
+        "projects/<str:project_id>/takeaway-types/",
+        ProjectTakeawayTypeListView.as_view(),
+        name="project-takeaway-type-list",
     ),
     path(
         "projects/<str:project_id>/insights/",
         ProjectInsightListCreateView.as_view(),
         name="project-insight-list-create",
+    ),
+    path(
+        "projects/<str:project_id>/invitations/",
+        ProjectInvitationCreateView.as_view(),
+        name="project-invite",
     ),
     # =====================================================
     # Workspace
@@ -209,6 +211,21 @@ urlpatterns = [
     # Auth
     # =====================================================
     path(
+        "token/",
+        TokenObtainPairAndRefreshView.as_view(),
+        name="token_obtain_pair",
+    ),
+    path(
+        "token/refresh/",
+        TokenRefreshView.as_view(),
+        name="token_refresh",
+    ),
+    path(
+        "token/google/",
+        GoogleLoginView.as_view(),
+        name="google-token-obtain-pair",
+    ),
+    path(
         "signup/",
         SignupView.as_view(),
         name="signup-create",
@@ -222,11 +239,6 @@ urlpatterns = [
         "invitation/<str:token>/",
         InvitationStatusRetrieveView.as_view(),
         name="invitation-status-retrieve",
-    ),
-    path(
-        "users/invite/",
-        InviteUserView.as_view(),
-        name="user-invite",
     ),
     path(
         "auth-users/",

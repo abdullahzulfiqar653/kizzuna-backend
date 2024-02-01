@@ -25,7 +25,7 @@ class TestTakeawayTagView(APITestCase):
             username="outsider", password="password"
         )
 
-        self.workspace = Workspace.objects.create(name="workspace")
+        self.workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=self.workspace)
         self.insight = Insight.objects.create(
             title="insight", project=self.project, created_by=self.user
@@ -58,7 +58,7 @@ class TestTakeawayTagView(APITestCase):
     def test_user_create_takeaway_tags_with_existing_tag(self):
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url2, data={"name": "tag"})
-        self.tag.refresh_from_db()
+        self.tag = Tag.objects.get(id=self.tag.id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.tag.takeaway_count, 2)
 
@@ -76,5 +76,5 @@ class TestTakeawayTagView(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertTrue(Tag.objects.contains(self.tag))
-        self.tag.refresh_from_db()
+        self.tag = Tag.objects.get(id=self.tag.id)
         self.assertEqual(self.tag.takeaway_count, 1)

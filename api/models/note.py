@@ -63,6 +63,7 @@ class Note(models.Model):
     code = models.CharField(max_length=5)
     takeaway_sequence = models.IntegerField(default=0)
 
+    url = models.URLField(max_length=255, null=True)
     file = models.FileField(
         upload_to="attachments/",
         validators=[validate_file_size, validate_file_type],
@@ -74,8 +75,8 @@ class Note(models.Model):
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
     content = models.JSONField(null=True)
-    summary = models.TextField()
-    keywords = models.ManyToManyField(Keyword, blank=True)
+    summary = models.JSONField(default=list)
+    keywords = models.ManyToManyField(Keyword, blank=True, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
     analyzing_tokens = models.IntegerField(default=0)
     analyzing_cost = models.DecimalField(default=0, decimal_places=7, max_digits=11)

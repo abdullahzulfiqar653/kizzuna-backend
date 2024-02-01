@@ -25,7 +25,7 @@ class TestNoteKeywordDestroyView(APITestCase):
             username="outsider", password="password"
         )
 
-        workspace = Workspace.objects.create(name="workspace")
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
 
@@ -63,8 +63,11 @@ class TestNoteKeywordDestroyView(APITestCase):
 class TestNoteRetrieveUpdateDeleteView(APITestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(username="user", password="password")
+        self.outsider = User.objects.create_user(
+            username="outsider", password="password"
+        )
 
-        workspace = Workspace.objects.create(name="workspace")
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         self.note = Note.objects.create(
@@ -202,3 +205,9 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
             0,
             "Organization that is not related to any note is not cleaned up.",
         )
+
+    def test_outsider_retrieve_note(self):
+        self.client.force_authenticate(self.outsider)
+        url = f"/api/reports/{self.note.id}/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

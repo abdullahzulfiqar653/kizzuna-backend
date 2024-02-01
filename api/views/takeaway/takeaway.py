@@ -10,13 +10,11 @@ class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
 
-    def get_queryset(self):
-        return Takeaway.objects.filter(note__project__users=self.request.user)
-
     def destroy(self, request, *args, **kwargs):
         takeaway: Takeaway = self.get_object()
         note: Note = takeaway.note
 
+        # Clean up highlight
         if hasattr(takeaway, "highlight"):
             # This takeaway is a highlight.
             # Need to remove the highlight from note.content
