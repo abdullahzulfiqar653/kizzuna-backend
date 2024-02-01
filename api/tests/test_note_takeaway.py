@@ -68,3 +68,18 @@ class TestNoteTakeawayListCreateView(APITestCase):
         self.assertEqual(takeaway.title, "takeaway title")
         self.assertEqual(takeaway.type.name, "takeaway type")
         self.assertEqual(takeaway.priority, "Low")
+
+    def test_user_create_takeaway_with_null_type(self):
+        data = {
+            "title": "takeaway title",
+            "type": "",
+            "priority": "Low",
+        }
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        takeaway_id = response.json()["id"]
+        takeaway = Takeaway.objects.get(id=takeaway_id)
+        self.assertEqual(takeaway.title, "takeaway title")
+        self.assertIsNone(takeaway.type)
+        self.assertEqual(takeaway.priority, "Low")
