@@ -20,7 +20,7 @@ class BriefNoteSerializer(serializers.ModelSerializer):
 class TakeawaySerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    type = serializers.CharField(source="type.name", required=False)
+    type = serializers.CharField(source="type.name", required=False, allow_null=True)
     report = BriefNoteSerializer(source="note", read_only=True)
 
     class Meta:
@@ -40,7 +40,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context["request"]
         takeaway_type_data = validated_data.pop("type", None)
-        if takeaway_type_data is not None:
+        if takeaway_type_data is not None and takeaway_type_data["name"] is not None:
             takeaway_type, _ = TakeawayType.objects.get_or_create(
                 name=takeaway_type_data["name"], project=request.note.project
             )
@@ -51,12 +51,16 @@ class TakeawaySerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, takeaway, validated_data):
-        takeaway_type_data = validated_data.pop("type", None)
-        if takeaway_type_data is not None:
-            takeaway_type, _ = TakeawayType.objects.get_or_create(
-                name=takeaway_type_data["name"], project=takeaway.note.project
-            )
-            takeaway.type = takeaway_type
+        if "type" in validated_data:
+            takeaway_type_data = validated_data.pop("type")
+            if takeaway_type_data["name"]:
+                takeaway_type, _ = TakeawayType.objects.get_or_create(
+                    name=takeaway_type_data["name"], project=takeaway.note.project
+                )
+                takeaway.type = takeaway_type
+            else:
+                # User remove takeaway type
+                takeaway.type = None
         return super().update(takeaway, validated_data)
 
 

@@ -77,6 +77,17 @@ class TestTakeawayRetrieveUpdateDeleteView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("priority", response.json())
 
+    def test_user_update_takeaway_type(self):
+        url = f"/api/takeaways/{self.takeaway.id}/"
+        data = {
+            "type": None,
+        }
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.takeaway.refresh_from_db()
+        self.assertIsNone(self.takeaway.type)
+
     def test_user_update_takeaway_priority(self):
         url = f"/api/takeaways/{self.takeaway.id}/"
         data = {
@@ -86,6 +97,7 @@ class TestTakeawayRetrieveUpdateDeleteView(APITestCase):
         response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.takeaway.refresh_from_db()
+        self.assertEqual(self.takeaway.type, self.takeaway_type)
         self.assertEqual(self.takeaway.priority, Takeaway.Priority.HIGH)
 
     def test_user_update_takeaway_priority(self):
