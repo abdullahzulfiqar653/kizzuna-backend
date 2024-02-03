@@ -9,6 +9,7 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayListCreateView,
 )
 from api.views.note.note import NoteRetrieveUpdateDeleteView
+from api.views.note.note_extract import NoteExtractCreateView
 from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
@@ -84,6 +85,11 @@ urlpatterns = [
         "reports/<str:report_id>/tags/generate/",
         NoteTagGenerateView.as_view(),
         name="note-tag-generate",
+    ),
+    path(
+        "reports/<str:report_id>/extract/",
+        NoteExtractCreateView.as_view(),
+        name="note-extract",
     ),
     # =====================================================
     # Projects
