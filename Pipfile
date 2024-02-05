@@ -35,6 +35,7 @@ html-to-draftjs = "==1.0.1"
 playwright = "==1.41.0"
 html2text = "==2020.1.16"
 gevent = "==23.9.1"
+django-ordered-model = "*"
 
 [dev-packages]
 ipykernel = "*"

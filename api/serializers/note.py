@@ -8,7 +8,9 @@ from api.models.highlight import Highlight
 from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.organization import Organization
+from api.models.question import Question
 from api.serializers.organization import OrganizationSerializer
+from api.serializers.question import QuestionSerializer
 from api.serializers.tag import KeywordSerializer
 from api.serializers.user import UserSerializer
 
@@ -27,6 +29,7 @@ class NoteSerializer(serializers.ModelSerializer):
     is_auto_tagged = serializers.BooleanField(read_only=True)
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
+    questions = QuestionSerializer(many=True, required=False)
     summary = serializers.JSONField(required=False, default=[])
     organizations = OrganizationSerializer(many=True, required=False)
 
@@ -41,6 +44,7 @@ class NoteSerializer(serializers.ModelSerializer):
             "is_auto_tagged",
             "file_type",
             "keywords",
+            "questions",
             "summary",
             "title",
             "created_at",
@@ -55,28 +59,47 @@ class NoteSerializer(serializers.ModelSerializer):
             "sentiment",
         ]
 
+    def add_organizations(self, note, organizations):
+        organizations_to_create = [
+            Organization(name=organization["name"], project=note.project)
+            for organization in organizations
+        ]
+        Organization.objects.bulk_create(organizations_to_create, ignore_conflicts=True)
+        organizations_to_add = Organization.objects.filter(project=note.project).filter(
+            name__in=[organization["name"] for organization in organizations]
+        )
+        note.organizations.add(*organizations_to_add)
+
+    def add_keywords(self, note, keywords):
+        keywords_to_create = [Keyword(name=keyword["name"]) for keyword in keywords]
+        Keyword.objects.bulk_create(keywords_to_create, ignore_conflicts=True)
+        keywords_to_add = Keyword.objects.filter(
+            name__in=[keyword["name"] for keyword in keywords]
+        )
+        note.keywords.add(*keywords_to_add)
+
+    def add_questions(self, note, questions):
+        questions_to_create = [
+            Question(title=question["title"], project=note.project)
+            for question in questions
+        ]
+        Question.objects.bulk_create(questions_to_create, ignore_conflicts=True)
+        questions_to_add = Question.objects.filter(project=note.project).filter(
+            title__in=[question["title"] for question in questions]
+        )
+        note.questions.add(*questions_to_add)
+
     def create(self, validated_data):
-        project_id = self.context["view"].kwargs["project_id"]
         organizations = validated_data.pop("organizations", [])
         keywords = validated_data.pop("keywords", [])
+        questions = validated_data.pop("questions", [])
         note = Note.objects.create(**validated_data)
-
-        for organization_dict in organizations:
-            organization_name = organization_dict["name"]
-            organization, _ = Organization.objects.get_or_create(
-                name=organization_name, project_id=project_id
-            )
-            note.organizations.add(organization)
-
-        for keyword_dict in keywords:
-            keyword_name = keyword_dict["name"]
-            keyword, _ = Keyword.objects.get_or_create(name=keyword_name)
-            note.keywords.add(keyword)
-
+        self.add_organizations(note, organizations)
+        self.add_keywords(note, keywords)
+        self.add_questions(note, questions)
         return note
 
     def update(self, note: Note, validated_data):
-        request = self.context["request"]
         project = note.project
         organizations = validated_data.pop("organizations", None)
         note = super().update(note, validated_data)

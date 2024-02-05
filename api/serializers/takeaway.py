@@ -4,6 +4,7 @@ from api.models.insight import Insight
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
+from api.serializers.question import QuestionSerializer
 from api.serializers.tag import TagSerializer
 from api.serializers.user import UserSerializer
 
@@ -22,6 +23,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     type = serializers.CharField(source="type.name", required=False, allow_null=True)
     report = BriefNoteSerializer(source="note", read_only=True)
+    question = QuestionSerializer(read_only=True)
 
     class Meta:
         model = Takeaway
@@ -35,6 +37,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "created_by",
             "report",
             "created_at",
+            "question",
         ]
 
     def create(self, validated_data):
