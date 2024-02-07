@@ -9,6 +9,7 @@ from api.models.highlight import Highlight
 from api.models.keyword import Keyword
 from api.models.organization import Organization
 from api.models.project import Project
+from api.models.question import Question
 from api.models.user import User
 from api.models.workspace import Workspace
 
@@ -76,10 +77,13 @@ class Note(models.Model):
     is_auto_tagged = models.BooleanField(default=False)
     content = models.JSONField(null=True)
     summary = models.JSONField(default=list)
-    keywords = models.ManyToManyField(Keyword, blank=True, related_name="notes")
+    keywords = models.ManyToManyField(Keyword, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
     analyzing_tokens = models.IntegerField(default=0)
     analyzing_cost = models.DecimalField(default=0, decimal_places=7, max_digits=11)
+    questions = models.ManyToManyField(
+        Question, related_name="notes", through="api.NoteQuestion"
+    )
 
     class Meta:
         unique_together = [

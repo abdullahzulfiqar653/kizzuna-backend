@@ -59,9 +59,6 @@ class NewNoteAnalyzer:
         note.save()
 
     def analyze(self, note: Note):
-        note.is_analyzing = True
-        note.save()
-
         with translation.override(note.project.language):
             try:
                 print("========> Start transcribing")
@@ -73,6 +70,19 @@ class NewNoteAnalyzer:
                     self.download(note)
                 end = time()
                 print(f"Elapsed time: {end - start} seconds")
+                print("========> Start summarizing")
+                self.summarize(note)
+                print("========> End analyzing")
+            except Exception as e:
+                import traceback
+
+                traceback.print_exc()
+
+
+class ExistingNoteAnalyzer(NewNoteAnalyzer):
+    def analyze(self, note: Note):
+        with translation.override(note.project.language):
+            try:
                 print("========> Start summarizing")
                 self.summarize(note)
                 print("========> End analyzing")

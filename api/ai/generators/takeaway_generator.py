@@ -1,3 +1,5 @@
+import json
+
 from django.utils.translation import gettext
 from langchain.chains.openai_functions import create_structured_output_chain
 from langchain.prompts import ChatPromptTemplate
@@ -15,14 +17,22 @@ from api.models.user import User
 
 def get_chain():
     class TakeawaySchema(BaseModel):
+        "The takeaway extracted from the text targeted for a specific question."
+
+        question_id: str = Field(
+            description=gettext(
+                "The id of the question the takeaway is for."
+                "For example: '5R4koV7RvP2D'."
+            )
+        )
         topic: str = Field(
             description=gettext("Topic of the takeaway, for grouping the takeaways.")
         )
         title: str = Field(
             description=gettext(
                 "What the takeaway is about. "
-                "This should be an important message, issue, learning point "
-                "or pain point of the text."
+                "This should be an important message of the text "
+                "carrying a single idea."
             )
         )
         significance: str = Field(
@@ -30,17 +40,17 @@ def get_chain():
         )
         type: str = Field(
             description=gettext(
-                "The takeaway type. For example: 'Pain Point', 'Feature', 'Idea'."
+                "The takeaway type. For example: 'Pain Point', 'Moment of Delight', "
+                "'Pricing', 'Feature Request', 'Moment of Dissatisfaction', "
+                "'Usability Issue', or any other issue types deemed logical."
             )
         )
 
     class TakeawaysSchema(BaseModel):
+        "A list of extracted takeaways."
+
         takeaways: list[TakeawaySchema] = Field(
-            description=gettext(
-                "A list of ten to twenty important takeaways of the text."
-            ),
-            min_items=10,
-            max_items=20,
+            description=gettext("A list of takeaways extracted from the text.")
         )
 
     llm = ChatOpenAI(model=config.model)
@@ -49,23 +59,18 @@ def get_chain():
             (
                 "system",
                 gettext(
-                    "You are an experienced product analyst. "
-                    "You are experienced in identifying pain points "
-                    "and takeaways from user interviews."
+                    "Extract the takeaways for each question from the text. "
+                    "There can be multiple takeaways for each question."
                 ),
             ),
             (
                 "human",
-                gettext(
-                    "Identify Important Takeaways/Issues/Learning Points "
-                    "in the below given text and reasons why they are important."
-                )
-                + "\n\n{text}",
+                gettext("Questions: {questions}\n\nText: \n{text}"),
             ),
         ]
     )
     takeaways_chain = create_structured_output_chain(
-        TakeawaysSchema.model_json_schema(), llm, prompt, verbose=True
+        TakeawaysSchema.model_json_schema(), llm, prompt
     )
     return takeaways_chain
 
@@ -82,13 +87,25 @@ def generate_takeaways(note: Note):
     bot = User.objects.get(username="bot@raijin.ai")
     doc = Document(page_content=note.get_content_text())
     docs = text_splitter.split_documents([doc])
-    outputs = [takeaways_chain.invoke(doc.page_content) for doc in docs]
 
-    # Post processing the LLM response
+    questions = [
+        {"id": question.id, "question": question.title}
+        for question in note.questions.all()
+    ]
+    questions_string = json.dumps(questions)
+
+    outputs = [
+        takeaways_chain.invoke(
+            {"text": doc.page_content, "questions": questions_string}
+        )
+        for doc in docs
+    ]
+
     generated_takeaways = [
         {
             "title": f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
             "type": takeaway["type"],
+            "question_id": takeaway["question_id"],
         }
         for output in outputs
         for takeaway in output["function"]["takeaways"]
@@ -122,6 +139,7 @@ def generate_takeaways(note: Note):
                 type=takeaway_type_dict[generated_takeaway["type"]],
                 note=note,
                 created_by=bot,
+                question_id=generated_takeaway["question_id"],
                 code=f"{note.code}-{note_takeaway_sequence}",
             )
         )
