@@ -2,7 +2,7 @@ from rest_framework import exceptions, generics
 
 from api.models.note_template import NoteTemplate
 from api.serializers.note_template import (
-    NoteTemplateCreateSerializer,
+    NoteTemplateDetailSerializer,
     NoteTemplateSerializer,
 )
 
@@ -20,6 +20,6 @@ class ProjectNoteTemplateListCreateView(generics.ListCreateAPIView):
             case "GET":
                 return NoteTemplateSerializer
             case "POST":
-                return NoteTemplateCreateSerializer
+                return NoteTemplateDetailSerializer
             case _:
                 raise exceptions.MethodNotAllowed("Only GET and POST are allowed.")

@@ -32,13 +32,19 @@ class HasWorkspaceProjectPermission(permissions.BasePermission):
 
             case str(s) if s.startswith("/api/report-templates/"):
                 NoteTemplate = apps.get_model("api", "NoteTemplate")
-                report_template_id = view.kwargs.get("report_template_id")
+                report_template_id = view.kwargs.get("pk") or view.kwargs.get(
+                    "report_template_id"
+                )
                 queryset = NoteTemplate.objects.select_related("project__workspace")
                 request.note_template = get_instance(queryset, report_template_id)
                 project = request.note_template.project
                 if project is None:
                     # For public report templates, project is None
-                    workspace = None
+                    if request.method in permissions.SAFE_METHODS:
+                        workspace = None
+                    else:
+                        # We don't allow creating / updating public report templates
+                        raise exceptions.PermissionDenied
                 else:
                     workspace = project.workspace
 

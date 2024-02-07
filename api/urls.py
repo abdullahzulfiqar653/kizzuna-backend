@@ -17,6 +17,7 @@ from api.views.note.note_keyword import (
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
+from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
 from api.views.note_template_question import NoteTemplateQuestionListView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_insight import ProjectInsightListCreateView
@@ -96,6 +97,11 @@ urlpatterns = [
     # =====================================================
     # Report Templates
     # =====================================================
+    path(
+        "report-templates/<str:pk>/",
+        NoteTemplateRetrieveUpdateDestroyView.as_view(),
+        name="note-template-retrieve-update-delete",
+    ),
     path(
         "report-templates/<str:report_template_id>/questions/",
         NoteTemplateQuestionListView.as_view(),
