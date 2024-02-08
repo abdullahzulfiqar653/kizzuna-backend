@@ -2,7 +2,7 @@
 import logging
 
 from django.db.models import Count
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
 from api.models.highlight import Highlight
 from api.models.keyword import Keyword
@@ -58,6 +58,11 @@ class NoteSerializer(serializers.ModelSerializer):
             "url",
             "sentiment",
         ]
+
+    def validate_questions(self, value):
+        if len(value) > 8:
+            raise exceptions.ValidationError("Please provide at most 8 questions.")
+        return value
 
     def add_organizations(self, note, organizations):
         organizations_to_create = [
