@@ -9,7 +9,12 @@ from api.ai.downloaders.web_downloader import WebDownloader
 from api.ai.downloaders.youtube_downloader import YoutubeDownloader
 from api.ai.generators.metadata_generator import generate_metadata
 from api.ai.generators.tag_generator import generate_tags
-from api.ai.generators.takeaway_generator import generate_takeaways
+from api.ai.generators.takeaway_generator_default_question import (
+    generate_takeaways_default_question,
+)
+from api.ai.generators.takeaway_generator_with_questions import (
+    generate_takeaways_with_questions,
+)
 from api.ai.transcribers import openai_transcriber, transcriber_router
 from api.models.note import Note
 
@@ -51,7 +56,10 @@ class NewNoteAnalyzer:
 
     def summarize(self, note):
         with get_openai_callback() as callback:
-            generate_takeaways(note)
+            if note.questions.count() > 0:
+                generate_takeaways_with_questions(note)
+            else:
+                generate_takeaways_default_question(note)
             generate_metadata(note)
             generate_tags(note)
             note.analyzing_tokens += callback.total_tokens

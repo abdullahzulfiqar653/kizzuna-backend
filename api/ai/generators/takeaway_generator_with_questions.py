@@ -75,7 +75,7 @@ def get_chain():
     return takeaways_chain
 
 
-def generate_takeaways(note: Note):
+def generate_takeaways_with_questions(note: Note):
     takeaways_chain = get_chain()
 
     text_splitter = TokenTextSplitter(

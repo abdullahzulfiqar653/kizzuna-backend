@@ -4,7 +4,9 @@ from unittest.mock import patch
 
 from rest_framework.test import APITestCase
 
-from api.ai.generators.takeaway_generator import generate_takeaways
+from api.ai.generators.takeaway_generator_with_questions import (
+    generate_takeaways_with_questions,
+)
 from api.models.note import Note
 from api.models.project import Project
 from api.models.question import Question
@@ -83,7 +85,7 @@ class TestTakeawayGenerator(APITestCase):
             }
         }
 
-        generate_takeaways(self.note)
+        generate_takeaways_with_questions(self.note)
         expected_mocked_invoke_arguments = (
             {
                 "text": (
