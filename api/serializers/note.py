@@ -90,6 +90,8 @@ class NoteSerializer(serializers.ModelSerializer):
         note.questions.add(*questions_to_add)
 
     def create(self, validated_data):
+        if validated_data["file"] is not None:
+            validated_data["file_size"] = validated_data["file"].size
         organizations = validated_data.pop("organizations", [])
         keywords = validated_data.pop("keywords", [])
         questions = validated_data.pop("questions", [])
