@@ -27,6 +27,7 @@ class NoteSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     is_analyzing = serializers.BooleanField(read_only=True)
     is_auto_tagged = serializers.BooleanField(read_only=True)
+    file_name = serializers.CharField(read_only=True, source="file.name")
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
     questions = QuestionSerializer(many=True, required=False)
@@ -42,7 +43,6 @@ class NoteSerializer(serializers.ModelSerializer):
             "author",
             "is_analyzing",
             "is_auto_tagged",
-            "file_type",
             "keywords",
             "questions",
             "summary",
@@ -55,6 +55,8 @@ class NoteSerializer(serializers.ModelSerializer):
             "type",
             "is_published",
             "file",
+            "file_type",
+            "file_name",
             "url",
             "sentiment",
         ]

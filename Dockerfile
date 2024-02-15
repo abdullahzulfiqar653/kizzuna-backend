@@ -19,7 +19,8 @@ RUN apt update && \
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN playwright install && \
-    playwright install-deps
+    playwright install-deps && \
+    rm -rf /root/.cache
 
 # Expose port 8000 for the Django development server
 EXPOSE 8000
