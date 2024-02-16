@@ -11,7 +11,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "workspaces"]
+        fields = ["email", "first_name", "last_name", "workspaces", "skip_tutorial"]
 
     def validate_email(self, value):
         if not value:
