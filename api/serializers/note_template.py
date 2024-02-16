@@ -19,6 +19,7 @@ class NoteTemplateSerializer(serializers.ModelSerializer):
 
 class NoteTemplateDetailSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
+    description = serializers.CharField(required=False, default="")
     questions = QuestionSerializer(many=True)
 
     class Meta:
