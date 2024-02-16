@@ -18,6 +18,7 @@ import environ
 env = environ.Env()
 # reading .env file
 environ.Env.read_env(".env")
+environ.Env.read_env(".env.example")
 os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = env("GOOGLE_APPLICATION_CREDENTIALS")
 
@@ -58,6 +59,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_filters",
     "ordered_model",
+    "storages",
+    "django_cleanup",  # To delete the file when the model instance that contains the file is deleted.
 ]
 
 MIDDLEWARE = [
@@ -152,6 +155,11 @@ DATABASES = {
 
 AUTH_USER_MODEL = "api.User"
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -191,38 +199,24 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, "translations")]
 STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+USE_S3 = env("USE_S3", cast=bool, default=False)
+if USE_S3 is True:
+    # Set your AWS credentials and region. You can also store these in environment variables.# AWS_ACCESS_KEY_ID = 'access_key'
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_QUERYSTRING_AUTH = True
+    default_storage_backend = "api.storage_backends.PrivateMediaStorage"
+else:
+    MEDIA_URL = "media/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    default_storage_backend = "django.core.files.storage.FileSystemStorage"
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Set your AWS credentials and region. You can also store these in environment variables.# AWS_ACCESS_KEY_ID = 'access_key'
-# AWS_ACCESS_KEY_ID = 'access_key'
-# AWS_SECRET_ACCESS_KEY = 'secret_key'
-AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
-AWS_DEFAULT_ACL = env(
-    "AWS_DEFAULT_ACL"
-)  # Set the access control list for uploaded files
-AWS_QUERYSTRING_AUTH = env(
-    "AWS_QUERYSTRING_AUTH", cast=bool
-)  # This will prevent the S3 signature from being included in the URL
-AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME")  # e.g., 'us-west-1'
-
-# Set the S3 domain to use for serving media files. You can use the default S3 domain or set up a custom one.
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
-
-# Set the location where media files will be uploaded within the bucket.
-# This is optional but can help you organize files within your bucket.
-MEDIAFILES_LOCATION = "media"
-# MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
-MEDIA_URL = env("MEDIA_URL")
-
-# To test with local storage
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": default_storage_backend,
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",

@@ -2,7 +2,7 @@
 import logging
 
 from django.db.models import Count
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
 from api.models.highlight import Highlight
 from api.models.keyword import Keyword
@@ -27,6 +27,7 @@ class NoteSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     is_analyzing = serializers.BooleanField(read_only=True)
     is_auto_tagged = serializers.BooleanField(read_only=True)
+    file_name = serializers.CharField(read_only=True, source="file.name")
     file_type = serializers.CharField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
     questions = QuestionSerializer(many=True, required=False)
@@ -42,7 +43,6 @@ class NoteSerializer(serializers.ModelSerializer):
             "author",
             "is_analyzing",
             "is_auto_tagged",
-            "file_type",
             "keywords",
             "questions",
             "summary",
@@ -55,9 +55,16 @@ class NoteSerializer(serializers.ModelSerializer):
             "type",
             "is_published",
             "file",
+            "file_type",
+            "file_name",
             "url",
             "sentiment",
         ]
+
+    def validate_questions(self, value):
+        if len(value) > 8:
+            raise exceptions.ValidationError("Please provide at most 8 questions.")
+        return value
 
     def add_organizations(self, note, organizations):
         organizations_to_create = [
@@ -90,6 +97,8 @@ class NoteSerializer(serializers.ModelSerializer):
         note.questions.add(*questions_to_add)
 
     def create(self, validated_data):
+        if validated_data["file"] is not None:
+            validated_data["file_size"] = validated_data["file"].size
         organizations = validated_data.pop("organizations", [])
         keywords = validated_data.pop("keywords", [])
         questions = validated_data.pop("questions", [])

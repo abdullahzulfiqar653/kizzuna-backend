@@ -1,5 +1,8 @@
+import os
+import tempfile
 from decimal import Decimal
 from time import time
+from urllib.parse import urlparse
 
 from django.utils import translation
 from langchain.callbacks import get_openai_callback
@@ -9,9 +12,15 @@ from api.ai.downloaders.web_downloader import WebDownloader
 from api.ai.downloaders.youtube_downloader import YoutubeDownloader
 from api.ai.generators.metadata_generator import generate_metadata
 from api.ai.generators.tag_generator import generate_tags
-from api.ai.generators.takeaway_generator import generate_takeaways
+from api.ai.generators.takeaway_generator_default_question import (
+    generate_takeaways_default_question,
+)
+from api.ai.generators.takeaway_generator_with_questions import (
+    generate_takeaways_with_questions,
+)
 from api.ai.transcribers import openai_transcriber, transcriber_router
 from api.models.note import Note
+from api.storage_backends import PrivateMediaStorage
 
 transcriber = transcriber_router
 youtube_downloader = YoutubeDownloader()
@@ -23,6 +32,23 @@ class NewNoteAnalyzer:
         return {"blocks": [{"text": block} for block in text.split("\n")]}
 
     def transcribe(self, note):
+        if isinstance(note.file.storage, PrivateMediaStorage):
+            self.transcribe_s3_file(note)
+        else:
+            self.transcribe_local_file(note)
+
+    def transcribe_s3_file(self, note):
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write(note.file.read())
+            filepath = temp.name
+            filetype = os.path.splitext(urlparse(note.file.url).path)[1].strip(".")
+            language = note.project.language
+            transcript = transcriber.transcribe(filepath, filetype, language)
+            if transcript is not None:
+                note.content = self.to_content_state(transcript)
+                note.save()
+
+    def transcribe_local_file(self, note):
         filepath = note.file.path
         filetype = note.file_type
         language = note.project.language
@@ -51,7 +77,10 @@ class NewNoteAnalyzer:
 
     def summarize(self, note):
         with get_openai_callback() as callback:
-            generate_takeaways(note)
+            if note.questions.count() > 0:
+                generate_takeaways_with_questions(note)
+            else:
+                generate_takeaways_default_question(note)
             generate_metadata(note)
             generate_tags(note)
             note.analyzing_tokens += callback.total_tokens

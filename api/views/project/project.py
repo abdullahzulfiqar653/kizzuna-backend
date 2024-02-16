@@ -21,6 +21,7 @@ class ProjectRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
                             Round(Sum("projects__notes__file_duration_seconds") / 60.0)
                         ),
                         usage_tokens=Sum("projects__notes__analyzing_tokens"),
+                        total_file_size=Sum("projects__notes__file_size"),
                     )
                 ),
             )

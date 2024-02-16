@@ -51,6 +51,7 @@ class Note(models.Model):
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     title = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="notes")
     workspace = models.ForeignKey(
@@ -72,6 +73,7 @@ class Note(models.Model):
         max_length=255,
     )
     file_type = models.CharField(max_length=4, choices=FileType.choices, null=True)
+    file_size = models.IntegerField(null=True, help_text="File size measured in bytes.")
     file_duration_seconds = models.IntegerField(null=True)
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
