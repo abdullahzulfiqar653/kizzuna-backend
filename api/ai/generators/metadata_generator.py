@@ -1,4 +1,3 @@
-from enum import Enum
 from pprint import pprint
 from typing import Optional
 
@@ -41,16 +40,6 @@ def generate_metadata(note: Note):
     )
     map_chain = LLMChain(llm=llm, prompt=map_prompt, verbose=True)
 
-    class MeetingType(Enum):
-        user_interview = "User Interview"
-        discovery_call = "Sales Discovery Call"
-        demo_meeting = "Customer Technical Demo Meeting"
-        requirement_meeting = "Requirement Gathering Meeting"
-        customer_checkin = "Customer Check In"
-        business_review = "Quarterly Business Review (QBR)"
-        kickoff_meeting = "Customer Kick-off Meeting"
-        handoff_meeting = "Customer Hand-off Meeting"
-
     class MetadataSchema(BaseModel):
         title: str = Field(
             description=gettext(
@@ -62,8 +51,19 @@ def generate_metadata(note: Note):
                 "A short paragraph describing what the meeting is about."
             )
         )
-        meeting_type: MeetingType = Field(
-            description=gettext("What is the meeting type?")
+        meeting_type: str = Field(
+            description=gettext(
+                "The meeting type, which can be one of the following "
+                "or any other meeting type that is appropriate: \n"
+                "- User Interview\n"
+                "- Sales Discovery Call\n"
+                "- Customer Technical Demo Meeting\n"
+                "- Requirement Gathering Meeting\n"
+                "- Customer Check In\n"
+                "- Quarterly Business Review (QBR)\n"
+                "- Customer Kick-off Meeting\n"
+                "- Customer Hand-off Meeting\n"
+            )
         )
         summary: list[str] = Field(
             description=gettext("Summary of the text in point form.")
