@@ -3,8 +3,12 @@ from .insight import Insight
 from .invitation import Invitation
 from .keyword import Keyword
 from .note import Note
+from .note_question import NoteQuestion
+from .note_template import NoteTemplate
+from .note_template_question import NoteTemplateQuestion
 from .organization import Organization
 from .project import Project
+from .question import Question
 from .tag import Tag
 from .takeaway import Takeaway
 from .user import User
@@ -22,4 +26,8 @@ __all__ = [
     "Keyword",
     "Invitation",
     "Workspace",
+    "NoteQuestion",
+    "NoteTemplate",
+    "NoteTemplateQuestion",
+    "Question",
 ]

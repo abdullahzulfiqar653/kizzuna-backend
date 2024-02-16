@@ -11,7 +11,7 @@ from api.models.note import Note
 from api.models.project import Project
 from api.models.workspace import Workspace
 from api.serializers.note import ProjectNoteSerializer
-from api.tasks import analyze_note
+from api.tasks import analyze_new_note
 
 
 class ProjectNoteListCreateView(generics.ListCreateAPIView):
@@ -96,4 +96,4 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         # self.check_eligibility(project)
         note = serializer.save(author=self.request.user, project=self.request.project)
         if note.file or note.url:
-            analyze_note.delay(note.id)
+            analyze_new_note.delay(note.id)

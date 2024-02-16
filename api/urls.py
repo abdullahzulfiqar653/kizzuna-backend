@@ -9,6 +9,7 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayListCreateView,
 )
 from api.views.note.note import NoteRetrieveUpdateDeleteView
+from api.views.note.note_extract import NoteExtractCreateView
 from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
@@ -16,11 +17,14 @@ from api.views.note.note_keyword import (
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
+from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
+from api.views.note_template_question import NoteTemplateQuestionListView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_insight import ProjectInsightListCreateView
 from api.views.project.project_invitation import ProjectInvitationCreateView
 from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
+from api.views.project.project_note_template import ProjectNoteTemplateListCreateView
 from api.views.project.project_note_type import ProjectNoteTypeListView
 from api.views.project.project_organization import ProjectOrganizationListView
 from api.views.project.project_sentiment import ProjectSentimentListView
@@ -85,6 +89,24 @@ urlpatterns = [
         NoteTagGenerateView.as_view(),
         name="note-tag-generate",
     ),
+    path(
+        "reports/<str:report_id>/extract/",
+        NoteExtractCreateView.as_view(),
+        name="note-extract",
+    ),
+    # =====================================================
+    # Report Templates
+    # =====================================================
+    path(
+        "report-templates/<str:pk>/",
+        NoteTemplateRetrieveUpdateDestroyView.as_view(),
+        name="note-template-retrieve-update-delete",
+    ),
+    path(
+        "report-templates/<str:report_template_id>/questions/",
+        NoteTemplateQuestionListView.as_view(),
+        name="note-template-question-list",
+    ),
     # =====================================================
     # Projects
     # =====================================================
@@ -147,6 +169,11 @@ urlpatterns = [
         "projects/<str:project_id>/invitations/",
         ProjectInvitationCreateView.as_view(),
         name="project-invite",
+    ),
+    path(
+        "projects/<str:project_id>/report-templates/",
+        ProjectNoteTemplateListCreateView.as_view(),
+        name="project-note-template-list",
     ),
     # =====================================================
     # Workspace

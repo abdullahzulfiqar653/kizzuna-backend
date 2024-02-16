@@ -36,7 +36,8 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 class WorkspaceDetailSerializer(WorkspaceSerializer):
     usage_minutes = serializers.IntegerField(read_only=True)
     usage_tokens = serializers.IntegerField(read_only=True)
+    total_file_size = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Workspace
-        fields = ["id", "name", "usage_minutes", "usage_tokens"]
+        fields = ["id", "name", "usage_minutes", "usage_tokens", "total_file_size"]
