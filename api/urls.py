@@ -28,6 +28,7 @@ from api.views.project.project_note_template import ProjectNoteTemplateListCreat
 from api.views.project.project_note_type import ProjectNoteTypeListView
 from api.views.project.project_organization import ProjectOrganizationListView
 from api.views.project.project_sentiment import ProjectSentimentListView
+from api.views.project.project_summary import ProjectSummaryRetrieveView
 from api.views.project.project_tag import ProjectTagListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListView
@@ -169,6 +170,11 @@ urlpatterns = [
         "projects/<str:project_id>/invitations/",
         ProjectInvitationCreateView.as_view(),
         name="project-invite",
+    ),
+    path(
+        "projects/<str:project_id>/summary/",
+        ProjectSummaryRetrieveView.as_view(),
+        name="project-summary-retrieve",
     ),
     path(
         "projects/<str:project_id>/report-templates/",
