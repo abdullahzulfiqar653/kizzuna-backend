@@ -4,6 +4,7 @@ import random
 import string
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.db import migrations
 
 
@@ -20,14 +21,14 @@ def generate_random_string(length=20):
 
 
 def create_raijin_bot(apps, schema_editor):
-    User = get_user_model()
+    User = apps.get_model("api", "User")
     bot = User(
         email="bot@raijin.ai",
         username="bot@raijin.ai",
         first_name="Created by AI",
         last_name="",
+        password=make_password(generate_random_string()),
     )
-    bot.set_password(generate_random_string())
     bot.save()
 
 
