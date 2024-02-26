@@ -38,4 +38,17 @@ class ProjectDetailSerializer(ProjectSerializer):
 
     class Meta:
         model = Project
-        fields = ["id", "name", "description", "workspace", "language", "summary"]
+        fields = ["id", "name", "description", "workspace", "language"]
+
+
+class ProjectKeyThemeSerializer(serializers.Serializer):
+    title = serializers.CharField(read_only=True)
+    takeaways = serializers.ListField(child=serializers.CharField())
+
+
+class ProjectSummarySerializer(serializers.ModelSerializer):
+    key_themes = ProjectKeyThemeSerializer(many=True)
+
+    class Meta:
+        model = Project
+        fields = ["summary", "key_themes"]
