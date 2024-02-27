@@ -11,4 +11,5 @@ class CustomUserManager(UserManager):
 
 class User(AbstractUser):
     skip_tutorial = models.BooleanField(default=False)
+    consent_given = models.BooleanField(default=False)
     objects = CustomUserManager()
