@@ -42,7 +42,7 @@ class SignupSerializer(serializers.Serializer):
         username = value
         if username and User.objects.filter(username__iexact=username).exists():
             raise exceptions.ValidationError(f"User {username} already exists.")
-        return value
+        return value.lower()
 
     def create(self, validated_data):
         # Create user
@@ -82,8 +82,9 @@ class GoogleLoginSerializer(serializers.Serializer):
 
         # Get or create user
         user, created = User.objects.get_or_create(
-            username=user_info.get("email"),
+            username__iexact=user_info.get("email").lower(),
             defaults={
+                "username": user_info.get("email").lower(),
                 "first_name": user_info.get("given_name"),
                 "last_name": user_info.get("family_name"),
                 "email": user_info.get("email"),
@@ -243,7 +244,7 @@ class InvitationStatusSerializer(serializers.ModelSerializer):
     def to_representation(self, invitation: Invitation):
         request = self.context["request"]
         self.validate_invitation(invitation)
-        user = User.objects.filter(username=invitation.recipient_email).first()
+        user = User.objects.filter(username__iexact=invitation.recipient_email).first()
 
         if user is None:
             invitation.is_signed_up = False
@@ -282,7 +283,7 @@ class InvitationSignupSerializer(SignupSerializer):
         if invitation.is_used:
             raise exceptions.ValidationError("Token has been used.")
 
-        if User.objects.filter(username=invitation.recipient_email):
+        if User.objects.filter(username__iexact=invitation.recipient_email):
             raise exceptions.ValidationError(
                 f"Email {invitation.recipient_email} has already been taken."
             )
@@ -293,7 +294,7 @@ class InvitationSignupSerializer(SignupSerializer):
         invitation = self.invitation
 
         # Create user, add workspace and add project
-        validated_data["username"] = invitation.recipient_email
+        validated_data["username"] = invitation.recipient_email.lower()
         validated_data["workspace"] = invitation.workspace
         # Calling SignupSerializer.create method
         user = super().create(validated_data)
