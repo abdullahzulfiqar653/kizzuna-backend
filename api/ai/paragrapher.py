@@ -19,13 +19,13 @@ class Paragrapher:
                 current_chunk_size += segment_size
                 chunk.append(segment)
             else:
-                message = chain.invoke({"text": "".join(chunk).strip()})
+                message = chain.invoke({"text": " ".join(chunk).strip()})
                 splitted = message.content.split("\n\n")
                 paragraphs.extend(splitted[:-1])
                 remain = splitted[-1]
                 current_chunk_size = len(encoder.encode(remain)) + segment_size
                 chunk = [remain, segment]
-        message = chain.invoke({"text": "".join(chunk).strip()})
+        message = chain.invoke({"text": " ".join(chunk).strip()})
         splitted = message.content.split("\n\n")
         paragraphs.extend(splitted)
         return "\n".join(paragraphs)
