@@ -21,12 +21,32 @@ class YoutubeDownloader:
             return False
         return True
 
+    def group_segments(self, transcripts, group_size):
+        """
+        Segments in the transcript are too short.
+        This function group several segments into one paragraph.
+        It is a generator that returns a list of paragraphs.
+        """
+        current_group = []
+        for segment in transcripts:
+            text = segment.get("text", "")
+            break_condition = len(current_group) >= 5 or text.startswith("[Music]")
+            if break_condition is True and current_group:
+                # Start a new group if break_condition is true
+                yield " ".join(current_group)
+                current_group = [text]
+            else:
+                current_group.append(text)
+
+        # Append any remaining segments as a group
+        if current_group:
+            yield " ".join(current_group)
+
     def download(self, url) -> str:
         video_id = self.video_id_regex.search(url).group(1)
         language = translation.get_language().split("-")[0]
         transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
-        segments = (segment["text"] for segment in transcript)
-        return self.paragrapher.paragraphing(segments)
+        return "\n".join(self.group_segments(transcript, 5))
 
 
 __all__ = ["YoutubeDownloader"]
