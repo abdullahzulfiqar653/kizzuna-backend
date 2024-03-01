@@ -11,6 +11,8 @@ from .project import Project
 from .question import Question
 from .tag import Tag
 from .takeaway import Takeaway
+from .usage.token import TokenUsage
+from .usage.transciption import TranscriptionUsage
 from .user import User
 from .workspace import Workspace
 
@@ -30,4 +32,6 @@ __all__ = [
     "NoteTemplate",
     "NoteTemplateQuestion",
     "Question",
+    "TranscriptionUsage",
+    "TokenUsage",
 ]
