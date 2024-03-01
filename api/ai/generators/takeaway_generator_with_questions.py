@@ -9,6 +9,7 @@ from langchain_community.chat_models import ChatOpenAI
 from pydantic import BaseModel, Field
 
 from api.ai import config
+from api.ai.generators.utils import token_tracker
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
@@ -75,7 +76,7 @@ def get_chain():
     return takeaways_chain
 
 
-def generate_takeaways_with_questions(note: Note):
+def generate_takeaways_with_questions(note: Note, created_by: User):
     takeaways_chain = get_chain()
 
     text_splitter = TokenTextSplitter(
@@ -94,12 +95,13 @@ def generate_takeaways_with_questions(note: Note):
     ]
     questions_string = json.dumps(questions)
 
-    outputs = [
-        takeaways_chain.invoke(
-            {"text": doc.page_content, "questions": questions_string}
-        )
-        for doc in docs
-    ]
+    with token_tracker(note.project, note, "generate-takeaways", created_by):
+        outputs = [
+            takeaways_chain.invoke(
+                {"text": doc.page_content, "questions": questions_string}
+            )
+            for doc in docs
+        ]
 
     generated_takeaways = [
         {

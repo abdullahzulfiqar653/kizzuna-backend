@@ -7,6 +7,7 @@ from langchain_community.chat_models import ChatOpenAI
 from pydantic import BaseModel, Field
 
 from api.ai import config
+from api.ai.generators.utils import token_tracker
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
@@ -65,12 +66,12 @@ def get_chain():
         ]
     )
     takeaways_chain = create_structured_output_chain(
-        TakeawaysSchema.model_json_schema(), llm, prompt, verbose=True
+        TakeawaysSchema.model_json_schema(), llm, prompt
     )
     return takeaways_chain
 
 
-def generate_takeaways_default_question(note: Note):
+def generate_takeaways_default_question(note: Note, created_by: User):
     takeaways_chain = get_chain()
 
     text_splitter = TokenTextSplitter(
@@ -82,7 +83,8 @@ def generate_takeaways_default_question(note: Note):
     bot = User.objects.get(username="bot@raijin.ai")
     doc = Document(page_content=note.get_content_text())
     docs = text_splitter.split_documents([doc])
-    outputs = [takeaways_chain.invoke(doc.page_content) for doc in docs]
+    with token_tracker(note.project, note, "generate-takeaways", created_by):
+        outputs = [takeaways_chain.invoke(doc.page_content) for doc in docs]
 
     # Post processing the LLM response
     generated_takeaways = [

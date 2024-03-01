@@ -214,6 +214,7 @@ else:
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
     default_storage_backend = "django.core.files.storage.FileSystemStorage"
 
+FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHandler"]
 STORAGES = {
     "default": {
         "BACKEND": default_storage_backend,
@@ -266,3 +267,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Celery config
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Transcription duration limit
+DURATION_LIMIT_SINGLE_FILE = env("DURATION_LIMIT_SINGLE_FILE", cast=int)
+DURATION_LIMIT_WORKSPACE = env("DURATION_LIMIT_WORKSPACE", cast=int)
