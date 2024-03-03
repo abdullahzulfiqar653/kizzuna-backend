@@ -8,29 +8,33 @@ from langchain_community.chat_models import ChatOpenAI
 from langchain_community.utils.openai_functions import (
     convert_pydantic_to_openai_function,
 )
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, StringConstraints
 from tiktoken import encoding_for_model
+from typing_extensions import Annotated
 
 from api.ai import config
+from api.ai.generators.utils import token_tracker
 from api.models.note import Note
 from api.models.tag import Tag
 from api.models.takeaway import Takeaway
+from api.models.user import User
 
 __all__ = ["generate_tag"]
 
 encoder = encoding_for_model(config.model)
 
 
-def generate_tags(note: Note):
+def generate_tags(note: Note, created_by: User):
     chunked_takeaway_lists = chunk_takeaway_list(note)
     chain = get_chain()
 
     results = []
-    for takeaway_list in chunked_takeaway_lists:
-        data = {"takeaways": takeaway_list}
-        takeaways = json.dumps(data)
-        result = chain.invoke({"takeaways": takeaways})
-        results.extend(result["takeaways"])
+    with token_tracker(note.project, note, "generate-tags", created_by):
+        for takeaway_list in chunked_takeaway_lists:
+            data = {"takeaways": takeaway_list}
+            takeaways = json.dumps(data)
+            result = chain.invoke({"takeaways": takeaways})
+            results.extend(result["takeaways"])
     tags = save_tags(note, results)
     save_takeaway_tags(note, tags, results)
 
@@ -42,7 +46,7 @@ def get_chain():
         id: str = Field(
             description=gettext("ID of the takeaway. For example: '322xBv9XpAbD'")
         )
-        tags: list[constr(max_length=50)] = Field(
+        tags: list[Annotated[str, StringConstraints(max_length=50)]] = Field(
             description=gettext("List of generated tags")
         )
 
