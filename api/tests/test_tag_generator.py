@@ -42,24 +42,28 @@ class TestNoteTagGenerateView(APITestCase):
 
     @patch("langchain_core.runnables.base.RunnableSequence.invoke")
     def test_generate_tag(self, mocked_invoke: MagicMock):
-        mocked_invoke.return_value = {
-            "takeaways": [
-                {
-                    "id": self.takeaway1.id,
-                    "tags": [
-                        "takeaway1 - tag1",
-                        "takeaway1 - tag2",
+        class MockedTakeawayListSchema:
+            def dict():
+                return {
+                    "takeaways": [
+                        {
+                            "id": self.takeaway1.id,
+                            "tags": [
+                                "takeaway1 - tag1",
+                                "takeaway1 - tag2",
+                            ],
+                        },
+                        {
+                            "id": self.takeaway2.id,
+                            "tags": [
+                                "takeaway2 - tag1",
+                                "takeaway2 - tag2",
+                            ],
+                        },
                     ],
-                },
-                {
-                    "id": self.takeaway2.id,
-                    "tags": [
-                        "takeaway2 - tag1",
-                        "takeaway2 - tag2",
-                    ],
-                },
-            ],
-        }
+                }
+
+        mocked_invoke.return_value = MockedTakeawayListSchema
 
         self.client.force_authenticate(self.user)
         url = f"/api/reports/{self.note.id}/tags/generate/"

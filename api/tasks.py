@@ -17,6 +17,7 @@ def summarize_projects():
 
 @shared_task
 def analyze_new_note(note_id, user_id):
+    print("analyzing new note")
     analyzer = NewNoteAnalyzer()
 
     note = Note.objects.select_related("project__workspace").get(id=note_id)
@@ -34,6 +35,7 @@ def analyze_new_note(note_id, user_id):
 
 @shared_task
 def analyze_existing_note(note_id, user_id):
+    print("analyzing existing note")
     analyzer = ExistingNoteAnalyzer()
 
     note = Note.objects.select_related("project__workspace").get(id=note_id)
