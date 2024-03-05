@@ -37,10 +37,10 @@ DEBUG = env("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", cast=list)
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://.*\.kizunna\.com/?$",
-    r"^https://.*\.raijin\.ai/?$",
+    r"^https://\w+\.kizunna\.com/?$",
+    r"^https://\w+\.raijin\.ai/?$",
     "http://localhost:5173",
-    "http://localhost:8000",
+    "http://localhost:3000",
 ]
 FRONTEND_URL = env("FRONTEND_URL")
 
