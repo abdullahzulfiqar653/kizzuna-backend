@@ -4,7 +4,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
 from langchain_community.chat_models import ChatOpenAI
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
 from api.ai.generators.utils import token_tracker
@@ -40,8 +40,6 @@ def get_chain():
             description=gettext(
                 "A list of ten to twenty important takeaways of the text."
             ),
-            min_items=10,
-            max_items=20,
         )
 
     llm = ChatOpenAI(model=config.model)
@@ -65,9 +63,7 @@ def get_chain():
             ),
         ]
     )
-    takeaways_chain = create_structured_output_chain(
-        TakeawaysSchema.model_json_schema(), llm, prompt
-    )
+    takeaways_chain = create_structured_output_chain(TakeawaysSchema, llm, prompt)
     return takeaways_chain
 
 
@@ -93,7 +89,7 @@ def generate_takeaways_default_question(note: Note, created_by: User):
             "type": takeaway["type"],
         }
         for output in outputs
-        for takeaway in output["function"]["takeaways"]
+        for takeaway in output["function"].dict()["takeaways"]
     ]
 
     # Create new takeaway types
