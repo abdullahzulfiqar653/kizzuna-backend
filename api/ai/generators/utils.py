@@ -11,11 +11,6 @@ def token_tracker(project, content_object, action, created_by):
     with get_openai_callback() as callback:
         try:
             yield callback
-        except Exception as e:
-            import traceback
-
-            traceback.print_exc()
-            raise e
         finally:
             TokenUsage.objects.create(
                 workspace=project.workspace,
