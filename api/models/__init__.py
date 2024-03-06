@@ -1,3 +1,5 @@
+from .asset import Asset
+from .block import Block
 from .highlight import Highlight
 from .insight import Insight
 from .invitation import Invitation
@@ -34,4 +36,6 @@ __all__ = [
     "Question",
     "TranscriptionUsage",
     "TokenUsage",
+    "Asset",
+    "Block",
 ]
