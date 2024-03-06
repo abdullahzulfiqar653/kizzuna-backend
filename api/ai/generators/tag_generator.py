@@ -2,15 +2,15 @@ import json
 
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext
-from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
+from langchain.callbacks.base import BaseCallbackHandler
+from langchain.output_parsers.openai_functions import PydanticOutputFunctionsParser
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.chat_models import ChatOpenAI
 from langchain_community.utils.openai_functions import (
     convert_pydantic_to_openai_function,
 )
-from pydantic import BaseModel, Field, StringConstraints
+from pydantic.v1 import BaseModel, Field
 from tiktoken import encoding_for_model
-from typing_extensions import Annotated
 
 from api.ai import config
 from api.ai.generators.utils import token_tracker
@@ -24,6 +24,16 @@ __all__ = ["generate_tag"]
 encoder = encoding_for_model(config.model)
 
 
+class ParserErrorCallbackHandler(BaseCallbackHandler):
+    def on_chain_start(self, *args, **kwargs):
+        if kwargs.get("run_type") == "parser":
+            self.ai_message = args[1]
+
+    def on_chain_error(self, *args, **kwargs):
+        if hasattr(self, "ai_message"):
+            print(self.ai_message)
+
+
 def generate_tags(note: Note, created_by: User):
     chunked_takeaway_lists = chunk_takeaway_list(note)
     chain = get_chain()
@@ -33,21 +43,24 @@ def generate_tags(note: Note, created_by: User):
         for takeaway_list in chunked_takeaway_lists:
             data = {"takeaways": takeaway_list}
             takeaways = json.dumps(data)
-            result = chain.invoke({"takeaways": takeaways})
-            results.extend(result["takeaways"])
+            result = chain.invoke(
+                {"takeaways": takeaways},
+                config={"callbacks": [ParserErrorCallbackHandler()]},
+            )
+            results.extend(result.dict()["takeaways"])
     tags = save_tags(note, results)
     save_takeaway_tags(note, tags, results)
 
 
 def get_chain():
     class TakeawaySchema(BaseModel):
-        __doc__ = gettext("The id and the corresponding generated tags.")
+        __doc__ = gettext("The id and the corresponding tags.")
 
         id: str = Field(
             description=gettext("ID of the takeaway. For example: '322xBv9XpAbD'")
         )
-        tags: list[Annotated[str, StringConstraints(max_length=50)]] = Field(
-            description=gettext("List of generated tags")
+        tags: list[str] = Field(
+            description=gettext("What is the list of tags for this takeaway?")
         )
 
     class TakeawayListSchema(BaseModel):
@@ -60,14 +73,25 @@ def get_chain():
         [
             (
                 "system",
-                gettext("Generate tags for each of the given takeaways."),
+                gettext(
+                    "Give each of the takeaways a list of tags. "
+                    "Do not include the messages."
+                ),
             ),
             ("human", "{takeaways}"),
-        ]
+        ],
     )
-    openai_functions = [convert_pydantic_to_openai_function(TakeawayListSchema)]
-    parser = JsonOutputFunctionsParser()
-    chain = prompt | llm.bind(functions=openai_functions) | parser
+    function = convert_pydantic_to_openai_function(TakeawayListSchema)
+    function_call = {"name": function["name"]}
+    parser = PydanticOutputFunctionsParser(pydantic_schema=TakeawayListSchema)
+    chain = (
+        prompt
+        | llm.bind(
+            functions=[function],
+            function_call=function_call,
+        )
+        | parser
+    )
     return chain
 
 
@@ -76,11 +100,11 @@ def chunk_takeaway_list(note: Note):
     chunked_takeaway_lists = [[]]
     for takeaway in note.takeaways.all():
         token_count += len(encoder.encode(takeaway.title))
-        if token_count < 1000:
+        if token_count < config.chunk_size:
             chunked_takeaway_lists[-1].append(
                 {"id": takeaway.id, "message": takeaway.title}
             )
-        else:  # token_count >= 1000
+        else:  # token_count >= config.chunk_size
             chunked_takeaway_lists.append(
                 [{"id": takeaway.id, "message": takeaway.title}]
             )

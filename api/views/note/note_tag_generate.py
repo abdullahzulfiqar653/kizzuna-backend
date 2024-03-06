@@ -12,8 +12,8 @@ class NoteTagGenerateView(generics.CreateAPIView):
 
         # Call OpenAI
         try:
-            generate_tags(note)
-        except:
+            generate_tags(note, created_by=self.request.user)
+        except Exception as e:
             return Response(
                 {"details": "Failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
