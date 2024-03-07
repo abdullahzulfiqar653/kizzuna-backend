@@ -86,6 +86,14 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
             # Skip checking for transcription limit if not audio file
             return
 
+        file_size = serializer.validated_data["file"].size
+        total_file_size_in_gb = file_size / 1024 / 1024 / 1024
+        if total_file_size_in_gb > settings.STORAGE_GB_WORKSPACE:
+            limit = settings.STORAGE_GB_WORKSPACE
+            raise exceptions.PermissionDenied(
+                f"You have reached the storage limit of {limit} GB."
+            )
+
         # Extract audio info
         audio_info = mediainfo(file.name)
         if audio_info.get("duration") is None:
@@ -94,8 +102,8 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         # Check current audio file limit
         audio_duration_in_seconds = float(audio_info.get("duration"))
         audio_duration_in_minutes = audio_duration_in_seconds / 60
-        if audio_duration_in_minutes > settings.DURATION_LIMIT_SINGLE_FILE:
-            limit = settings.DURATION_LIMIT_SINGLE_FILE
+        if audio_duration_in_minutes > settings.DURATION_MINUTE_SINGLE_FILE:
+            limit = settings.DURATION_MINUTE_SINGLE_FILE
             raise exceptions.PermissionDenied(
                 f"Please only upload audio file with less than {limit} minutes. "
                 f"The current file has duration {round(audio_duration_in_minutes)} minutes."
@@ -105,7 +113,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         workspace = self.request.project.workspace
         total_seconds = workspace.usage_seconds + audio_duration_in_seconds
         total_minutes = total_seconds / 60
-        if total_minutes > settings.DURATION_LIMIT_WORKSPACE:
+        if total_minutes > settings.DURATION_MINUTE_WORKSPACE:
             raise exceptions.PermissionDenied(
                 "You have reached the audio transcription limit "
                 "so you can no longer upload audio files this month. "
