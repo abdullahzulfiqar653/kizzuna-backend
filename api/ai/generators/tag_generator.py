@@ -2,7 +2,6 @@ import json
 
 from django.db.models.query import QuerySet
 from django.utils.translation import gettext
-from langchain.callbacks.base import BaseCallbackHandler
 from langchain.output_parsers.openai_functions import PydanticOutputFunctionsParser
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.chat_models import ChatOpenAI
@@ -13,7 +12,7 @@ from pydantic.v1 import BaseModel, Field
 from tiktoken import encoding_for_model
 
 from api.ai import config
-from api.ai.generators.utils import token_tracker
+from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 from api.models.note import Note
 from api.models.tag import Tag
 from api.models.takeaway import Takeaway
@@ -22,16 +21,6 @@ from api.models.user import User
 __all__ = ["generate_tag"]
 
 encoder = encoding_for_model(config.model)
-
-
-class ParserErrorCallbackHandler(BaseCallbackHandler):
-    def on_chain_start(self, *args, **kwargs):
-        if kwargs.get("run_type") == "parser":
-            self.ai_message = args[1]
-
-    def on_chain_error(self, *args, **kwargs):
-        if hasattr(self, "ai_message"):
-            print(self.ai_message)
 
 
 def generate_tags(note: Note, created_by: User):
@@ -74,8 +63,10 @@ def get_chain():
             (
                 "system",
                 gettext(
-                    "Give each of the takeaways a list of tags. "
-                    "Do not include the messages."
+                    "Generate a list of tags for each string in the provided list. "
+                    "Tags should succinctly describe "
+                    "the content or topic of each string. "
+                    "Ensure that the tags are relevant and descriptive."
                 ),
             ),
             ("human", "{takeaways}"),

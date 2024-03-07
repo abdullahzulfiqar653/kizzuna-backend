@@ -1,13 +1,16 @@
 from django.utils.translation import gettext
-from langchain.chains.openai_functions import create_structured_output_chain
+from langchain.output_parsers.openai_functions import PydanticOutputFunctionsParser
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
 from langchain_community.chat_models import ChatOpenAI
+from langchain_community.utils.openai_functions import (
+    convert_pydantic_to_openai_function,
+)
 from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
-from api.ai.generators.utils import token_tracker
+from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
@@ -16,6 +19,8 @@ from api.models.user import User
 
 def get_chain():
     class TakeawaySchema(BaseModel):
+        "The takeaway extracted from the text."
+
         topic: str = Field(
             description=gettext("Topic of the takeaway, for grouping the takeaways.")
         )
@@ -36,6 +41,8 @@ def get_chain():
         )
 
     class TakeawaysSchema(BaseModel):
+        "A list of extracted takeaways."
+
         takeaways: list[TakeawaySchema] = Field(
             description=gettext(
                 "A list of ten to twenty important takeaways of the text."
@@ -63,8 +70,18 @@ def get_chain():
             ),
         ]
     )
-    takeaways_chain = create_structured_output_chain(TakeawaysSchema, llm, prompt)
-    return takeaways_chain
+    function = convert_pydantic_to_openai_function(TakeawaysSchema)
+    function_call = {"name": function["name"]}
+    parser = PydanticOutputFunctionsParser(pydantic_schema=TakeawaysSchema)
+    chain = (
+        prompt
+        | llm.bind(
+            functions=[function],
+            function_call=function_call,
+        )
+        | parser
+    )
+    return chain
 
 
 def generate_takeaways_default_question(note: Note, created_by: User):
@@ -80,7 +97,13 @@ def generate_takeaways_default_question(note: Note, created_by: User):
     doc = Document(page_content=note.get_content_text())
     docs = text_splitter.split_documents([doc])
     with token_tracker(note.project, note, "generate-takeaways", created_by):
-        outputs = [takeaways_chain.invoke(doc.page_content) for doc in docs]
+        outputs = [
+            takeaways_chain.invoke(
+                {"text": doc.page_content},
+                config={"callbacks": [ParserErrorCallbackHandler()]},
+            )
+            for doc in docs
+        ]
 
     # Post processing the LLM response
     generated_takeaways = [
@@ -89,7 +112,7 @@ def generate_takeaways_default_question(note: Note, created_by: User):
             "type": takeaway["type"],
         }
         for output in outputs
-        for takeaway in output["function"].dict()["takeaways"]
+        for takeaway in output.dict()["takeaways"]
     ]
 
     # Create new takeaway types
