@@ -13,6 +13,7 @@ from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
 from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
+from api.ai.translator import google_translator
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
@@ -118,7 +119,10 @@ def generate_takeaways_with_questions(note: Note, created_by: User):
 
     generated_takeaways = [
         {
-            "title": f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
+            "title": google_translator.translate(
+                f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
+                note.project.language,
+            ),
             "type": takeaway["type"],
             "question_id": output["question_id"],
         }
