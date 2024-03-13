@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 import environ
+import sentry_sdk
 
 env = environ.Env()
 # reading .env file
@@ -250,6 +251,14 @@ LOGGING = {
         },
     },
 }
+
+sentry_sdk.init(
+    dsn=env("SENTRY_DSN", default=""),
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+    enable_tracing=True,
+    environment=env("SENTRY_ENV"),
+)
 
 INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60  # 3 days
 
