@@ -11,3 +11,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "first_name", "last_name"]
+
+
+class UsernameSerializer(serializers.ModelSerializer):
+    username = serializers.EmailField()
+
+    class Meta:
+        model = User
+        fields = ["username"]
+
+
+class UsersSerializer(serializers.Serializer):
+    users = UsernameSerializer(many=True)

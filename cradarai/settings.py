@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 import environ
+import sentry_sdk
 
 env = environ.Env()
 # reading .env file
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "easy_health_check.middleware.HealthCheckMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -77,7 +79,7 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PERMISSION_CLASSES": [
-        "api.permissions.HasWorkspaceProjectPermission",
+        "api.permissions.InProjectOrWorkspace",
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -250,6 +252,14 @@ LOGGING = {
     },
 }
 
+sentry_sdk.init(
+    dsn=env("SENTRY_DSN", default=""),
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+    enable_tracing=True,
+    environment=env("SENTRY_ENV"),
+)
+
 INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60  # 3 days
 
 # Optional: You can also set a different location for your static files within the bucket.
@@ -269,5 +279,13 @@ CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Transcription duration limit
-DURATION_LIMIT_SINGLE_FILE = env("DURATION_LIMIT_SINGLE_FILE", cast=int)
-DURATION_LIMIT_WORKSPACE = env("DURATION_LIMIT_WORKSPACE", cast=int)
+DURATION_MINUTE_SINGLE_FILE = env("DURATION_MINUTE_SINGLE_FILE", cast=int)
+DURATION_MINUTE_WORKSPACE = env("DURATION_MINUTE_WORKSPACE", cast=int)
+STORAGE_GB_WORKSPACE = env("STORAGE_GB_WORKSPACE", cast=int)
+
+# Health check settings
+DJANGO_EASY_HEALTH_CHECK = {
+    "PATH": "/health/",
+    "RETURN_STATUS_CODE": 200,
+    "RETURN_BYTE_DATA": "Success",
+}

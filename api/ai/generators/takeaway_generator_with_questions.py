@@ -1,15 +1,19 @@
 import json
 
 from django.utils.translation import gettext
-from langchain.chains.openai_functions import create_structured_output_chain
+from langchain.output_parsers.openai_functions import PydanticOutputFunctionsParser
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
 from langchain_community.chat_models import ChatOpenAI
+from langchain_community.utils.openai_functions import (
+    convert_pydantic_to_openai_function,
+)
 from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
-from api.ai.generators.utils import token_tracker
+from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
+from api.ai.translator import google_translator
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
@@ -20,12 +24,6 @@ def get_chain():
     class TakeawaySchema(BaseModel):
         "The takeaway extracted from the text targeted for a specific question."
 
-        question_id: str = Field(
-            description=gettext(
-                "The id of the question the takeaway is for."
-                "For example: '5R4koV7RvP2D'."
-            )
-        )
         topic: str = Field(
             description=gettext("Topic of the takeaway, for grouping the takeaways.")
         )
@@ -41,7 +39,8 @@ def get_chain():
         )
         type: str = Field(
             description=gettext(
-                "The takeaway type. For example: 'Pain Point', 'Moment of Delight', "
+                "The takeaway type. This is a required field. "
+                "For example: 'Pain Point', 'Moment of Delight', "
                 "'Pricing', 'Feature Request', 'Moment of Dissatisfaction', "
                 "'Usability Issue', or any other issue types deemed logical."
             )
@@ -60,18 +59,30 @@ def get_chain():
             (
                 "system",
                 gettext(
-                    "Extract the takeaways for each question from the text. "
-                    "There can be multiple takeaways for each question."
+                    "Extract the takeaways based on the question from the text. "
+                    "Each takeaway must contain 'topic', "
+                    "'title', 'significance' and 'type'. "
+                    "Extract 5 takeaways for each question."
                 ),
             ),
             (
                 "human",
-                gettext("Questions: {questions}\n\nText: \n{text}"),
+                gettext("Question: {question}\n\nText: \n{text}"),
             ),
         ]
     )
-    takeaways_chain = create_structured_output_chain(TakeawaysSchema, llm, prompt)
-    return takeaways_chain
+    function = convert_pydantic_to_openai_function(TakeawaysSchema)
+    function_call = {"name": function["name"]}
+    parser = PydanticOutputFunctionsParser(pydantic_schema=TakeawaysSchema)
+    chain = (
+        prompt
+        | llm.bind(
+            functions=[function],
+            function_call=function_call,
+        )
+        | parser
+    )
+    return chain
 
 
 def generate_takeaways_with_questions(note: Note, created_by: User):
@@ -95,20 +106,28 @@ def generate_takeaways_with_questions(note: Note, created_by: User):
 
     with token_tracker(note.project, note, "generate-takeaways", created_by):
         outputs = [
-            takeaways_chain.invoke(
-                {"text": doc.page_content, "questions": questions_string}
-            )
+            {
+                "question_id": question["id"],
+                "output": takeaways_chain.invoke(
+                    {"text": doc.page_content, "question": question["question"]},
+                    config={"callbacks": [ParserErrorCallbackHandler()]},
+                ),
+            }
+            for question in questions
             for doc in docs
         ]
 
     generated_takeaways = [
         {
-            "title": f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
+            "title": google_translator.translate(
+                f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
+                note.project.language,
+            ),
             "type": takeaway["type"],
-            "question_id": takeaway["question_id"],
+            "question_id": output["question_id"],
         }
         for output in outputs
-        for takeaway in output["function"].dict()["takeaways"]
+        for takeaway in output["output"].dict()["takeaways"]
     ]
 
     # Create new takeaway types
