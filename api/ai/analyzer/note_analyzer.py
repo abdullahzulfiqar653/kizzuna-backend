@@ -43,6 +43,7 @@ class NewNoteAnalyzer:
     def transcribe_s3_file(self, note, created_by):
         with tempfile.NamedTemporaryFile(suffix=f".{note.file_type}") as temp:
             temp.write(note.file.read())
+            temp.seek(0)
             filepath = temp.name
             filetype = os.path.splitext(urlparse(note.file.url).path)[1].strip(".")
             language = note.project.language
