@@ -124,7 +124,10 @@ def generate_takeaways_default_question(note: Note, created_by: User):
                 f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
                 note.project.language,
             ),
-            "type": takeaway["type"],
+            "type": google_translator.translate(
+                takeaway["type"],
+                note.project.language,
+            ),
         }
         for output in outputs
         for takeaway in output.dict()["takeaways"]

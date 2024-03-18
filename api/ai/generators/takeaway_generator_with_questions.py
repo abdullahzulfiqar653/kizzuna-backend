@@ -113,7 +113,6 @@ def generate_takeaways_with_questions(note: Note, created_by: User):
         {"id": question.id, "question": question.title}
         for question in note.questions.all()
     ]
-    questions_string = json.dumps(questions)
 
     with token_tracker(note.project, note, "generate-takeaways", created_by):
         outputs = [
@@ -134,7 +133,10 @@ def generate_takeaways_with_questions(note: Note, created_by: User):
                 f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
                 note.project.language,
             ),
-            "type": takeaway["type"],
+            "type": google_translator.translate(
+                takeaway["type"],
+                note.project.language,
+            ),
             "question_id": output["question_id"],
         }
         for output in outputs
