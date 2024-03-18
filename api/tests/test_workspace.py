@@ -32,6 +32,13 @@ class TestWorkspaceListCreateView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Workspace.objects.count(), 1)
 
+    def test_user_create_workspace_beyond_quota(self):
+        self.user.owned_workspaces.create(name="existing workspace 1")
+        self.user.owned_workspaces.create(name="existing workspace 2")
+        self.client.force_authenticate(self.user)
+        response = self.client.post("/api/workspaces/", {"name": "workspace name"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_user_create_workspace_with_colliding_name(self):
         Workspace.objects.create(name="colliding workspace name", owned_by=self.user)
         self.client.force_authenticate(self.user)
