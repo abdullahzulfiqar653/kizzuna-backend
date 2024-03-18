@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class NoteSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
-    title = serializers.CharField(required=False, default="New Report")
+    title = serializers.CharField(required=False, default="New Source")
     type = serializers.CharField(required=False, default="User Interview")
     description = serializers.CharField(required=False, default="")
     code = serializers.CharField(read_only=True)
