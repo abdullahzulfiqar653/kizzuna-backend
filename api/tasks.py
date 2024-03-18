@@ -1,5 +1,4 @@
 from celery import shared_task
-from django.utils import translation
 
 from api.ai.analyzer.note_analyzer import ExistingNoteAnalyzer, NewNoteAnalyzer
 from api.ai.analyzer.project_summarizer import ProjectSummarizer
@@ -19,30 +18,31 @@ def summarize_projects():
 def analyze_new_note(note_id, user_id):
     print(f"analyzing new note {note_id} by {user_id}")
     analyzer = NewNoteAnalyzer()
-    print("Debug: Done initializing analyzer")
-
     try:
         note = Note.objects.select_related("project__workspace").get(id=note_id)
     except Exception as e:
         print("Debug: Failed to connect to db")
         import traceback
 
+        from django.db import connection
+
         traceback.print_exc()
+        print(connection.queries)
         raise e
-    print("Debug: Done selecting the note")
     note.is_analyzing = True
     note.save()
-    print("Debug: Done updating the note")
 
     user = User.objects.get(id=user_id)
-    print("Debug: Done getting the user")
-
-    with translation.override(note.project.language):
-        print("Debug: Starting analyzer")
+    try:
         analyzer.analyze(note, user)
+    except Exception as e:
+        import traceback
 
-    note.is_analyzing = False
-    note.save()
+        traceback.print_exc()
+        raise e
+    finally:
+        note.is_analyzing = False
+        note.save()
 
 
 @shared_task
@@ -56,8 +56,13 @@ def analyze_existing_note(note_id, user_id):
 
     user = User.objects.get(id=user_id)
 
-    with translation.override(note.project.language):
+    try:
         analyzer.analyze(note, user)
+    except Exception as e:
+        import traceback
 
-    note.is_analyzing = False
-    note.save()
+        traceback.print_exc()
+        raise e
+    finally:
+        note.is_analyzing = False
+        note.save()
