@@ -34,7 +34,9 @@ class InsightTakeawayListCreateView(generics.ListCreateAPIView):
                 raise exceptions.MethodNotAllowed("Only GET and POST are allowed.")
 
     def get_queryset(self):
-        return self.request.insight.takeaways.all()
+        return TakeawaySerializer.optimize_query(
+            self.request.insight.takeaways.all(), self.request.user
+        )
 
     def get_valid_takeaways(self, insight: Insight):
         # Can add or remove any takeaways in the project to the insight

@@ -43,6 +43,10 @@ from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListView
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
+from api.views.saved_items.saved_takeaway import (
+    SavedTakeawayDeleteView,
+    SavedTakeawayListCreateView,
+)
 from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
 from api.views.takeaway.takeaway_tag import (
     TakeawayTagCreateView,
@@ -295,6 +299,19 @@ urlpatterns = [
         "blocks/<str:block_id>/takeaways/delete/",
         BlockTakeawayDeleteView.as_view(),
         name="block-takeaway-delete",
+    ),
+    # =====================================================
+    # Block
+    # =====================================================
+    path(
+        "saved_takeaways/",
+        SavedTakeawayListCreateView.as_view(),
+        name="saved-takeaway-list-create",
+    ),
+    path(
+        "saved_takeaways/delete/",
+        SavedTakeawayDeleteView.as_view(),
+        name="saved-takeaway-list-create",
     ),
     # =====================================================
     # Auth
