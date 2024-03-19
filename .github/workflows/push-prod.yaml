@@ -33,7 +33,7 @@ jobs:
   
       - name: Build and tag Docker image
         run: |
-          docker build -t $ECR_REPO_ROOT/$ECR_REPO_NAME:${{ github.sha }} -t $ECR_REPO_ROOT/$ECR_REPO_NAME:raijin-prod .
+          docker build -t $ECR_REPO_ROOT/$ECR_REPO_NAME:${{ github.sha }} -t $ECR_REPO_ROOT/$ECR_REPO_NAME:raijin-prod -t $ECR_REPO_ROOT/$ECR_REPO_NAME:kizunna-prod .
           docker push $ECR_REPO_ROOT/$ECR_REPO_NAME:${{ github.sha }}
           docker push $ECR_REPO_ROOT/$ECR_REPO_NAME:raijin-prod
           docker push $ECR_REPO_ROOT/$ECR_REPO_NAME:kizunna-prod
