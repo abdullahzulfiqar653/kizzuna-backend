@@ -20,24 +20,6 @@ __all__ = ["generate_tag"]
 encoder = encoding_for_model(config.model)
 
 
-def generate_tags(note: Note, created_by: User):
-    chunked_takeaway_lists = chunk_takeaway_list(note)
-    chain = get_chain()
-
-    results = []
-    with token_tracker(note.project, note, "generate-tags", created_by):
-        for takeaway_list in chunked_takeaway_lists:
-            data = {"takeaways": takeaway_list}
-            takeaways = json.dumps(data)
-            result = chain.invoke(
-                {"takeaways": takeaways},
-                config={"callbacks": [ParserErrorCallbackHandler()]},
-            )
-            results.extend(result.dict()["takeaways"])
-    tags = save_tags(note, results)
-    save_takeaway_tags(note, tags, results)
-
-
 def get_chain():
     class TakeawaySchema(BaseModel):
         __doc__ = gettext("The id and the corresponding tags.")
@@ -92,6 +74,24 @@ def get_chain():
     parser = PydanticOutputParser(pydantic_object=TakeawayListSchema)
     chain = prompt | llm.bind(response_format={"type": "json_object"}) | parser
     return chain
+
+
+def generate_tags(note: Note, created_by: User):
+    chunked_takeaway_lists = chunk_takeaway_list(note)
+    chain = get_chain()
+
+    results = []
+    with token_tracker(note.project, note, "generate-tags", created_by):
+        for takeaway_list in chunked_takeaway_lists:
+            data = {"takeaways": takeaway_list}
+            takeaways = json.dumps(data)
+            result = chain.invoke(
+                {"takeaways": takeaways},
+                config={"callbacks": [ParserErrorCallbackHandler()]},
+            )
+            results.extend(result.dict()["takeaways"])
+    tags = save_tags(note, results)
+    save_takeaway_tags(note, tags, results)
 
 
 def chunk_takeaway_list(note: Note):

@@ -34,7 +34,7 @@ class Workspace(models.Model):
         )
 
     @property
-    def usage_tokens(self):
+    def usage_tokens(self) -> int:
         now = timezone.now()
         start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -45,7 +45,7 @@ class Workspace(models.Model):
         )
 
     @property
-    def total_file_size(self):
+    def total_file_size(self) -> int:
         return self.notes.aggregate(value=Sum("file_size")).get("value")
 
     def __str__(self):

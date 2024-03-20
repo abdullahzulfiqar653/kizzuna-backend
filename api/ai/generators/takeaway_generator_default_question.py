@@ -1,12 +1,11 @@
+import json
+
 from django.utils.translation import gettext
-from langchain.output_parsers.openai_functions import PydanticOutputFunctionsParser
+from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
 from langchain_community.chat_models import ChatOpenAI
-from langchain_community.utils.openai_functions import (
-    convert_pydantic_to_openai_function,
-)
 from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
@@ -50,38 +49,50 @@ def get_chain():
             ),
         )
 
+    schema = TakeawaysSchema.schema_json(indent=4).replace("{", "{{").replace("}", "}}")
+    example = (
+        json.dumps(
+            {
+                "takeaways": [
+                    {
+                        "topic": "Takeaway topic",
+                        "title": "Takeaway title",
+                        "significance": "The significance of the takeaway",
+                        "type": "One word summary of the takeaway topic",
+                    }
+                ]
+            },
+            indent=4,
+        )
+        .replace("{", "{{")
+        .replace("}", "}}")
+    )
+
     llm = ChatOpenAI(model=config.model)
     prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
                 gettext(
-                    "You are an experienced product analyst. "
-                    "You are experienced in identifying pain points "
-                    "and takeaways from user interviews."
+                    "Identify Important Takeaways/Issues/Learning Points "
+                    "in the below given text and reasons why they are important.\n"
+                    "Each takeaway should contain a topic, a title, "
+                    "the significance of the takeaway, and the takeaway type.\n"
+                    "Generate JSON data according to the following schema:\n\n"
+                    "Schema:\n"
+                    f"{schema}\n\n"
+                    "For example, the output should be the following:\n"
+                    f"{example}"
                 ),
             ),
             (
                 "human",
-                gettext(
-                    "Identify Important Takeaways/Issues/Learning Points "
-                    "in the below given text and reasons why they are important."
-                )
-                + "\n\n{text}",
+                "\n\n{text}",
             ),
         ]
     )
-    function = convert_pydantic_to_openai_function(TakeawaysSchema)
-    function_call = {"name": function["name"]}
-    parser = PydanticOutputFunctionsParser(pydantic_schema=TakeawaysSchema)
-    chain = (
-        prompt
-        | llm.bind(
-            functions=[function],
-            function_call=function_call,
-        )
-        | parser
-    )
+    parser = PydanticOutputParser(pydantic_object=TakeawaysSchema)
+    chain = prompt | llm.bind(response_format={"type": "json_object"}) | parser
     return chain
 
 
@@ -113,7 +124,10 @@ def generate_takeaways_default_question(note: Note, created_by: User):
                 f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
                 note.project.language,
             ),
-            "type": takeaway["type"],
+            "type": google_translator.translate(
+                takeaway["type"],
+                note.project.language,
+            ),
         }
         for output in outputs
         for takeaway in output.dict()["takeaways"]

@@ -16,6 +16,7 @@ from .takeaway import Takeaway
 from .usage.token import TokenUsage
 from .usage.transciption import TranscriptionUsage
 from .user import User
+from .user_saved_takeaway import UserSavedTakeaway
 from .workspace import Workspace
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "TokenUsage",
     "Asset",
     "Block",
+    "UserSavedTakeaway",
 ]

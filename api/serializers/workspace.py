@@ -1,7 +1,7 @@
 # workspace/serializers.py
 from django.db.models import Q
 from django.utils.text import slugify
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
 from api.models.workspace import Workspace
 
@@ -24,6 +24,12 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context["request"]
+
+        if request.user.owned_workspaces.count() > 1:
+            raise exceptions.PermissionDenied(
+                "You have reached your quota limit and cannot create more workspaces."
+            )
+
         workspace = Workspace(name=validated_data.get("name"), owned_by=request.user)
         workspace.save()
 
@@ -36,7 +42,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 class WorkspaceDetailSerializer(WorkspaceSerializer):
     usage_minutes = serializers.SerializerMethodField()
 
-    def get_usage_minutes(self, workspace):
+    def get_usage_minutes(self, workspace) -> int:
         return round(workspace.usage_seconds / 60)
 
     class Meta:

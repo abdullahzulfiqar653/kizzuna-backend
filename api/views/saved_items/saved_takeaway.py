@@ -1,14 +1,14 @@
-from rest_framework import exceptions, generics, status
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from api.filters.takeaway import TakeawayFilter
-from api.models.insight import Insight
 from api.models.takeaway import Takeaway
-from api.serializers.takeaway import InsightTakeawaysSerializer, TakeawaySerializer
+from api.serializers.takeaway import SavedTakeawaysSerializer, TakeawaySerializer
 
 
-class InsightTakeawayListCreateView(generics.ListCreateAPIView):
+class SavedTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
+    serializer_class = TakeawaySerializer
     filterset_class = TakeawayFilter
     ordering_fields = [
         "created_at",
@@ -29,43 +29,44 @@ class InsightTakeawayListCreateView(generics.ListCreateAPIView):
             case "GET":
                 return TakeawaySerializer
             case "POST":
-                return InsightTakeawaysSerializer
-            case _:
-                raise exceptions.MethodNotAllowed("Only GET and POST are allowed.")
+                return SavedTakeawaysSerializer
 
     def get_queryset(self):
         return TakeawaySerializer.optimize_query(
-            self.request.insight.takeaways.all(), self.request.user
+            Takeaway.objects.filter(saved_by=self.request.user).filter(
+                note__project__users=self.request.user
+            ),
+            self.request.user,
         )
 
-    def get_valid_takeaways(self, insight: Insight):
-        # Can add or remove any takeaways in the project to the insight
-        return Takeaway.objects.filter(note__project=insight.project)
+    def get_valid_takeaways(self):
+        # Can add or remove any takeaways in the project that the user is in
+        return Takeaway.objects.filter(note__project__users=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        valid_takeaways = self.get_valid_takeaways(self.request.insight)
-        context["insight"] = self.request.insight
+        valid_takeaways = self.get_valid_takeaways()
+        context["user"] = self.request.user
         context["valid_takeaway_ids"] = valid_takeaways.values_list("id", flat=True)
         return context
 
 
-class InsightTakeawayDeleteView(generics.GenericAPIView):
+class SavedTakeawayDeleteView(generics.GenericAPIView):
     queryset = Takeaway.objects.all()
-    serializer_class = InsightTakeawaysSerializer
+    serializer_class = SavedTakeawaysSerializer
 
-    def get_valid_takeaways(self, insight: Insight):
-        # Can add or remove any takeaways in the project to the insight
-        return Takeaway.objects.filter(note__project=insight.project)
+    def get_valid_takeaways(self):
+        # Can add or remove any takeaways in the project that the user is in
+        return Takeaway.objects.filter(note__project__users=self.request.user)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        valid_takeaways = self.get_valid_takeaways(self.request.insight)
-        context["insight"] = self.request.insight
+        valid_takeaways = self.get_valid_takeaways()
+        context["user"] = self.request.user
         context["valid_takeaway_ids"] = valid_takeaways.values_list("id", flat=True)
         return context
 
-    def post(self, request, insight_id):
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.delete()

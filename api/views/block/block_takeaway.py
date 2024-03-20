@@ -17,7 +17,9 @@ class BlockTakeawayListCreateView(generics.ListCreateAPIView):
                 return BlockTakeawaysSerializer
 
     def get_queryset(self):
-        return self.request.block.takeaways.all()
+        return TakeawaySerializer.optimize_query(
+            self.request.block.takeaways.all(), self.request.user
+        )
 
     def get_valid_takeaways(self, block: Block):
         # Can add or remove any takeaways in the project to the block

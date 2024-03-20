@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class NoteSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
-    title = serializers.CharField(required=False, default="New Report")
+    title = serializers.CharField(required=False, default="New Source")
     type = serializers.CharField(required=False, default="User Interview")
     description = serializers.CharField(required=False, default="")
     code = serializers.CharField(read_only=True)
@@ -107,6 +107,19 @@ class NoteSerializer(serializers.ModelSerializer):
         self.add_keywords(note, keywords)
         self.add_questions(note, questions)
         return note
+
+
+class NoteUpdateSerializer(NoteSerializer):
+    """
+    Do not allow users to update keywords and questions through note endpoint directly.
+    They should use the dedicated endpoints to update keywords and questions instead.
+    """
+
+    keywords = None
+    questions = None
+
+    class Meta(NoteSerializer.Meta):
+        fields = list(set(NoteSerializer.Meta.fields) - {"keywords", "questions"})
 
     def update(self, note: Note, validated_data):
         project = note.project
