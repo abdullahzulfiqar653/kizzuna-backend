@@ -12,4 +12,7 @@ class CustomUserManager(UserManager):
 class User(AbstractUser):
     skip_tutorial = models.BooleanField(default=False)
     consent_given = models.BooleanField(default=False)
+    saved_takeaways = models.ManyToManyField(
+        "api.Takeaway", related_name="saved_by", through="api.UserSavedTakeaway"
+    )
     objects = CustomUserManager()

@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from api.models.tag import Tag
 from api.models.takeaway import Takeaway
 from api.serializers.tag import TagSerializer
-from api.serializers.takeaway import TakeawaySerializer
 
 
 class TakeawayTagCreateView(generics.CreateAPIView):
@@ -24,7 +23,6 @@ class TakeawayTagDestroyView(generics.DestroyAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     takeaway_queryset = Takeaway.objects.all()
-    takeaway_serializer_class = TakeawaySerializer
 
     def destroy(self, request, takeaway_id, tag_id):
         try:

@@ -24,4 +24,6 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     ]
 
     def get_queryset(self):
-        return self.request.note.takeaways.all()
+        return TakeawaySerializer.optimize_query(
+            self.request.note.takeaways.all(), self.request.user
+        )

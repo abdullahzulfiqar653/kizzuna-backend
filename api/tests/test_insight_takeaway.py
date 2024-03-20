@@ -55,7 +55,8 @@ class TestInsightTakeawayView(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
         expected_result = TakeawaySerializer(
-            self.insight.takeaways.all(), many=True
+            TakeawaySerializer.optimize_query(self.insight.takeaways.all(), self.user),
+            many=True,
         ).data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json(), expected_result)

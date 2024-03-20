@@ -22,6 +22,7 @@ from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
+from api.views.note.note_question import NoteQuestionListCreateView
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
@@ -43,6 +44,10 @@ from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListView
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
+from api.views.saved_items.saved_takeaway import (
+    SavedTakeawayDeleteView,
+    SavedTakeawayListCreateView,
+)
 from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
 from api.views.takeaway.takeaway_tag import (
     TakeawayTagCreateView,
@@ -104,6 +109,11 @@ urlpatterns = [
         "reports/<str:report_id>/extract/",
         NoteExtractCreateView.as_view(),
         name="note-extract",
+    ),
+    path(
+        "reports/<str:report_id>/questions/",
+        NoteQuestionListCreateView.as_view(),
+        name="note-question-list-create",
     ),
     # =====================================================
     # Report Templates
@@ -295,6 +305,19 @@ urlpatterns = [
         "blocks/<str:block_id>/takeaways/delete/",
         BlockTakeawayDeleteView.as_view(),
         name="block-takeaway-delete",
+    ),
+    # =====================================================
+    # Block
+    # =====================================================
+    path(
+        "saved_takeaways/",
+        SavedTakeawayListCreateView.as_view(),
+        name="saved-takeaway-list-create",
+    ),
+    path(
+        "saved_takeaways/delete/",
+        SavedTakeawayDeleteView.as_view(),
+        name="saved-takeaway-list-create",
     ),
     # =====================================================
     # Auth

@@ -90,7 +90,7 @@ class NewNoteAnalyzer:
     def summarize(self, note, created_by):
         print("========>   Generating takeaways")
         if note.questions.count() > 0:
-            generate_takeaways_with_questions(note, created_by)
+            generate_takeaways_with_questions(note, note.questions.all(), created_by)
         else:
             generate_takeaways_default_question(note, created_by)
         print("========>   Generating metadata")
@@ -100,32 +100,22 @@ class NewNoteAnalyzer:
 
     def analyze(self, note: Note, created_by: User):
         with translation.override(note.project.language):
-            try:
-                print("========> Start transcribing")
-                start = time()
-                if note.file:
-                    self.transcribe(note, created_by)
-                elif note.url:
-                    self.download(note)
-                end = time()
-                print(f"Elapsed time: {end - start} seconds")
-                print("========> Start summarizing")
-                self.summarize(note, created_by)
-                print("========> End analyzing")
-            except:
-                import traceback
-
-                traceback.print_exc()
+            print("========> Start transcribing")
+            start = time()
+            if note.file:
+                self.transcribe(note, created_by)
+            elif note.url:
+                self.download(note)
+            end = time()
+            print(f"Elapsed time: {end - start} seconds")
+            print("========> Start summarizing")
+            self.summarize(note, created_by)
+            print("========> End analyzing")
 
 
 class ExistingNoteAnalyzer(NewNoteAnalyzer):
     def analyze(self, note: Note, created_by: User):
         with translation.override(note.project.language):
-            try:
-                print("========> Start summarizing")
-                self.summarize(note, created_by)
-                print("========> End analyzing")
-            except:
-                import traceback
-
-                traceback.print_exc()
+            print("========> Start summarizing")
+            self.summarize(note, created_by)
+            print("========> End analyzing")

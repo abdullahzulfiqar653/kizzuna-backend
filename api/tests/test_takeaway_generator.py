@@ -99,7 +99,9 @@ class TestTakeawayGenerator(APITestCase):
             ),
         ]
 
-        generate_takeaways_with_questions(self.note, self.user)
+        generate_takeaways_with_questions(
+            self.note, self.note.questions.all(), self.user
+        )
         self.assertEqual(
             mocked_invoke.call_args_list[0].args[0],
             {

@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import exceptions, serializers
 
 from api.models.block import Block
@@ -5,6 +6,7 @@ from api.models.insight import Insight
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
+from api.models.user import User
 from api.serializers.question import QuestionSerializer
 from api.serializers.tag import TagSerializer
 from api.serializers.user import UserSerializer
@@ -25,6 +27,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
     type = serializers.CharField(source="type.name", required=False, allow_null=True)
     report = BriefNoteSerializer(source="note", read_only=True)
     question = QuestionSerializer(read_only=True)
+    is_saved = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Takeaway
@@ -39,7 +42,37 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "report",
             "created_at",
             "question",
+            "is_saved",
         ]
+
+    @classmethod
+    def optimize_query(cls, queryset, user):
+        return (
+            queryset.select_related("created_by", "type", "note", "question")
+            .prefetch_related("tags")
+            .annotate(
+                is_saved=models.Case(
+                    models.When(saved_by=user, then=models.Value(True)),
+                    default=models.Value(False),
+                    output_field=models.BooleanField(),
+                )
+            )
+            .only(
+                "id",
+                "title",
+                "type",
+                "description",
+                "priority",
+                "created_by__email",
+                "created_by__first_name",
+                "created_by__last_name",
+                "note__id",
+                "note__title",
+                "created_at",
+                "question__id",
+                "question__title",
+            )
+        )
 
     def create(self, validated_data):
         request = self.context["request"]
@@ -73,9 +106,7 @@ class TakeawayIDsSerializer(serializers.Serializer):
 
     def validate_id(self, value):
         if value not in self.context["valid_takeaway_ids"]:
-            raise exceptions.ValidationError(
-                f"Takeaway {value} not in the insight project."
-            )
+            raise exceptions.ValidationError(f"Takeaway {value} not in the project.")
         return value
 
 
@@ -129,4 +160,26 @@ class BlockTakeawaysSerializer(serializers.Serializer):
         # Only remove takeaways that are in insight
         takeaways_to_remove = block.takeaways.filter(id__in=takeaway_ids)
         block.takeaways.remove(*takeaways_to_remove)
+        self.instance = {"takeaways": takeaways_to_remove}
+
+
+class SavedTakeawaysSerializer(serializers.Serializer):
+    takeaways = TakeawayIDsSerializer(many=True)
+
+    def create(self, validated_data):
+        user: User = self.context["user"]
+        takeaway_ids = {takeaway["id"] for takeaway in validated_data["takeaways"]}
+        # Skip adding takeaways that are already saved by user
+        takeaways_to_add = Takeaway.objects.filter(id__in=takeaway_ids).exclude(
+            saved_by=user
+        )
+        user.saved_takeaways.add(*takeaways_to_add)
+        return {"takeaways": takeaways_to_add}
+
+    def delete(self):
+        user: User = self.context["user"]
+        takeaway_ids = {takeaway["id"] for takeaway in self.validated_data["takeaways"]}
+        # Only remove takeaways that are in insight
+        takeaways_to_remove = user.saved_takeaways.filter(id__in=takeaway_ids)
+        user.saved_takeaways.remove(*takeaways_to_remove)
         self.instance = {"takeaways": takeaways_to_remove}
