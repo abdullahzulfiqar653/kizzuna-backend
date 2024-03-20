@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import QuerySet
 from django.utils.translation import gettext
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import ChatPromptTemplate
@@ -12,6 +13,7 @@ from api.ai import config
 from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 from api.ai.translator import google_translator
 from api.models.note import Note
+from api.models.question import Question
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.user import User
@@ -96,7 +98,9 @@ def get_chain():
     return chain
 
 
-def generate_takeaways_with_questions(note: Note, created_by: User):
+def generate_takeaways_with_questions(
+    note: Note, questions: QuerySet[Question], created_by: User
+):
     takeaways_chain = get_chain()
 
     text_splitter = TokenTextSplitter(
@@ -109,17 +113,12 @@ def generate_takeaways_with_questions(note: Note, created_by: User):
     doc = Document(page_content=note.get_content_text())
     docs = text_splitter.split_documents([doc])
 
-    questions = [
-        {"id": question.id, "question": question.title}
-        for question in note.questions.all()
-    ]
-
     with token_tracker(note.project, note, "generate-takeaways", created_by):
         outputs = [
             {
-                "question_id": question["id"],
+                "question_id": question.id,
                 "output": takeaways_chain.invoke(
-                    {"text": doc.page_content, "question": question["question"]},
+                    {"text": doc.page_content, "question": question.title},
                     config={"callbacks": [ParserErrorCallbackHandler()]},
                 ),
             }

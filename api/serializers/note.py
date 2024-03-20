@@ -108,6 +108,19 @@ class NoteSerializer(serializers.ModelSerializer):
         self.add_questions(note, questions)
         return note
 
+
+class NoteUpdateSerializer(NoteSerializer):
+    """
+    Do not allow users to update keywords and questions through note endpoint directly.
+    They should use the dedicated endpoints to update keywords and questions instead.
+    """
+
+    keywords = None
+    questions = None
+
+    class Meta(NoteSerializer.Meta):
+        fields = list(set(NoteSerializer.Meta.fields) - {"keywords", "questions"})
+
     def update(self, note: Note, validated_data):
         project = note.project
         organizations = validated_data.pop("organizations", None)

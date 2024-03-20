@@ -22,6 +22,7 @@ from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
+from api.views.note.note_question import NoteQuestionListCreateView
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
@@ -108,6 +109,11 @@ urlpatterns = [
         "reports/<str:report_id>/extract/",
         NoteExtractCreateView.as_view(),
         name="note-extract",
+    ),
+    path(
+        "reports/<str:report_id>/questions/",
+        NoteQuestionListCreateView.as_view(),
+        name="note-question-list-create",
     ),
     # =====================================================
     # Report Templates

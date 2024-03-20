@@ -90,7 +90,7 @@ class NewNoteAnalyzer:
     def summarize(self, note, created_by):
         print("========>   Generating takeaways")
         if note.questions.count() > 0:
-            generate_takeaways_with_questions(note, created_by)
+            generate_takeaways_with_questions(note, note.questions.all(), created_by)
         else:
             generate_takeaways_default_question(note, created_by)
         print("========>   Generating metadata")

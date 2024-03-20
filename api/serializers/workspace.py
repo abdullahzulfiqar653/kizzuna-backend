@@ -42,7 +42,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 class WorkspaceDetailSerializer(WorkspaceSerializer):
     usage_minutes = serializers.SerializerMethodField()
 
-    def get_usage_minutes(self, workspace):
+    def get_usage_minutes(self, workspace) -> int:
         return round(workspace.usage_seconds / 60)
 
     class Meta:
