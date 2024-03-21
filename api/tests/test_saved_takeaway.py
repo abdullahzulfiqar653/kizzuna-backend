@@ -41,7 +41,7 @@ class TestSavedTakeawayView(APITestCase):
         return super().setUp()
 
     def test_user_list_saved_takeaways(self):
-        url = "/api/saved_takeaways/"
+        url = "/api/saved/takeaways/"
         self.client.force_authenticate(self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -54,7 +54,7 @@ class TestSavedTakeawayView(APITestCase):
         we will keep the saved takeaway, but will not show it
         when we are listing the saved takeaways.
         """
-        url = "/api/saved_takeaways/"
+        url = "/api/saved/takeaways/"
         self.client.force_authenticate(self.user)
         self.takeaway1.note.project.users.remove(self.user)
         self.takeaway1.note.save()
@@ -71,7 +71,7 @@ class TestSavedTakeawayView(APITestCase):
         takeaway_ids = [takeaway.id for takeaway in self.user.saved_takeaways.all()]
         self.assertCountEqual(takeaway_ids, [self.takeaway1.id])
 
-        url = "/api/saved_takeaways/"
+        url = "/api/saved/takeaways/"
         self.client.force_authenticate(self.user)
         data = {
             "takeaways": [
@@ -92,7 +92,7 @@ class TestSavedTakeawayView(APITestCase):
         takeaway_ids = [takeaway.id for takeaway in self.user.saved_takeaways.all()]
         self.assertCountEqual(takeaway_ids, [self.takeaway1.id])
 
-        url = "/api/saved_takeaways/delete/"
+        url = "/api/saved/takeaways/delete/"
         self.client.force_authenticate(self.user)
         data = {
             "takeaways": [
@@ -112,7 +112,7 @@ class TestSavedTakeawayView(APITestCase):
         self.assertTrue(Takeaway.objects.filter(id=self.takeaway1.id).exists())
 
     def test_outsider_create_saved_takeaways(self):
-        url = "/api/saved_takeaways/"
+        url = "/api/saved/takeaways/"
         self.client.force_authenticate(self.outsider)
         data = {
             "takeaways": [

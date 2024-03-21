@@ -91,3 +91,43 @@ class TestNoteQuestionListCreateView(APITestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TestNoteQuestionRemainingQuotaRetrieveView(APITestCase):
+    def setUp(self) -> None:
+        """Reduce the log level to avoid errors like 'not found'"""
+        logger = logging.getLogger("django.request")
+        self.previous_level = logger.getEffectiveLevel()
+        logger.setLevel(logging.ERROR)
+
+        self.user = User.objects.create_user(username="user", password="password")
+        self.outsider = User.objects.create_user(
+            username="outsider", password="password"
+        )
+
+        workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        self.project = Project.objects.create(name="project", workspace=workspace)
+        self.project.users.add(self.user)
+
+        self.note = Note.objects.create(
+            title="note 1", project=self.project, author=self.user
+        )
+        self.question1 = Question.objects.create(
+            title="question 1", project=self.project
+        )
+        self.question2 = Question.objects.create(
+            title="question 2", project=self.project
+        )
+        self.note.questions.add(
+            self.question1,
+            self.question2,
+            through_defaults=dict(created_by=self.user),
+        )
+        return super().setUp()
+
+    def test_user_retrieve_remaining_quota(self):
+        url = f"/api/reports/{self.note.id}/questions/remaining-quotas/"
+        self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["value"], 3)

@@ -1,8 +1,12 @@
+from django.conf import settings
 from rest_framework import exceptions, generics, response, status
 
 from api.models.question import Question
 from api.models.takeaway import Takeaway
-from api.serializers.question import QuestionSerializer
+from api.serializers.question import (
+    QuestionRemainingQuotaSerializer,
+    QuestionSerializer,
+)
 from api.tasks import ask_note_question
 
 
@@ -18,7 +22,7 @@ class NoteQuestionListCreateView(generics.ListCreateAPIView):
             self.request.note.questions.through.objects.filter(
                 created_by=self.request.user
             ).count()
-            >= 5
+            >= settings.NOTE_QUESTION_QUOTA
         ):
             raise exceptions.PermissionDenied(
                 "You have reached your quota limit and "
@@ -37,3 +41,13 @@ class NoteQuestionListCreateView(generics.ListCreateAPIView):
         return response.Response(
             response_serializer.data, status=status.HTTP_201_CREATED
         )
+
+
+class NoteQuestionRemainingQuotaRetreiveView(generics.RetrieveAPIView):
+    serializer_class = QuestionRemainingQuotaSerializer
+
+    def get_object(self):
+        used_quota = self.request.note.questions.through.objects.filter(
+            created_by=self.request.user
+        ).count()
+        return {"value": settings.NOTE_QUESTION_QUOTA - used_quota}
