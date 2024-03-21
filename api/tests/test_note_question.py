@@ -65,8 +65,16 @@ class TestNoteQuestionListCreateView(APITestCase):
         note_question = self.note.questions.through.objects.get(question_id=question_id)
         self.assertEqual(note_question.created_by, self.user)
 
-    @patch("api.tasks.ask_note_question.delay")
-    def test_user_create_report_question_more_than_quota(self, mocked_delay):
+    def test_user_create_existing_report_question(self):
+        url = f"/api/reports/{self.note.id}/questions/"
+        self.client.force_authenticate(self.user)
+        data = {
+            "title": "question 1",
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_create_report_question_more_than_quota(self):
         user_questions = [
             Question.objects.create(title=f"user question {i}", project=self.project)
             for i in range(1, 6)
@@ -82,6 +90,39 @@ class TestNoteQuestionListCreateView(APITestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch("api.tasks.ask_note_question.delay")
+    def test_user_create_report_question_quota_exceeded_on_another_note(
+        self, mocked_delay
+    ):
+        """
+        This test is to make sure that the remaining quota is not affected by
+        other notes.
+        """
+        # Creating question on another note
+        self.another_note = Note.objects.create(
+            title="note 2", project=self.project, author=self.user
+        )
+        questions = [
+            Question.objects.create(
+                title=f"question {i} in another note", project=self.project
+            )
+            for i in range(5)
+        ]
+        self.another_note.questions.add(
+            *questions, through_defaults=dict(created_by=self.user)
+        )
+
+        # Ensure that there are still quota on this note
+        url = f"/api/reports/{self.note.id}/questions/"
+        self.client.force_authenticate(self.user)
+        data = {
+            "title": "question 3",
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        question_id = response.json()["id"]
+        mocked_delay.assert_called_once_with(self.note.id, question_id, self.user.id)
 
     def test_outsider_create_report_question(self):
         url = f"/api/reports/{self.note.id}/questions/"
