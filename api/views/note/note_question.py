@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import exceptions, generics, response, status
 
+from api.models.note_question import NoteQuestion
 from api.models.question import Question
 from api.models.takeaway import Takeaway
 from api.serializers.question import (
@@ -47,7 +48,8 @@ class NoteQuestionRemainingQuotaRetreiveView(generics.RetrieveAPIView):
     serializer_class = QuestionRemainingQuotaSerializer
 
     def get_object(self):
-        used_quota = self.request.note.questions.through.objects.filter(
-            created_by=self.request.user
+        used_quota = NoteQuestion.objects.filter(
+            note=self.request.note, created_by=self.request.user
         ).count()
-        return {"value": settings.NOTE_QUESTION_QUOTA - used_quota}
+        remaining_quota = max(settings.NOTE_QUESTION_QUOTA - used_quota, 0)
+        return {"value": remaining_quota}

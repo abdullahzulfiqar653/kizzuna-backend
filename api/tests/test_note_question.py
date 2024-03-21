@@ -131,3 +131,55 @@ class TestNoteQuestionRemainingQuotaRetrieveView(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["value"], 3)
+
+    def test_user_retrieve_remaining_quota_that_exceeded_on_another_note(self):
+        """
+        This test is to make sure that the remaining quota is not affected by
+        other notes.
+        """
+        # Creating question on another note
+        self.another_note = Note.objects.create(
+            title="note 2", project=self.project, author=self.user
+        )
+        questions = [
+            Question.objects.create(
+                title=f"question {i} in another note", project=self.project
+            )
+            for i in range(5)
+        ]
+        self.another_note.questions.add(
+            *questions, through_defaults=dict(created_by=self.user)
+        )
+
+        # Ensure that no remaining quota on another note
+        url = f"/api/reports/{self.another_note.id}/questions/remaining-quotas/"
+        self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["value"], 0)
+
+        # Ensure that there are still quota on this note
+        url = f"/api/reports/{self.note.id}/questions/remaining-quotas/"
+        self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["value"], 3)
+
+    def test_user_retrieve_remaining_quota_not_go_below_zero(self):
+        """
+        This test is to make sure that the remaining quota is not affected by
+        other notes.
+        """
+        # Creating question on another note
+        questions = [
+            Question.objects.create(title=f"question {i}", project=self.project)
+            for i in range(3, 10)
+        ]
+        self.note.questions.add(*questions, through_defaults=dict(created_by=self.user))
+
+        # Ensure that no remaining quota on another note
+        url = f"/api/reports/{self.note.id}/questions/remaining-quotas/"
+        self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["value"], 0)
