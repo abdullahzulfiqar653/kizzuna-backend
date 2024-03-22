@@ -22,7 +22,10 @@ from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
-from api.views.note.note_question import NoteQuestionListCreateView
+from api.views.note.note_question import (
+    NoteQuestionListCreateView,
+    NoteQuestionRemainingQuotaRetreiveView,
+)
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
@@ -114,6 +117,11 @@ urlpatterns = [
         "reports/<str:report_id>/questions/",
         NoteQuestionListCreateView.as_view(),
         name="note-question-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/questions/remaining-quotas/",
+        NoteQuestionRemainingQuotaRetreiveView.as_view(),
+        name="note-question-remaining-quota-retrieve",
     ),
     # =====================================================
     # Report Templates
@@ -307,15 +315,15 @@ urlpatterns = [
         name="block-takeaway-delete",
     ),
     # =====================================================
-    # Block
+    # Saved
     # =====================================================
     path(
-        "saved_takeaways/",
+        "saved/takeaways/",
         SavedTakeawayListCreateView.as_view(),
         name="saved-takeaway-list-create",
     ),
     path(
-        "saved_takeaways/delete/",
+        "saved/takeaways/delete/",
         SavedTakeawayDeleteView.as_view(),
         name="saved-takeaway-list-create",
     ),

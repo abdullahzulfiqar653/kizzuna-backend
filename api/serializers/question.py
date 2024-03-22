@@ -9,3 +9,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ["id", "title"]
+
+
+class QuestionRemainingQuotaSerializer(serializers.Serializer):
+    value = serializers.IntegerField()

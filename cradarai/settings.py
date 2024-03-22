@@ -15,6 +15,7 @@ from pathlib import Path
 
 import environ
 import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 env = environ.Env()
 # reading .env file
@@ -259,6 +260,7 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
     enable_tracing=True,
     environment=env("SENTRY_ENV"),
+    integrations=[CeleryIntegration(monitor_beat_tasks=True)],
 )
 
 INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60  # 3 days
@@ -279,10 +281,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-# Transcription duration limit
+# App Quotas
 DURATION_MINUTE_SINGLE_FILE = env("DURATION_MINUTE_SINGLE_FILE", cast=int)
 DURATION_MINUTE_WORKSPACE = env("DURATION_MINUTE_WORKSPACE", cast=int)
 STORAGE_GB_WORKSPACE = env("STORAGE_GB_WORKSPACE", cast=int)
+NOTE_QUESTION_QUOTA = env("NOTE_QUESTION_QUOTA", cast=int)
 
 # Health check settings
 DJANGO_EASY_HEALTH_CHECK = {
