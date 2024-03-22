@@ -15,6 +15,7 @@ from pathlib import Path
 
 import environ
 import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 env = environ.Env()
 # reading .env file
@@ -259,6 +260,7 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
     enable_tracing=True,
     environment=env("SENTRY_ENV"),
+    integrations=[CeleryIntegration(monitor_beat_tasks=True)],
 )
 
 INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60  # 3 days
