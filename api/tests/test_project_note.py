@@ -134,6 +134,20 @@ class TestProjectNoteListCreateView(APITestCase):
         self.assertEqual(note.organizations.count(), 1)
         self.assertEqual(note.keywords.count(), 2)
 
+    def test_user_create_report_with_long_title(self):
+        data = {
+            "title": "Long title: " + "x" * 100,
+            "organizations": [
+                {
+                    "name": "Test company",
+                }
+            ],
+        }
+        self.client.force_authenticate(self.user)
+        url = f"/api/projects/{self.project.id}/reports/"
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_user_create_report_with_more_than_8_questions(self):
         data = {
             "title": "User can create report.",

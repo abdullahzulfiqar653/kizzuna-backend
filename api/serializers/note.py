@@ -12,23 +12,13 @@ from api.models.question import Question
 from api.serializers.organization import OrganizationSerializer
 from api.serializers.question import QuestionSerializer
 from api.serializers.tag import KeywordSerializer
-from api.serializers.user import UserSerializer
 
 logger = logging.getLogger(__name__)
 
 
 class NoteSerializer(serializers.ModelSerializer):
-    id = serializers.CharField(read_only=True)
-    title = serializers.CharField(required=False, default="New Source")
-    type = serializers.CharField(required=False, default="User Interview")
-    description = serializers.CharField(required=False, default="")
-    code = serializers.CharField(read_only=True)
-    takeaway_count = serializers.IntegerField(read_only=True)
-    author = UserSerializer(read_only=True)
-    is_analyzing = serializers.BooleanField(read_only=True)
-    is_auto_tagged = serializers.BooleanField(read_only=True)
     file_name = serializers.CharField(read_only=True, source="file.name")
-    file_type = serializers.CharField(read_only=True)
+    takeaway_count = serializers.IntegerField(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
     questions = QuestionSerializer(many=True, required=False)
     summary = serializers.JSONField(required=False, default=[])
@@ -60,6 +50,28 @@ class NoteSerializer(serializers.ModelSerializer):
             "url",
             "sentiment",
         ]
+        read_only_fields = [
+            "id",
+            "code",
+            "author",
+            "is_analyzing",
+            "is_auto_tagged",
+            "file_type",
+        ]
+        extra_kwargs = {
+            "title": {
+                "required": False,
+                "default": "New Source",
+            },
+            "type": {
+                "required": False,
+                "default": "User Interview",
+            },
+            "description": {
+                "required": False,
+                "default": "User Interview",
+            },
+        }
 
     def validate_questions(self, value):
         if len(value) > 8:
