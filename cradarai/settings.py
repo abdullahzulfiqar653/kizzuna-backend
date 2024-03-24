@@ -109,7 +109,6 @@ SPECTACULAR_SETTINGS = {
 
 SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
     "TOKEN_OBTAIN_SERIALIZER": "api.serializers.auth.CustomTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "api.serializers.auth.CustomTokenRefreshSerializer",
