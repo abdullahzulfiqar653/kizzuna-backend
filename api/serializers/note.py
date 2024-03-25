@@ -12,6 +12,7 @@ from api.models.question import Question
 from api.serializers.organization import OrganizationSerializer
 from api.serializers.question import QuestionSerializer
 from api.serializers.tag import KeywordSerializer
+from api.serializers.user import UserSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 class NoteSerializer(serializers.ModelSerializer):
     file_name = serializers.CharField(read_only=True, source="file.name")
     takeaway_count = serializers.IntegerField(read_only=True)
+    author = UserSerializer(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
     questions = QuestionSerializer(many=True, required=False)
     summary = serializers.JSONField(required=False, default=[])
@@ -69,7 +71,7 @@ class NoteSerializer(serializers.ModelSerializer):
             },
             "description": {
                 "required": False,
-                "default": "User Interview",
+                "default": "",
             },
         }
 
