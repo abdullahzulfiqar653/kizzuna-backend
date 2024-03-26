@@ -23,6 +23,19 @@ def remove_lines_before_header(markdown_string):
     return markdown_string
 
 
+def truncate(text):
+    lines = []
+    length = 0
+    for line in text.split("\n"):
+        # The content state json structure for each line is about 120 chars
+        length += len(line) + 120
+        if length > 220_000:
+            lines.append("...[text is truncated because it is too long]")
+            break
+        lines.append(line)
+    return "\n".join(lines)
+
+
 class WebDownloader:
     translator = google_translator
 
@@ -41,7 +54,8 @@ class WebDownloader:
         html2text.body_width = 0
         html2text.ignore_images = True
         raw_markdown_string = html2text.handle(result)
-        markdown_string = remove_lines_before_header(raw_markdown_string)
+        truncated_markdown_string = truncate(raw_markdown_string)
+        markdown_string = remove_lines_before_header(truncated_markdown_string)
 
         # Translate the markdown string
         # We convert \n to <br> before translating and convert it back

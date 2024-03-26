@@ -31,7 +31,20 @@ web_downloader = WebDownloader()
 class NewNoteAnalyzer:
     transcriber_router = TranscriberRouter()
 
+    def truncate(self, text):
+        lines = []
+        length = 0
+        for line in text.split("\n"):
+            # The content state json structure for each line is about 120 chars
+            length += len(line) + 120
+            if length > 220_000:
+                lines.append("...[text is truncated because it is too long]")
+                break
+            lines.append(line)
+        return "\n".join(lines)
+
     def to_content_state(self, text):
+        text = self.truncate(text)
         return {"blocks": [{"text": block} for block in text.split("\n")]}
 
     def transcribe(self, note, created_by):

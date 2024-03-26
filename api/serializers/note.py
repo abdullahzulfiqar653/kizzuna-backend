@@ -1,4 +1,5 @@
 # note/serializers.py
+import json
 import logging
 
 from django.db.models import Count
@@ -134,6 +135,11 @@ class NoteUpdateSerializer(NoteSerializer):
 
     class Meta(NoteSerializer.Meta):
         fields = list(set(NoteSerializer.Meta.fields) - {"keywords", "questions"})
+
+    def validate_content(self, content):
+        if len(json.dumps(content)) > 250_000:
+            raise exceptions.ValidationError("Content exceed length limit.")
+        return content
 
     def update(self, note: Note, validated_data):
         project = note.project
