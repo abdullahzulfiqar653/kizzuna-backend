@@ -14,6 +14,7 @@ from rest_framework import exceptions, serializers
 from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer,
     TokenRefreshSerializer,
+    api_settings,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -212,6 +213,11 @@ class CustomTokenRefreshSerializer(TokenRefreshSerializer):
         data = super().validate(attrs)
         data["access_token"] = data.pop("access")
         data["refresh_token"] = data.pop("refresh")
+        if api_settings.UPDATE_LAST_LOGIN:
+            refresh_token = RefreshToken(data["refresh_token"], verify=False)
+            user_id = refresh_token.payload["user_id"]
+            user = User.objects.get(pk=user_id)
+            update_last_login(None, user)
         return data
 
 
