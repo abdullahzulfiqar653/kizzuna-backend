@@ -2,7 +2,6 @@ import time
 from contextlib import contextmanager
 
 from celery import shared_task
-from django.db import transaction
 
 from api.ai.analyzer.note_analyzer import ExistingNoteAnalyzer, NewNoteAnalyzer
 from api.ai.analyzer.project_summarizer import ProjectSummarizer
@@ -18,8 +17,7 @@ def is_analyzing(note: Note):
     try:
         note.is_analyzing = True
         note.save()
-        with transaction.atomic():
-            yield None
+        yield None
     except Exception as e:
         import traceback
 
