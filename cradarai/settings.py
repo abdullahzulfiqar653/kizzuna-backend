@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -111,6 +112,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
     "TOKEN_OBTAIN_SERIALIZER": "api.serializers.auth.CustomTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "api.serializers.auth.CustomTokenRefreshSerializer",
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
 # Set SESSION_ENGINE to 'django.contrib.sessions.backends.db' for database-backed sessions

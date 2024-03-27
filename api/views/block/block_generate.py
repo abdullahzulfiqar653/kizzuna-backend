@@ -44,5 +44,5 @@ class BlockGenerateCreateView(generics.CreateAPIView):
         # We set the attributes of the block here but save it inside generate_block()
         block.question = question
         block.filter = filter_string
-        generate_block(block, question, takeaways)
+        generate_block(block, question, takeaways, self.request.user)
         serializer._data["content"] = block.content
