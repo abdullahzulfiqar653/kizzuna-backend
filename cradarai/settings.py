@@ -256,6 +256,15 @@ LOGGING = {
     },
 }
 
+
+def traces_sampler(ctx):
+    # Don't trace requests to health endpoint
+    if ctx.get("wsgi_environ", {}).get("PATH_INFO", "") == "/health/":
+        return 0
+    else:
+        return 1
+
+
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default=""),
     traces_sample_rate=1.0,
@@ -263,6 +272,7 @@ sentry_sdk.init(
     enable_tracing=True,
     environment=env("SENTRY_ENV"),
     integrations=[CeleryIntegration(monitor_beat_tasks=True)],
+    traces_sampler=traces_sampler,
 )
 
 INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60  # 3 days
