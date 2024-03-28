@@ -10,6 +10,8 @@ from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
 )
+from api.views.chart.note import ChartNoteCreateView
+from api.views.chart.takeaway import ChartTakeawayCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
 from api.views.insight.insight_tag import InsightTagListView
 from api.views.insight.insight_takeaway import (
@@ -218,6 +220,16 @@ urlpatterns = [
         "projects/<str:project_id>/assets/",
         ProjectAssetListCreateView.as_view(),
         name="project-asset-list-create",
+    ),
+    path(
+        "projects/<str:project_id>/charts/takeaways/",
+        ChartTakeawayCreateView.as_view(),
+        name="chart-takeaway-create",
+    ),
+    path(
+        "projects/<str:project_id>/charts/reports/",
+        ChartNoteCreateView.as_view(),
+        name="chart-report-create",
     ),
     # =====================================================
     # Workspace
