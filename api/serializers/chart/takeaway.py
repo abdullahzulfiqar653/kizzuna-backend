@@ -1,15 +1,19 @@
-from django.db.models import Count, F
+from django.db.models import Count
 from rest_framework import serializers
 
 from api.models.takeaway import Takeaway
+from api.serializers.chart.base import QuerySerializer
 
+# Filters
 filter_key_mapping = {
-    "created_by": "created_by__username",
-    "tag": "tags__name",
-    "report_id": "note",
-    "priority": "priority",
-    "type": "type__name",
-    "report_type": "note__type",
+    "created_by": "created_by__username__in",
+    "tag": "tags__name__in",
+    "report_id": "note__in",
+    "priority": "priority__in",
+    "type": "type__name__in",
+    "report_type": "note__type__in",
+    "created_at_before": "created_at__lt",
+    "created_at_after": "created_at__gt",
 }
 
 
@@ -30,6 +34,7 @@ class ChartTakeawayFilterSerializer(serializers.Serializer):
     )
 
 
+# Group by
 group_by_field_mapping = {
     "type": "type__name",
     "tag": "tags__name",
@@ -42,13 +47,20 @@ group_by_field_mapping = {
     "report_title": "note__title",
     "report_type": "note__type",
     "report_sentiment": "note__sentiment",
+    "created_at": "created_at",
 }
+group_by_time_fields = {"created_at"}
 
 
 class ChartTakeawayGroupBySerializer(serializers.Serializer):
     field = serializers.ChoiceField(choices=list(group_by_field_mapping.keys()))
+    trunc = serializers.ChoiceField(
+        choices=["year", "quarter", "month", "week", "day", "hour", "minute", "second"],
+        help_text="Only applicable for datetime field.",
+    )
 
 
+# Aggregate
 aggregate_field_mapping = {
     "takeaway": "id",
     "report": "note__id",
@@ -64,76 +76,15 @@ class ChartTakeawayAggregateSerializer(serializers.Serializer):
     distinct = serializers.BooleanField(default=True)
 
 
-class ChartTakeawaySerializer(serializers.Serializer):
+class ChartTakeawaySerializer(serializers.Serializer, QuerySerializer):
     filter = ChartTakeawayFilterSerializer()
     group_by = ChartTakeawayGroupBySerializer(many=True)
     aggregate = ChartTakeawayAggregateSerializer()
     limit = serializers.IntegerField(default=10, max_value=100)
     offset = serializers.IntegerField(default=0)
 
-    def query(self, queryset):
-        data = self.data
-
-        # Filters
-        filters = {
-            f"{filter_key_mapping[key]}__in": value
-            for key, value in data["filter"].items()
-            if value
-        }
-        queryset = queryset.filter(**filters)
-
-        # Group by
-        labels = [group_by.get("field") for group_by in data["group_by"]]
-        fields = [group_by_field_mapping.get(label) for label in labels]
-        queryset = queryset.values(*fields)
-        queryset = queryset.annotate(
-            **{
-                label: F(field)
-                for label, field in zip(labels, fields)
-                if label != field
-            }
-        )
-        queryset = queryset.values(*labels)
-
-        # Aggregate
-        aggregate = data["aggregate"]
-        aggregate_field = aggregate_field_mapping[aggregate["field"]]
-        aggregate_function = aggregate_function_mapping[aggregate["function"]]
-        distinct = aggregate["distinct"]
-        aggregate_label = (
-            f"{aggregate.get('field')}_"
-            f"{'distinct_' if distinct else ''}"
-            f"{aggregate.get('function')}"
-        )
-        queryset = queryset.annotate(
-            **{aggregate_label: aggregate_function(aggregate_field, distinct=distinct)}
-        )
-        queryset = queryset.order_by("-" + aggregate_label)
-
-        # Offset and limit
-        start = data.get("offset")
-        end = start + data.get("limit")
-        queryset = queryset[start:end]
-        return queryset
-
-
-# # =================================================================
-# # Example of group by tag family
-# # =================================================================
-# from django.db.models import Count, F
-# from pyperclip import copy
-
-# from api.models.takeaway import Takeaway
-
-# copy(
-#     str(
-#         Takeaway.objects.filter(type__name="collaboration")
-#         .filter(tags__project__id="project1")
-#         .annotate(tag1=F("tags__name"))
-#         .filter(tags__project__id="project2")
-#         .annotate(tag2=F("tags__name"))
-#         .values("tag1", "tag2")
-#         .annotate(takeaway_count=Count("id", distinct=True))
-#         .query
-#     )
-# )
+    filter_key_mapping = filter_key_mapping
+    group_by_field_mapping = group_by_field_mapping
+    aggregate_field_mapping = aggregate_field_mapping
+    aggregate_function_mapping = aggregate_function_mapping
+    group_by_time_fields = group_by_time_fields
