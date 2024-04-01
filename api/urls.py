@@ -10,8 +10,6 @@ from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
 )
-from api.views.chart.note import ChartNoteCreateView
-from api.views.chart.takeaway import ChartTakeawayCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
 from api.views.insight.insight_tag import InsightTagListView
 from api.views.insight.insight_takeaway import (
@@ -33,6 +31,8 @@ from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
 from api.views.note_template_question import NoteTemplateQuestionListView
+from api.views.project.chart.note import ChartNoteCreateView
+from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_asset import ProjectAssetListCreateView
 from api.views.project.project_insight import ProjectInsightListCreateView

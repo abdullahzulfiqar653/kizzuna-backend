@@ -37,9 +37,9 @@ group_by_field_mapping = {
     "type": "type",
     "revenue": "revenue",
     "sentiment": "sentiment",
-    "author_username": "author_username",
-    "author_first_name": "author_first_name",
-    "author_last_name": "author_last_name",
+    "author_username": "author__username",
+    "author_first_name": "author__first_name",
+    "author_last_name": "author__last_name",
     "keyword": "keywords__name",
     "created_at": "created_at",
 }
@@ -50,6 +50,7 @@ class ChartNoteGroupBySerializer(serializers.Serializer):
     field = serializers.ChoiceField(choices=list(group_by_field_mapping.keys()))
     trunc = serializers.ChoiceField(
         choices=["year", "quarter", "month", "week", "day", "hour", "minute", "second"],
+        default="month",
         help_text="Only applicable for datetime field.",
     )
 

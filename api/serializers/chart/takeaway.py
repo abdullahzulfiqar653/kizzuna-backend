@@ -36,7 +36,7 @@ class ChartTakeawayFilterSerializer(serializers.Serializer):
 
 # Group by
 group_by_field_mapping = {
-    "type": "type__name",
+    "type_name": "type__name",
     "tag": "tags__name",
     "created_by_username": "created_by__username",
     "created_by_first_name": "created_by__first_name",
@@ -56,6 +56,7 @@ class ChartTakeawayGroupBySerializer(serializers.Serializer):
     field = serializers.ChoiceField(choices=list(group_by_field_mapping.keys()))
     trunc = serializers.ChoiceField(
         choices=["year", "quarter", "month", "week", "day", "hour", "minute", "second"],
+        default="month",
         help_text="Only applicable for datetime field.",
     )
 

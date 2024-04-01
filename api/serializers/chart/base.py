@@ -1,4 +1,4 @@
-from django.db.models import DateTimeField
+from django.db.models import DateTimeField, F
 from django.db.models.functions import Trunc
 
 
@@ -29,13 +29,15 @@ class QuerySerializer:
             if label == field and label not in self.group_by_time_fields:
                 # If the label and the field are the same, we don't need to annotate
                 # except if it is time field, we need to truncate it
-                group_by_args.append(label)
-                continue
-            if label in self.group_by_time_fields:
+                pass
+            elif label in self.group_by_time_fields:
                 # Truncate the time field and update the label
                 label += "_" + group_by["trunc"]
-                field = Trunc(field, group_by["trunc"], output_field=DateTimeField())
-            group_by_kwargs[label] = field
+                group_by_kwargs[label] = Trunc(
+                    field, group_by["trunc"], output_field=DateTimeField()
+                )
+            else:
+                group_by_kwargs[label] = F(field)
             group_by_args.append(label)
 
         # Annotate the queryset. Eg.:
