@@ -1,7 +1,7 @@
 from django.db.models import Count
 from rest_framework import serializers
 
-from api.serializers.chart.base import QuerySerializer
+from api.serializers.chart.base import QuerySerializer, get_order_by_fields
 
 # Filters
 filter_key_mapping = {
@@ -48,6 +48,7 @@ group_by_time_fields = {"created_at"}
 
 class ChartNoteGroupBySerializer(serializers.Serializer):
     field = serializers.ChoiceField(choices=list(group_by_field_mapping.keys()))
+    exclude_null = serializers.BooleanField(default=True)
     trunc = serializers.ChoiceField(
         choices=["year", "quarter", "month", "week", "day", "hour", "minute", "second"],
         default="month",
@@ -66,10 +67,16 @@ class ChartNoteAggregateSerializer(serializers.Serializer):
     distinct = serializers.BooleanField(default=True)
 
 
+order_by_fields = get_order_by_fields(group_by_field_mapping)
+
+
 class ChartNoteSerializer(serializers.Serializer, QuerySerializer):
     filter = ChartNoteFilterSerializer()
     group_by = ChartNoteGroupBySerializer(many=True)
     aggregate = ChartNoteAggregateSerializer()
+    order_by = serializers.ListField(
+        child=serializers.ChoiceField(choices=order_by_fields), default=["-aggregate"]
+    )
     limit = serializers.IntegerField(default=10, max_value=100)
     offset = serializers.IntegerField(default=0)
 

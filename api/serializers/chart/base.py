@@ -1,5 +1,21 @@
 from django.db.models import DateTimeField, F
 from django.db.models.functions import Trunc
+from rest_framework import serializers
+
+
+def get_order_by_fields(group_by_field_mapping):
+    """
+    Get the order_by fields.
+    """
+    order_by_fields = [
+        (field, f"Order by {field} ascendingly")
+        for field in group_by_field_mapping.keys()
+    ]
+    order_by_fields += [("aggregate", f"Order by aggregated field ascendingly")]
+    order_by_fields += [
+        (f"-{field}", f"Order by {field} descendingly") for field, _ in order_by_fields
+    ]
+    return order_by_fields
 
 
 class QuerySerializer:
@@ -8,6 +24,20 @@ class QuerySerializer:
     aggregate_field_mapping = {}
     aggregate_function_mapping = {}
     group_by_time_fields = {}
+
+    def validate(self, data):
+        order_by_keys = {item.lstrip("-") for item in data["order_by"]}
+        group_by_keys = {item["field"] for item in data["group_by"]} | {"aggregate"}
+        if order_by_keys - group_by_keys:
+            raise serializers.ValidationError(
+                {
+                    "order_by": [
+                        f"Field '{field}' not found in group_by"
+                        for field in order_by_keys - group_by_keys
+                    ]
+                }
+            )
+        return data
 
     def query(self, queryset):
         data = self.data
@@ -23,6 +53,8 @@ class QuerySerializer:
         # Group by
         group_by_kwargs = dict()
         group_by_args = []
+        group_by_exclude_null = {}
+        order_by_mapping = {}
         for group_by in data["group_by"]:
             label = group_by["field"]
             field = self.group_by_field_mapping[label]
@@ -39,6 +71,9 @@ class QuerySerializer:
             else:
                 group_by_kwargs[label] = F(field)
             group_by_args.append(label)
+            order_by_mapping[group_by["field"]] = label
+            if group_by["exclude_null"] is True:
+                group_by_exclude_null[f"{label}__isnull"] = True
 
         # Annotate the queryset. Eg.:
         # queryset.annotate(
@@ -67,7 +102,19 @@ class QuerySerializer:
             queryset = queryset.aggregate(**aggregate_kwargs)
             return queryset
         queryset = queryset.annotate(**aggregate_kwargs)
-        queryset = queryset.order_by("-" + aggregate_label)
+        queryset = queryset.exclude(**group_by_exclude_null)
+
+        # Order by
+        order_by_mapping["aggregate"] = aggregate_label
+        order_by = [
+            (
+                f"-{order_by_mapping[field.lstrip('-')]}"
+                if field.startswith("-")
+                else order_by_mapping[field]
+            )
+            for field in data["order_by"]
+        ]
+        queryset = queryset.order_by(*order_by)
 
         # Offset and limit
         start = data.get("offset")
