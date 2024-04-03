@@ -31,6 +31,8 @@ from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
 from api.views.note_template_question import NoteTemplateQuestionListView
+from api.views.project.chart.note import ChartNoteCreateView
+from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_asset import ProjectAssetListCreateView
 from api.views.project.project_insight import ProjectInsightListCreateView
@@ -218,6 +220,16 @@ urlpatterns = [
         "projects/<str:project_id>/assets/",
         ProjectAssetListCreateView.as_view(),
         name="project-asset-list-create",
+    ),
+    path(
+        "projects/<str:project_id>/charts/takeaways/",
+        ChartTakeawayCreateView.as_view(),
+        name="chart-takeaway-create",
+    ),
+    path(
+        "projects/<str:project_id>/charts/reports/",
+        ChartNoteCreateView.as_view(),
+        name="chart-report-create",
     ),
     # =====================================================
     # Workspace
