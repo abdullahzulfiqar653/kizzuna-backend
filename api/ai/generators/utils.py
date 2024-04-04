@@ -1,8 +1,8 @@
 from contextlib import contextmanager
 from decimal import Decimal
 
-from langchain.callbacks import get_openai_callback
 from langchain.callbacks.base import BaseCallbackHandler
+from langchain_community.callbacks.manager import get_openai_callback
 
 from api.models.usage.token import TokenUsage
 

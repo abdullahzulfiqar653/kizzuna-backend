@@ -3,11 +3,11 @@ import datetime
 import numpy as np
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain.prompts import ChatPromptTemplate
-from langchain_community.chat_models import ChatOpenAI
 from langchain_community.embeddings.openai import OpenAIEmbeddings
 from langchain_community.utils.openai_functions import (
     convert_pydantic_to_openai_function,
 )
+from langchain_openai.chat_models import ChatOpenAI
 from pydantic import BaseModel, Field
 from sklearn.cluster import HDBSCAN
 
