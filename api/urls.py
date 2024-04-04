@@ -29,6 +29,7 @@ from api.views.note.note_question import (
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
+from api.views.note.note_takeaway_type import NoteTakeawayTypeListView
 from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
 from api.views.note_template_question import NoteTemplateQuestionListView
 from api.views.project.chart.note import ChartNoteCreateView
@@ -89,6 +90,11 @@ urlpatterns = [
         "reports/<str:report_id>/takeaways/",
         NoteTakeawayListCreateView.as_view(),
         name="note-takeaway-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/takeaway-types/",
+        NoteTakeawayTypeListView.as_view(),
+        name="note-takeaway-type-list",
     ),
     path(
         "reports/<str:report_id>/keywords/",
