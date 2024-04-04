@@ -22,12 +22,17 @@ from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
-from api.views.note.note_question import NoteQuestionListCreateView
+from api.views.note.note_question import (
+    NoteQuestionListCreateView,
+    NoteQuestionRemainingQuotaRetreiveView,
+)
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
 from api.views.note_template_question import NoteTemplateQuestionListView
+from api.views.project.chart.note import ChartNoteCreateView
+from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_asset import ProjectAssetListCreateView
 from api.views.project.project_insight import ProjectInsightListCreateView
@@ -114,6 +119,11 @@ urlpatterns = [
         "reports/<str:report_id>/questions/",
         NoteQuestionListCreateView.as_view(),
         name="note-question-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/questions/remaining-quotas/",
+        NoteQuestionRemainingQuotaRetreiveView.as_view(),
+        name="note-question-remaining-quota-retrieve",
     ),
     # =====================================================
     # Report Templates
@@ -211,6 +221,16 @@ urlpatterns = [
         ProjectAssetListCreateView.as_view(),
         name="project-asset-list-create",
     ),
+    path(
+        "projects/<str:project_id>/charts/takeaways/",
+        ChartTakeawayCreateView.as_view(),
+        name="chart-takeaway-create",
+    ),
+    path(
+        "projects/<str:project_id>/charts/reports/",
+        ChartNoteCreateView.as_view(),
+        name="chart-report-create",
+    ),
     # =====================================================
     # Workspace
     # =====================================================
@@ -307,15 +327,15 @@ urlpatterns = [
         name="block-takeaway-delete",
     ),
     # =====================================================
-    # Block
+    # Saved
     # =====================================================
     path(
-        "saved_takeaways/",
+        "saved/takeaways/",
         SavedTakeawayListCreateView.as_view(),
         name="saved-takeaway-list-create",
     ),
     path(
-        "saved_takeaways/delete/",
+        "saved/takeaways/delete/",
         SavedTakeawayDeleteView.as_view(),
         name="saved-takeaway-list-create",
     ),

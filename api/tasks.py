@@ -1,3 +1,4 @@
+import time
 from contextlib import contextmanager
 
 from celery import shared_task
@@ -38,6 +39,8 @@ def summarize_projects():
 @shared_task
 def analyze_new_note(note_id, user_id):
     print(f"analyzing new note {note_id} by {user_id}")
+    # Wait for a moment for the db to save the new note
+    time.sleep(1)
     try:
         note = Note.objects.select_related("project__workspace").get(id=note_id)
     except Exception as e:
@@ -60,7 +63,7 @@ def analyze_new_note(note_id, user_id):
 
 @shared_task
 def analyze_existing_note(note_id, user_id):
-    print("analyzing existing note")
+    print(f"analyzing existing note {note_id} by {user_id}")
 
     note = Note.objects.select_related("project__workspace").get(id=note_id)
     if note.is_analyzing:

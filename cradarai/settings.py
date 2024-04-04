@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
 import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 env = environ.Env()
 # reading .env file
@@ -110,6 +112,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
     "TOKEN_OBTAIN_SERIALIZER": "api.serializers.auth.CustomTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "api.serializers.auth.CustomTokenRefreshSerializer",
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
 # Set SESSION_ENGINE to 'django.contrib.sessions.backends.db' for database-backed sessions
@@ -253,12 +256,23 @@ LOGGING = {
     },
 }
 
+
+def traces_sampler(ctx):
+    # Don't trace requests to health endpoint
+    if ctx.get("wsgi_environ", {}).get("PATH_INFO", "") == "/health/":
+        return 0
+    else:
+        return 1
+
+
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default=""),
     traces_sample_rate=1.0,
     profiles_sample_rate=1.0,
     enable_tracing=True,
     environment=env("SENTRY_ENV"),
+    integrations=[CeleryIntegration(monitor_beat_tasks=True)],
+    traces_sampler=traces_sampler,
 )
 
 INVITATION_LINK_TIMEOUT = 3 * 24 * 60 * 60  # 3 days
@@ -279,10 +293,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-# Transcription duration limit
+# App Quotas
 DURATION_MINUTE_SINGLE_FILE = env("DURATION_MINUTE_SINGLE_FILE", cast=int)
 DURATION_MINUTE_WORKSPACE = env("DURATION_MINUTE_WORKSPACE", cast=int)
 STORAGE_GB_WORKSPACE = env("STORAGE_GB_WORKSPACE", cast=int)
+NOTE_QUESTION_QUOTA = env("NOTE_QUESTION_QUOTA", cast=int)
 
 # Health check settings
 DJANGO_EASY_HEALTH_CHECK = {

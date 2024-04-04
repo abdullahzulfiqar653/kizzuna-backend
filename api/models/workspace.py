@@ -46,7 +46,7 @@ class Workspace(models.Model):
 
     @property
     def total_file_size(self) -> int:
-        return self.notes.aggregate(value=Sum("file_size")).get("value")
+        return self.notes.aggregate(value=Coalesce(Sum("file_size"), 0)).get("value")
 
     def __str__(self):
         return f"{self.id} - {self.name}"
