@@ -14,4 +14,4 @@ class ProjectTakeawayTypeListView(generics.ListAPIView):
     def get_queryset(self):
         return TakeawayType.objects.filter(
             takeaways__note__project=self.request.project
-        )
+        ).distinct()

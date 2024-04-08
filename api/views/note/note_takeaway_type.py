@@ -12,4 +12,4 @@ class NoteTakeawayTypeListView(generics.ListAPIView):
     search_fields = ["name"]
 
     def get_queryset(self):
-        return TakeawayType.objects.filter(takeaways__note=self.request.note)
+        return TakeawayType.objects.filter(takeaways__note=self.request.note).distinct()
