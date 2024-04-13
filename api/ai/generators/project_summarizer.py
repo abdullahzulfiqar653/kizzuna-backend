@@ -5,7 +5,7 @@ from django.utils.translation import gettext
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai.chat_models import ChatOpenAI
 
 from api.ai import config
 from api.ai.generators.utils import token_tracker

@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 from django.utils.translation import gettext
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import ChatPromptTemplate
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai.chat_models import ChatOpenAI
 from pydantic.v1 import BaseModel, Field
 from tiktoken import encoding_for_model
 

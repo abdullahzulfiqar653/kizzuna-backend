@@ -1,6 +1,6 @@
 from django.utils.translation import gettext
 from langchain.prompts import ChatPromptTemplate
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai.chat_models import ChatOpenAI
 from tiktoken import encoding_for_model
 
 from api.ai import config
