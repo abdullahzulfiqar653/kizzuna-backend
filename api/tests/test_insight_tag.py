@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -36,7 +37,10 @@ class TestInsightTagView(APITestCase):
             title="note", project=self.project, author=self.user
         )
         self.takeaway1 = Takeaway.objects.create(
-            title="takeaway 1 in insight", note=self.note, created_by=self.user
+            title="takeaway 1 in insight",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.tag1 = Tag.objects.create(name="tag 1 in takeaway 1", project=self.project)
         self.tag2 = Tag.objects.create(name="tag 2 in takeaway 1", project=self.project)
@@ -45,7 +49,10 @@ class TestInsightTagView(APITestCase):
         self.insight.takeaways.add(self.takeaway1)
 
         self.takeaway2 = Takeaway.objects.create(
-            title="takeaway 2", note=self.note, created_by=self.user
+            title="takeaway 2",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.tag3 = Tag.objects.create(name="tag 3 in takeaway 2", project=self.project)
         self.takeaway2.tags.add(self.tag3)

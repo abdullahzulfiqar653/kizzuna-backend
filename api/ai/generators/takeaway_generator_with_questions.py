@@ -10,6 +10,7 @@ from langchain_openai.chat_models import ChatOpenAI
 from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
+from api.ai.embedder import embedder
 from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 from api.ai.translator import google_translator
 from api.models.note import Note
@@ -162,13 +163,18 @@ def generate_takeaways_with_questions(
         takeaway_type.name: takeaway_type
         for takeaway_type in TakeawayType.objects.filter(project=note.project)
     }
+    generated_takeaway_titles = [takeaway["title"] for takeaway in generated_takeaways]
+    generated_takeaway_vectors = embedder.embed_documents(generated_takeaway_titles)
     takeaways_to_add = []
     note_takeaway_sequence = note.takeaway_sequence
-    for generated_takeaway in generated_takeaways:
+    for generated_takeaway, vector in zip(
+        generated_takeaways, generated_takeaway_vectors
+    ):
         note_takeaway_sequence += 1
         takeaways_to_add.append(
             Takeaway(
                 title=generated_takeaway["title"],
+                vector=vector,
                 type=takeaway_type_dict[generated_takeaway["type"]],
                 note=note,
                 created_by=bot,

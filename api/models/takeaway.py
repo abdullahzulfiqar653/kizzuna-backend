@@ -1,4 +1,5 @@
 from django.db import models
+from pgvector.django import HnswIndex, VectorField
 from shortuuid.django_fields import ShortUUIDField
 
 from api.models.question import Question
@@ -16,6 +17,7 @@ class Takeaway(models.Model):
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     title = models.TextField()
     description = models.TextField(blank=True)
+    vector = VectorField(dimensions=1536)
     type = models.ForeignKey(
         TakeawayType, on_delete=models.SET_NULL, related_name="takeaways", null=True
     )
@@ -39,6 +41,15 @@ class Takeaway(models.Model):
         "api.Note", on_delete=models.CASCADE, related_name="takeaways"
     )
     code = models.CharField(max_length=10, unique=True)
+
+    class Meta:
+        indexes = [
+            HnswIndex(
+                name="takeaway-vector-index",
+                fields=["vector"],
+                opclasses=["vector_ip_ops"],
+            )
+        ]
 
     def __str__(self):
         return self.title

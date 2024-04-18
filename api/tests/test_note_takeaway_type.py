@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -38,6 +39,7 @@ class TestNoteTakeawayListView(APITestCase):
             note=self.note1,
             created_by=self.user,
             type=self.takeaway_type1,
+            vector=np.random.rand(1536),
         )
 
         self.note2 = Note.objects.create(
@@ -51,6 +53,7 @@ class TestNoteTakeawayListView(APITestCase):
             note=self.note2,
             created_by=self.user,
             type=self.takeaway_type2,
+            vector=np.random.rand(1536),
         )
         return super().setUp()
 

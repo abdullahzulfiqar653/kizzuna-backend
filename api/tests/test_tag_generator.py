@@ -1,6 +1,7 @@
 import logging
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -33,10 +34,10 @@ class TestNoteTagGenerateView(APITestCase):
             type="Report-type-1",
         )
         self.takeaway1 = self.note.takeaways.create(
-            title="takeaway 1", created_by=self.user
+            title="takeaway 1", created_by=self.user, vector=np.random.rand(1536)
         )
         self.takeaway2 = self.note.takeaways.create(
-            title="takeaway 1", created_by=self.user
+            title="takeaway 1", created_by=self.user, vector=np.random.rand(1536)
         )
         return super().setUp()
 

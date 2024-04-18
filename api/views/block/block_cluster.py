@@ -1,16 +1,14 @@
 from django.http import QueryDict
-from pgvector.django import MaxInnerProduct
-from rest_framework import generics
+from rest_framework.generics import CreateAPIView
 
-from api.ai.embedder import embedder
-from api.ai.generators.block_generator import generate_block
+from api.ai.generators.block_clusterer import cluster_block
 from api.filters.takeaway import TakeawayFilter
 from api.models.takeaway import Takeaway
-from api.serializers.block import BlockGenerateSerializer
+from api.serializers.block import BlockThemeSerializer
 
 
-class BlockGenerateCreateView(generics.CreateAPIView):
-    serializer_class = BlockGenerateSerializer
+class BlockClusterCreateView(CreateAPIView):
+    serializer_class = BlockThemeSerializer
 
     # The following are for filtering takeaways
     filterset_class = TakeawayFilter
@@ -35,18 +33,10 @@ class BlockGenerateCreateView(generics.CreateAPIView):
         filter_string = serializer.data["filter"]
         if filter_string is None:
             filter_string = block.asset.filter
+        block.filter = filter_string
         self.request._request.GET = QueryDict(filter_string)
         takeaways = Takeaway.objects.filter(
             note__project=self.request.block.asset.project
         )
         takeaways = self.filter_queryset(takeaways)
-
-        question = serializer.data["question"]
-        vector = embedder.embed_query(question)
-        takeaways = takeaways.order_by(MaxInnerProduct("vector", vector))
-
-        # We set the attributes of the block here but save it inside generate_block()
-        block.question = question
-        block.filter = filter_string
-        generate_block(block, question, takeaways, self.request.user)
-        serializer._data["content"] = block.content
+        cluster_block(block, takeaways, self.request.user)

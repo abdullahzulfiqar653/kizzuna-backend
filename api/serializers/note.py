@@ -2,9 +2,11 @@
 import json
 import logging
 
+import numpy as np
 from django.db.models import Count
 from rest_framework import exceptions, serializers
 
+from api.ai.embedder import embedder
 from api.models.highlight import Highlight
 from api.models.keyword import Keyword
 from api.models.note import Note
@@ -183,6 +185,7 @@ class NoteUpdateSerializer(NoteSerializer):
                     if highlight_id is None:
                         if new_highlight_id is None:
                             highlight = Highlight.objects.create(
+                                vector=np.zeros(1536),
                                 note=note,
                                 created_by=request.user,
                             )
@@ -216,8 +219,9 @@ class NoteUpdateSerializer(NoteSerializer):
                     )
                     continue
                 highlight.title = highlight_title
+                highlight.vector = embedder.embed_documents([highlight_title])[0]
                 highlights_to_update.append(highlight)
-            Highlight.objects.bulk_update(highlights_to_update, ["title"])
+            Highlight.objects.bulk_update(highlights_to_update, ["title", "vector"])
             note.highlights.exclude(id__in=input_highlights.keys()).delete()
             # We save the note again as we have added the highlight id
             # to the newly created highlight in the content state.

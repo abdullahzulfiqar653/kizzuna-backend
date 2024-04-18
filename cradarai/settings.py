@@ -90,6 +90,7 @@ REST_FRAMEWORK = {
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
+        "api.filters.backends.QueryFilter",
     ],
     "NON_FIELD_ERRORS_KEY": "detail",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",

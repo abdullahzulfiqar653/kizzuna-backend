@@ -13,6 +13,7 @@ from .project import Project
 from .question import Question
 from .tag import Tag
 from .takeaway import Takeaway
+from .theme import Theme
 from .usage.token import TokenUsage
 from .usage.transciption import TranscriptionUsage
 from .user import User
@@ -40,4 +41,5 @@ __all__ = [
     "Asset",
     "Block",
     "UserSavedTakeaway",
+    "Theme",
 ]
