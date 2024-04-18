@@ -70,7 +70,7 @@ class NoteSerializer(serializers.ModelSerializer):
             },
             "type": {
                 "required": False,
-                "default": "User Interview",
+                "default": "Unassigned",
             },
             "description": {
                 "required": False,

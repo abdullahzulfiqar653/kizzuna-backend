@@ -72,6 +72,5 @@ class TestBlockClusterCreateView(APITestCase):
         url = f"/api/blocks/{self.theme_block.id}/cluster/"
         self.client.force_authenticate(self.user)
         response = self.client.post(url, data={})
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         mocked_cluster_block.assert_called_once()
