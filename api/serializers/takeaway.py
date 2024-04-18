@@ -51,15 +51,15 @@ class TakeawaySerializer(serializers.ModelSerializer):
     def optimize_query(cls, queryset, user):
         return (
             queryset.select_related("created_by", "type", "note", "question")
-            .prefetch_related("tags")
+            # The following line speed up the query but gives wrong takeaway count
+            # .prefetch_related("tags")
             .annotate(
                 is_saved=models.Case(
                     models.When(saved_by=user, then=models.Value(True)),
                     default=models.Value(False),
                     output_field=models.BooleanField(),
                 )
-            )
-            .only(
+            ).only(
                 "id",
                 "title",
                 "type",
