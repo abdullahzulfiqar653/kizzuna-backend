@@ -17,6 +17,28 @@ from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.user import User
 
+system_prompt = """Extract takeaways from the text below.
+
+Separate different ideas into each takeaway,
+each takeaway should convey a single idea only.
+
+Each takeaway should contain a topic, an insight,
+the significance of the takeaway, and the takeaway type.
+
+Give your output solely from information extracted from user given text.
+
+Generate JSON data according to the following schema:
+
+
+Schema:
+
+{schema}
+
+
+For example, the output should be the following:
+
+{example}"""
+
 
 def get_chain():
     class TakeawaySchema(BaseModel):
@@ -25,11 +47,11 @@ def get_chain():
         topic: str = Field(
             description=gettext("Topic of the takeaway, for grouping the takeaways.")
         )
-        title: str = Field(
+        insight: str = Field(
             description=gettext(
                 "What the takeaway is about. "
-                "This should be an important message, issue, learning point "
-                "or pain point of the text."
+                "This should be an important insight of the text "
+                "carrying a single idea."
             )
         )
         significance: str = Field(
@@ -37,7 +59,9 @@ def get_chain():
         )
         type: str = Field(
             description=gettext(
-                "The takeaway type. For example: 'Pain Point', 'Feature', 'Idea'."
+                "The takeaway type. For example: 'Pain Point', 'Moment of Delight', "
+                "'Pricing', 'Feature Request', 'Moment of Dissatisfaction', "
+                "'Usability Issue', or any other issue types deemed logical."
             )
         )
 
@@ -45,9 +69,7 @@ def get_chain():
         "A list of extracted takeaways."
 
         takeaways: list[TakeawaySchema] = Field(
-            description=gettext(
-                "A list of ten to twenty important takeaways of the text."
-            ),
+            description=gettext("A list of takeaways extracted from the text.")
         )
 
     schema = TakeawaysSchema.schema_json(indent=4).replace("{", "{{").replace("}", "}}")
@@ -56,11 +78,23 @@ def get_chain():
             {
                 "takeaways": [
                     {
-                        "topic": "Takeaway topic",
-                        "title": "Takeaway title",
-                        "significance": "The significance of the takeaway",
-                        "type": "One word summary of the takeaway topic",
-                    }
+                        "topic": "Poor Onboarding Experience",
+                        "insight": "This user complains that the onboarding and setup experience is terrible and does not know how to get to the core value of the software",
+                        "significance": "[The significance of the takeaway]",
+                        "type": "Pain Point",
+                    },
+                    {
+                        "topic": "Automated User Research and Automated Tagging",
+                        "insight": "This user was delighted that the software automated away all of their manual tasks for user research when it automatically tagged all the notes that the user created",
+                        "significance": "[The significance of the takeaway]",
+                        "type": "Moment of Delight",
+                    },
+                    {
+                        "topic": "Not doing enough user interviews",
+                        "insight": "[User's name] mentioned that they would like to be able to do more interviews on their customer brands and investigate what are their problems. This would then allow them to identify problem statements that they can solve for their customer brands",
+                        "significance": "[The significance of the takeaway]",
+                        "type": "Pain Point",
+                    },
                 ]
             },
             indent=4,
@@ -74,17 +108,7 @@ def get_chain():
         [
             (
                 "system",
-                gettext(
-                    "Identify Important Takeaways/Issues/Learning Points "
-                    "in the below given text and reasons why they are important.\n"
-                    "Each takeaway should contain a topic, a title, "
-                    "the significance of the takeaway, and the takeaway type.\n"
-                    "Generate JSON data according to the following schema:\n\n"
-                    "Schema:\n"
-                    f"{schema}\n\n"
-                    "For example, the output should be the following:\n"
-                    f"{example}"
-                ),
+                gettext(system_prompt.format(schema=schema, example=example)),
             ),
             (
                 "human",
@@ -122,7 +146,7 @@ def generate_takeaways_default_question(note: Note, created_by: User):
     generated_takeaways = [
         {
             "title": google_translator.translate(
-                f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
+                f'{takeaway["topic"]} - {takeaway["insight"]}: {takeaway["significance"]}',
                 note.project.language,
             ),
             "type": google_translator.translate(
