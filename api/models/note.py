@@ -15,7 +15,7 @@ from api.models.workspace import Workspace
 
 
 def validate_file_size(value):
-    max_size = 20 * 1024 * 1024  # 20 MB
+    max_size = 30 * 1024 * 1024  # 30 MB
     if value.size > max_size:
         raise ValidationError("File size cannot exceed 20 MB.")
 
