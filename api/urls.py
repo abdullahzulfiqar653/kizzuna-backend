@@ -12,6 +12,7 @@ from api.views.block.block_takeaway import (
     BlockTakeawayListCreateView,
 )
 from api.views.block.block_theme import BlockThemeListCreateView
+from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
 from api.views.insight.insight_tag import InsightTagListView
 from api.views.insight.insight_takeaway import (
@@ -379,6 +380,14 @@ urlpatterns = [
         "saved/takeaways/delete/",
         SavedTakeawayDeleteView.as_view(),
         name="saved-takeaway-list-create",
+    ),
+    # =====================================================
+    # Demo
+    # =====================================================
+    path(
+        "demo/takeaways/",
+        DemoGenerateTakeawaysCreateView.as_view(),
+        name="demo-generate-takeaway-create",
     ),
     # =====================================================
     # Auth

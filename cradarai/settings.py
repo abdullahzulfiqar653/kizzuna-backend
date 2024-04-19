@@ -306,3 +306,7 @@ DJANGO_EASY_HEALTH_CHECK = {
     "RETURN_STATUS_CODE": 200,
     "RETURN_BYTE_DATA": "Success",
 }
+
+# Demo project settings
+DEMO_PROJECT_ID = env("DEMO_PROJECT_ID", default=None)
+DEMO_USER_ID = env("DEMO_USER_ID", default=None)

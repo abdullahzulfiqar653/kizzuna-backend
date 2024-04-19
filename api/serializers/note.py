@@ -78,6 +78,11 @@ class NoteSerializer(serializers.ModelSerializer):
             },
         }
 
+    def validate_content(self, content):
+        if len(json.dumps(content)) > 250_000:
+            raise exceptions.ValidationError("Content exceed length limit.")
+        return content
+
     def validate_questions(self, value):
         if len(value) > 8:
             raise exceptions.ValidationError("Please provide at most 8 questions.")
@@ -137,11 +142,6 @@ class NoteUpdateSerializer(NoteSerializer):
 
     class Meta(NoteSerializer.Meta):
         fields = list(set(NoteSerializer.Meta.fields) - {"keywords", "questions"})
-
-    def validate_content(self, content):
-        if len(json.dumps(content)) > 250_000:
-            raise exceptions.ValidationError("Content exceed length limit.")
-        return content
 
     def update(self, note: Note, validated_data):
         project = note.project
