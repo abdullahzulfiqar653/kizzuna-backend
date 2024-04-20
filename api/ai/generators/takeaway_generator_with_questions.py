@@ -10,6 +10,7 @@ from langchain_openai.chat_models import ChatOpenAI
 from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
+from api.ai.embedder import embedder
 from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 from api.ai.translator import google_translator
 from api.models.note import Note
@@ -17,6 +18,33 @@ from api.models.question import Question
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.user import User
+
+system_prompt = """Extract takeaways from the text based on the question below.
+
+Separate different ideas into each takeaway,
+each takeaway should convey a single idea only.
+
+Each takeaway should contain a topic, an insight,
+the significance of the takeaway, and the takeaway type.
+
+Give your output solely from information extracted from user given text.
+
+Generate JSON data according to the following schema:
+
+
+Schema:
+
+{schema}
+
+
+For example, the output should be the following:
+
+{example}
+
+
+Question:
+
+{{question}}"""
 
 
 def get_chain():
@@ -26,10 +54,10 @@ def get_chain():
         topic: str = Field(
             description=gettext("Topic of the takeaway, for grouping the takeaways.")
         )
-        title: str = Field(
+        insight: str = Field(
             description=gettext(
                 "What the takeaway is about. "
-                "This should be an important message of the text "
+                "This should be an important insight of the text "
                 "carrying a single idea."
             )
         )
@@ -57,13 +85,26 @@ def get_chain():
             {
                 "takeaways": [
                     {
-                        "topic": "Takeaway topic",
-                        "title": "What the takeaway is about.",
-                        "significance": "The reason why the takeaway is important.",
-                        "type": "One word summary of the takeaway topic",
-                    }
+                        "topic": "Poor Onboarding Experience",
+                        "insight": "This user complains that the onboarding and setup experience is terrible and does not know how to get to the core value of the software",
+                        "significance": "[The significance of the takeaway]",
+                        "type": "Pain Point",
+                    },
+                    {
+                        "topic": "Automated User Research and Automated Tagging",
+                        "insight": "This user was delighted that the software automated away all of their manual tasks for user research when it automatically tagged all the notes that the user created",
+                        "significance": "[The significance of the takeaway]",
+                        "type": "Moment of Delight",
+                    },
+                    {
+                        "topic": "Not doing enough user interviews",
+                        "insight": "[User's name] mentioned that they would like to be able to do more interviews on their customer brands and investigate what are their problems. This would then allow them to identify problem statements that they can solve for their customer brands",
+                        "significance": "[The significance of the takeaway]",
+                        "type": "Pain Point",
+                    },
                 ]
-            }
+            },
+            indent=2,
         )
         .replace("{", "{{")
         .replace("}", "}}")
@@ -74,20 +115,7 @@ def get_chain():
         [
             (
                 "system",
-                gettext(
-                    "Extract takeaways from the text based on the question below.\n"
-                    "Separate different ideas into each takeaway, "
-                    "each takeaway should convey a single idea only.\n"
-                    "Each takeaway should contain a topic, a title, "
-                    "the significance of the takeaway, and the takeaway type.\n"
-                    "Generate JSON data according to the following schema:\n\n"
-                    "Schema:\n"
-                    f"{schema}\n\n"
-                    "For example, the output should be the following:\n"
-                    f"{example}\n\n"
-                    "Question:\n"
-                    "{question}\n\n"
-                ),
+                gettext(system_prompt.format(schema=schema, example=example)),
             ),
             (
                 "human",
@@ -131,7 +159,7 @@ def generate_takeaways_with_questions(
     generated_takeaways = [
         {
             "title": google_translator.translate(
-                f'{takeaway["topic"]} - {takeaway["title"]}: {takeaway["significance"]}',
+                f'{takeaway["topic"]} - {takeaway["insight"]}: {takeaway["significance"]}',
                 note.project.language,
             ),
             "type": google_translator.translate(
@@ -162,13 +190,18 @@ def generate_takeaways_with_questions(
         takeaway_type.name: takeaway_type
         for takeaway_type in TakeawayType.objects.filter(project=note.project)
     }
+    generated_takeaway_titles = [takeaway["title"] for takeaway in generated_takeaways]
+    generated_takeaway_vectors = embedder.embed_documents(generated_takeaway_titles)
     takeaways_to_add = []
     note_takeaway_sequence = note.takeaway_sequence
-    for generated_takeaway in generated_takeaways:
+    for generated_takeaway, vector in zip(
+        generated_takeaways, generated_takeaway_vectors
+    ):
         note_takeaway_sequence += 1
         takeaways_to_add.append(
             Takeaway(
                 title=generated_takeaway["title"],
+                vector=vector,
                 type=takeaway_type_dict[generated_takeaway["type"]],
                 note=note,
                 created_by=bot,

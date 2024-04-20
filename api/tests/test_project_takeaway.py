@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -39,6 +40,7 @@ class TestProjectTakeawayListView(APITestCase):
             created_by=self.user,
             type=self.takeaway_type1,
             priority="High",
+            vector=np.random.rand(1536),
         )
 
         self.note2 = Note.objects.create(
@@ -53,6 +55,7 @@ class TestProjectTakeawayListView(APITestCase):
             created_by=self.user,
             type=self.takeaway_type2,
             priority="Low",
+            vector=np.random.rand(1536),
         )
 
         self.url = f"/api/projects/{self.project.id}/takeaways/"

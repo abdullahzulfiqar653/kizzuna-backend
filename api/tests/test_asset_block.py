@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -36,10 +37,16 @@ class TestAssetBlockListCreateView(APITestCase):
     def test_user_list_asset_block(self):
         note = Note.objects.create(title="note", project=self.project, author=self.user)
         takeaway1 = Takeaway.objects.create(
-            title="takeaway 1", note=note, created_by=self.user
+            title="takeaway 1",
+            note=note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         takeaway2 = Takeaway.objects.create(
-            title="takeaway 2", note=note, created_by=self.user
+            title="takeaway 2",
+            note=note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         text_block = Block.objects.create(
             asset=self.asset,

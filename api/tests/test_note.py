@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -76,10 +77,16 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
             author=self.user,
         )
         self.single_line_highlight = Highlight.objects.create(
-            title="sample", note=self.note, created_by=self.user
+            title="sample",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.multiline_highlight = Highlight.objects.create(
-            title="only.This", note=self.note, created_by=self.user
+            title="only.This",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.note.content = {
             "blocks": [

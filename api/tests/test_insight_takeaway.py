@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -36,14 +37,23 @@ class TestInsightTakeawayView(APITestCase):
             title="note", project=self.project, author=self.user
         )
         self.takeaway1 = Takeaway.objects.create(
-            title="takeaway 1", note=self.note, created_by=self.user
+            title="takeaway 1",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.takeaway2 = Takeaway.objects.create(
-            title="takeaway 2", note=self.note, created_by=self.user
+            title="takeaway 2",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
 
         self.takeaway_in_insight = Takeaway.objects.create(
-            title="takeaway in insight", note=self.note, created_by=self.user
+            title="takeaway in insight",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.insight.takeaways.add(self.takeaway_in_insight)
 
@@ -90,6 +100,7 @@ class TestInsightTakeawayView(APITestCase):
             title="other project takeaway",
             note=other_project_note,
             created_by=self.user,
+            vector=np.random.rand(1536),
         )
         data = {
             "takeaways": [

@@ -10,12 +10,13 @@ from api.models.block import Block
 from api.models.note import Note
 from api.models.project import Project
 from api.models.takeaway import Takeaway
+from api.models.theme import Theme
 from api.models.user import User
 from api.models.workspace import Workspace
 
 
 # Create your tests here.
-class TestTakeawayTagView(APITestCase):
+class TestBlockClusterCreateView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -37,8 +38,7 @@ class TestTakeawayTagView(APITestCase):
         self.takeaway1 = Takeaway.objects.create(
             title="takeaway 1",
             note=self.note,
-            created_by=self.outsider,
-            priority=Takeaway.Priority.HIGH,
+            created_by=self.user,
             vector=np.random.rand(1536),
         )
         self.takeaway2 = Takeaway.objects.create(
@@ -51,40 +51,26 @@ class TestTakeawayTagView(APITestCase):
         self.asset = Asset.objects.create(
             title="asset", project=self.project, created_by=self.user
         )
-        self.text_block = Block.objects.create(
-            type=Block.Type.TEXT,
+        self.theme_block = Block.objects.create(
+            type=Block.Type.THEMES,
             asset=self.asset,
         )
+        self.asset.blocks.add(self.theme_block)
 
-    def test_user_generate_block_with_blank_question(self):
-        "Cannot generate text block without question or with blank question"
-        url = f"/api/blocks/{self.text_block.id}/generate/"
+        # Create themes and add it to the theme_block
+        self.theme1 = Theme.objects.create(
+            title="theme 1",
+            block=self.theme_block,
+        )
+        self.theme2 = Theme.objects.create(
+            title="theme 2",
+            block=self.theme_block,
+        )
+
+    @patch("api.ai.generators.block_clusterer.cluster_block")
+    def test_user_call_theme_cluster(self, mocked_cluster_block):
+        url = f"/api/blocks/{self.theme_block.id}/cluster/"
         self.client.force_authenticate(self.user)
         response = self.client.post(url, data={})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response = self.client.post(url, data={"question": ""})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    @patch("langchain_core.runnables.base.RunnableSequence.invoke")
-    def test_user_generate_block(self, mocked_invoke):
-        class Output:
-            content = "Generated results."
-
-        mocked_invoke.return_value = Output()
-
-        url = f"/api/blocks/{self.text_block.id}/generate/"
-        self.client.force_authenticate(self.user)
-        response = self.client.post(
-            url,
-            data={
-                "filter": "priority=High",
-                "question": "What is this?",
-            },
-        )
-
-        mocked_invoke.assert_called_once()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertDictEqual(
-            response.json()["content"], {"markdown": "Generated results."}
-        )
+        mocked_cluster_block.assert_called_once()

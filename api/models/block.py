@@ -10,6 +10,7 @@ class Block(OrderedModel):
     class Type(models.TextChoices):
         TEXT = "Text"
         TAKEAWAYS = "Takeaways"
+        THEMES = "Themes"
 
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="blocks")

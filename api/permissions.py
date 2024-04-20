@@ -88,6 +88,16 @@ class InProjectOrWorkspace(permissions.BasePermission):
                 project = request.block.asset.project
                 workspace = project.workspace
 
+            case str(s) if s.startswith("/api/themes/"):
+                Theme = apps.get_model("api", "Theme")
+                theme_id = view.kwargs.get("pk") or view.kwargs.get("theme_id")
+                queryset = Theme.objects.select_related(
+                    "block__asset__project__workspace"
+                )
+                request.theme = get_instance(queryset, theme_id)
+                project = request.theme.block.asset.project
+                workspace = project.workspace
+
             case "/api/workspaces/":
                 project = None
                 workspace = None

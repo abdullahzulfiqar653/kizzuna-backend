@@ -1,11 +1,13 @@
 from django.db import models
 from rest_framework import exceptions, serializers
 
+from api.ai.embedder import embedder
 from api.models.block import Block
 from api.models.insight import Insight
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
+from api.models.theme import Theme
 from api.models.user import User
 from api.serializers.question import QuestionSerializer
 from api.serializers.tag import TagSerializer
@@ -49,15 +51,15 @@ class TakeawaySerializer(serializers.ModelSerializer):
     def optimize_query(cls, queryset, user):
         return (
             queryset.select_related("created_by", "type", "note", "question")
-            .prefetch_related("tags")
+            # The following line speed up the query but gives wrong takeaway count
+            # .prefetch_related("tags")
             .annotate(
                 is_saved=models.Case(
                     models.When(saved_by=user, then=models.Value(True)),
                     default=models.Value(False),
                     output_field=models.BooleanField(),
                 )
-            )
-            .only(
+            ).only(
                 "id",
                 "title",
                 "type",
@@ -85,6 +87,9 @@ class TakeawaySerializer(serializers.ModelSerializer):
 
         validated_data["created_by"] = request.user
         validated_data["note"] = request.note
+        validated_data["vector"] = embedder.embed_documents([validated_data["title"]])[
+            0
+        ]
         return super().create(validated_data)
 
     def update(self, takeaway, validated_data):
@@ -98,6 +103,10 @@ class TakeawaySerializer(serializers.ModelSerializer):
             else:
                 # User remove takeaway type
                 takeaway.type = None
+        if "title" in validated_data:
+            validated_data["vector"] = embedder.embed_documents(
+                [validated_data["title"]]
+            )[0]
         return super().update(takeaway, validated_data)
 
 
@@ -157,9 +166,31 @@ class BlockTakeawaysSerializer(serializers.Serializer):
     def delete(self):
         block: Block = self.context["block"]
         takeaway_ids = {takeaway["id"] for takeaway in self.validated_data["takeaways"]}
-        # Only remove takeaways that are in insight
+        # Only remove takeaways that are in the block
         takeaways_to_remove = block.takeaways.filter(id__in=takeaway_ids)
         block.takeaways.remove(*takeaways_to_remove)
+        self.instance = {"takeaways": takeaways_to_remove}
+
+
+class ThemeTakeawaysSerializer(serializers.Serializer):
+    takeaways = TakeawayIDsSerializer(many=True)
+
+    def create(self, validated_data):
+        theme: Theme = self.context["theme"]
+        takeaway_ids = {takeaway["id"] for takeaway in validated_data["takeaways"]}
+        # Skip adding takeaways that are already in the theme
+        takeaways_to_add = Takeaway.objects.filter(id__in=takeaway_ids).exclude(
+            themes=theme
+        )
+        theme.takeaways.add(*takeaways_to_add)
+        return {"takeaways": takeaways_to_add}
+
+    def delete(self):
+        theme: Theme = self.context["theme"]
+        takeaway_ids = {takeaway["id"] for takeaway in self.validated_data["takeaways"]}
+        # Only remove takeaways that are in the theme
+        takeaways_to_remove = theme.takeaways.filter(id__in=takeaway_ids)
+        theme.takeaways.remove(*takeaways_to_remove)
         self.instance = {"takeaways": takeaways_to_remove}
 
 
