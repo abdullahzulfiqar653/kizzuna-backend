@@ -9,6 +9,7 @@ from rest_framework import exceptions, generics, response, serializers
 from rest_framework.permissions import AllowAny
 
 from api.ai.analyzer.note_analyzer import ExistingNoteAnalyzer, NewNoteAnalyzer
+from api.models.note import Note
 from api.models.project import Project
 from api.serializers.note import NoteSerializer
 from api.serializers.takeaway import TakeawaySerializer
@@ -16,6 +17,7 @@ from api.serializers.takeaway import TakeawaySerializer
 
 @extend_schema(request=NoteSerializer, responses={200: TakeawaySerializer(many=True)})
 class DemoGenerateTakeawaysCreateView(generics.CreateAPIView):
+    queryset = Note.objects.all()
     serializer_class = NoteSerializer
     permission_classes = [AllowAny]
 
