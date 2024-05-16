@@ -133,10 +133,19 @@ class TakeawayFilter(filters.FilterSet):
     report_type = filters.ModelMultipleChoiceFilter(
         field_name="note__type", to_field_name="type", queryset=notes_in_scope
     )
+    created_at = filters.DateFromToRangeFilter(field_name="created_at")
 
     class Meta:
         model = Takeaway
-        fields = ["priority", "tag", "created_by", "type", "report_type", "report_id"]
+        fields = [
+            "priority",
+            "tag",
+            "created_by",
+            "created_at",
+            "type",
+            "report_type",
+            "report_id",
+        ]
 
 
 class NoteTakeawayFilter(TakeawayFilter):
@@ -145,4 +154,4 @@ class NoteTakeawayFilter(TakeawayFilter):
 
     class Meta:
         model = Takeaway
-        fields = ["priority", "tag", "created_by", "type"]
+        fields = ["priority", "tag", "created_by", "created_at", "type"]
