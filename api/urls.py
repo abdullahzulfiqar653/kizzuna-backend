@@ -5,11 +5,14 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from api.views.asset.asset import AssetRetrieveUpdateDeleteView
 from api.views.asset.asset_block import AssetBlockListCreateView
 from api.views.block.block import BlockRetrieveUpdateDeleteView
+from api.views.block.block_cluster import BlockClusterCreateView
 from api.views.block.block_generate import BlockGenerateCreateView
 from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
 )
+from api.views.block.block_theme import BlockThemeListCreateView
+from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
 from api.views.insight.insight_tag import InsightTagListView
 from api.views.insight.insight_takeaway import (
@@ -29,6 +32,7 @@ from api.views.note.note_question import (
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
+from api.views.note.note_takeaway_type import NoteTakeawayTypeListView
 from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
 from api.views.note_template_question import NoteTemplateQuestionListView
 from api.views.project.chart.note import ChartNoteCreateView
@@ -57,6 +61,11 @@ from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
 from api.views.takeaway.takeaway_tag import (
     TakeawayTagCreateView,
     TakeawayTagDestroyView,
+)
+from api.views.theme.theme import ThemeRetrieveUpdateDestroyView
+from api.views.theme.theme_takeaway import (
+    ThemeTakeawayDeleteView,
+    ThemeTakeawayListCreateView,
 )
 from api.views.user import UserRetrieveUpdateDestroyView
 from api.views.workspace import (
@@ -89,6 +98,11 @@ urlpatterns = [
         "reports/<str:report_id>/takeaways/",
         NoteTakeawayListCreateView.as_view(),
         name="note-takeaway-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/takeaway-types/",
+        NoteTakeawayTypeListView.as_view(),
+        name="note-takeaway-type-list",
     ),
     path(
         "reports/<str:report_id>/keywords/",
@@ -326,6 +340,34 @@ urlpatterns = [
         BlockTakeawayDeleteView.as_view(),
         name="block-takeaway-delete",
     ),
+    path(
+        "blocks/<str:block_id>/cluster/",
+        BlockClusterCreateView.as_view(),
+        name="block-cluster-create",
+    ),
+    path(
+        "blocks/<str:block_id>/themes/",
+        BlockThemeListCreateView.as_view(),
+        name="block-theme-list-create",
+    ),
+    # =====================================================
+    # Theme
+    # =====================================================
+    path(
+        "themes/<str:pk>/",
+        ThemeRetrieveUpdateDestroyView.as_view(),
+        name="theme-retrieve-update-destroy",
+    ),
+    path(
+        "themes/<str:theme_id>/takeaways/",
+        ThemeTakeawayListCreateView.as_view(),
+        name="theme-takeaway-list-create",
+    ),
+    path(
+        "themes/<str:theme_id>/takeaways/delete/",
+        ThemeTakeawayDeleteView.as_view(),
+        name="theme-takeaway-delete",
+    ),
     # =====================================================
     # Saved
     # =====================================================
@@ -338,6 +380,14 @@ urlpatterns = [
         "saved/takeaways/delete/",
         SavedTakeawayDeleteView.as_view(),
         name="saved-takeaway-list-create",
+    ),
+    # =====================================================
+    # Demo
+    # =====================================================
+    path(
+        "demo/takeaways/",
+        DemoGenerateTakeawaysCreateView.as_view(),
+        name="demo-generate-takeaway-create",
     ),
     # =====================================================
     # Auth

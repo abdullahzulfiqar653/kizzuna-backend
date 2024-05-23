@@ -9,10 +9,11 @@ from api.models.workspace import Workspace
 class WorkspaceSerializer(serializers.ModelSerializer):
     id = serializers.CharField(read_only=True)
     name = serializers.CharField(max_length=100)
+    is_owner = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Workspace
-        fields = ["id", "name"]
+        fields = ["id", "name", "is_owner"]
 
     def validate_name(self, value):
         name = value
@@ -37,6 +38,11 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         request.user.workspaces.add(workspace)
 
         return workspace
+
+    def to_representation(self, instance):
+        user = self.context.get("request").user
+        instance.is_owner = instance.owned_by == user
+        return super().to_representation(instance)
 
 
 class WorkspaceDetailSerializer(WorkspaceSerializer):

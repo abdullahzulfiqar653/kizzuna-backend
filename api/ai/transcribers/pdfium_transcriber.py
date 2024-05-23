@@ -1,4 +1,4 @@
-from langchain.document_loaders import PyPDFium2Loader
+from langchain_community.document_loaders.pdf import PyPDFium2Loader
 
 from ..translator import google_translator
 from .base_transcriber import BaseTranscriber

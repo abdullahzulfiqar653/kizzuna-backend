@@ -75,3 +75,15 @@ The cronjob is defined in cradarai/celery.py.
     ```
     Please run this before set this env var 
     `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`
+
+
+# Code practices
+1. Use model - serializer - view approach. So that we have consistent schema, and we can render the schema in swagger.
+2. Implement create, update and delete logics in serializers, not views.
+3. Handle request errors by raising `rest_framework.exceptions`. Do not return a 4xx response directly. This is for consistency, so that we have the same format for the json response. 
+4. When adding new environment variable, add it in .env.example, and read it into [settings.py](cradarai/settings.py). Do not read environment variables directly from other parts of the code, so that we keep track of all the environment variables that affect the apps. 
+5. Use [`InProjectOrWorkspace` permission](api/permissions.py?plain=1#L13) to authorize the access of the resource referred by the first id in the url. See the following example for more details:
+    - In the following url `/api/projects/{project_id}/reports/`, the first (and only) id in the url is `project_id`. 
+    - Check if user has the permission to access the resource (project in this case).
+    - If the user has the right access, attach the resource to the `request`.
+    - In the serializers and views, access the resource from the `request` to reduce the number of queries.

@@ -11,4 +11,6 @@ class ProjectTagListView(generics.ListAPIView):
     ordering_fields = ["created_at", "takeway_count", "name"]
 
     def get_queryset(self):
-        return Tag.objects.filter(takeaways__note__project=self.request.project)
+        return Tag.objects.filter(
+            takeaways__note__project=self.request.project
+        ).distinct()

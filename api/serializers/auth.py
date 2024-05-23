@@ -317,6 +317,3 @@ class InvitationSignupSerializer(SignupSerializer):
         validated_data["workspace"] = invitation.workspace
         validated_data["project"] = invitation.project
         return validated_data
-
-    def get_workspace(self, validated_data):
-        return validated_data["workspace"]

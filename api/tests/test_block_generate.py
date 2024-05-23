@@ -1,6 +1,7 @@
 import logging
 from unittest.mock import patch
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -38,9 +39,13 @@ class TestTakeawayTagView(APITestCase):
             note=self.note,
             created_by=self.outsider,
             priority=Takeaway.Priority.HIGH,
+            vector=np.random.rand(1536),
         )
         self.takeaway2 = Takeaway.objects.create(
-            title="takeaway 2", note=self.note, created_by=self.user
+            title="takeaway 2",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
 
         self.asset = Asset.objects.create(

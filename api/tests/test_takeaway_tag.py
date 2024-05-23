@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -36,10 +37,16 @@ class TestTakeawayTagView(APITestCase):
             title="note", project=self.project, author=self.user
         )
         self.takeaway1 = Takeaway.objects.create(
-            title="takeaway 1", note=self.note, created_by=self.user
+            title="takeaway 1",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.takeaway2 = Takeaway.objects.create(
-            title="takeaway 2", note=self.note, created_by=self.user
+            title="takeaway 2",
+            note=self.note,
+            created_by=self.user,
+            vector=np.random.rand(1536),
         )
         self.tag = Tag.objects.create(name="tag", project=self.project)
         self.takeaway1.tags.add(self.tag)

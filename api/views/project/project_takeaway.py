@@ -22,6 +22,7 @@ class ProjectTakeawayListView(generics.ListAPIView):
         "created_by__first_name",
         "created_by__last_name",
     ]
+    query_field = "vector"
 
     def get_queryset(self):
         return TakeawaySerializer.optimize_query(

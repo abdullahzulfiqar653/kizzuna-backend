@@ -1,6 +1,8 @@
 from django.http import QueryDict
+from pgvector.django import MaxInnerProduct
 from rest_framework import generics
 
+from api.ai.embedder import embedder
 from api.ai.generators.block_generator import generate_block
 from api.filters.takeaway import TakeawayFilter
 from api.models.takeaway import Takeaway
@@ -39,8 +41,10 @@ class BlockGenerateCreateView(generics.CreateAPIView):
         )
         takeaways = self.filter_queryset(takeaways)
 
-        # Generate content and update serializer and block attributes
         question = serializer.data["question"]
+        vector = embedder.embed_query(question)
+        takeaways = takeaways.order_by(MaxInnerProduct("vector", vector))
+
         # We set the attributes of the block here but save it inside generate_block()
         block.question = question
         block.filter = filter_string

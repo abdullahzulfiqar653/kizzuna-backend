@@ -1,17 +1,17 @@
 from typing import Optional
 
 from django.utils.translation import gettext
-from langchain.chains import (
-    LLMChain,
+from langchain.chains.combine_documents.map_reduce import (
     MapReduceDocumentsChain,
     ReduceDocumentsChain,
-    StuffDocumentsChain,
 )
+from langchain.chains.combine_documents.stuff import StuffDocumentsChain
+from langchain.chains.llm import LLMChain
 from langchain.chains.openai_functions import create_structured_output_chain
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
-from langchain_community.chat_models import ChatOpenAI
+from langchain_openai.chat_models import ChatOpenAI
 from pydantic import BaseModel, Field, StringConstraints
 from typing_extensions import Annotated
 
