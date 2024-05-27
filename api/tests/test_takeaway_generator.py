@@ -35,14 +35,29 @@ class TestTakeawayGenerator(APITestCase):
             author=self.user,
             type="Report-type-1",
             content={
-                "blocks": [
-                    {
-                        "text": "This is a sample text only.",
-                    },
-                    {
-                        "text": "This is a sample text in the second block.",
-                    },
-                ]
+                "root": {
+                    "children": [
+                        {
+                            "children": [
+                                {
+                                    "text": "This is a sample text only.",
+                                    "type": "text",
+                                }
+                            ],
+                            "type": "paragraph",
+                        },
+                        {
+                            "children": [
+                                {
+                                    "text": "This is a sample text in the second block.",
+                                    "type": "text",
+                                }
+                            ],
+                            "type": "paragraph",
+                        },
+                    ],
+                    "type": "root",
+                }
             },
         )
         self.question1 = Question.objects.create(
@@ -105,14 +120,14 @@ class TestTakeawayGenerator(APITestCase):
         self.assertEqual(
             mocked_invoke.call_args_list[0].args[0],
             {
-                "text": "This is a sample text only.\nThis is a sample text in the second block.",
+                "text": "This is a sample text only.\n\nThis is a sample text in the second block.\n\n",
                 "question": "Test question 1",
             },
         )
         self.assertEqual(
             mocked_invoke.call_args_list[1].args[0],
             {
-                "text": "This is a sample text only.\nThis is a sample text in the second block.",
+                "text": "This is a sample text only.\n\nThis is a sample text in the second block.\n\n",
                 "question": "Test question 2",
             },
         )

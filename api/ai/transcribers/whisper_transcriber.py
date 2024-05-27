@@ -1,5 +1,7 @@
 from faster_whisper import WhisperModel
 
+from api.utils.text import TextProcessor
+
 from ..translator import google_translator
 from .base_transcriber import BaseTranscriber
 
@@ -15,7 +17,12 @@ class WhisperTranscriber(BaseTranscriber):
         self.check_filetype(filetype)
         segments, _ = self.whisper.transcribe(audio=filepath, language=language)
         text = "".join([segment.text for segment in segments])
-        return self.translator.translate(text, language)
+        return (
+            TextProcessor(text)
+            .truncate()
+            .set_translator(self.translator)
+            .translate(language)
+        )
 
 
 whisper_transcriber = WhisperTranscriber()

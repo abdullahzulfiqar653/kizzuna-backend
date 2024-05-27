@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.serializers.takeaway import TakeawaySerializer
+from api.utils.lexical import LexicalProcessor
 
 
 class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -18,14 +19,17 @@ class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         if hasattr(takeaway, "highlight"):
             # This takeaway is a highlight.
             # Need to remove the highlight from note.content
-            for block in note.content["blocks"]:
-                block["inlineStyleRanges"] = [
-                    srange
-                    for srange in block["inlineStyleRanges"]
-                    if not (
-                        srange["style"] == "HIGHLIGHT" and srange["id"] == takeaway.id
-                    )
-                ]
+            root = LexicalProcessor(note.content["root"])
+            node_to_handle = lambda node: (
+                node.dict["type"] == "mark"
+                and takeaway.highlight.id in node.dict["ids"]
+            )
+            for node in root.find_all(node_to_handle):
+                node.dict["ids"].remove(takeaway.highlight.id)
+                if len(node.dict["ids"]) == 0:
+                    # Remove the "mark" node and move its children up one level
+                    i = node.parent.dict["children"].index(node.dict)
+                    node.parent.dict["children"][i : i + 1] = node.dict["children"]
         note.save()
 
         self.perform_destroy(takeaway)
