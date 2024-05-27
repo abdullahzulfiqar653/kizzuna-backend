@@ -30,6 +30,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
     report = BriefNoteSerializer(source="note", read_only=True)
     question = QuestionSerializer(read_only=True)
     is_saved = serializers.BooleanField(read_only=True)
+    quote = serializers.CharField(source="highlight.quote", read_only=True)
 
     class Meta:
         model = Takeaway
@@ -45,6 +46,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "created_at",
             "question",
             "is_saved",
+            "quote",
         ]
 
     @classmethod
