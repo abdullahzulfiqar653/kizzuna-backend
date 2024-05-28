@@ -38,7 +38,7 @@ def migrate_notes_content_to_lexical(apps, schema_editor):
     notes = list(Note.objects.all())
     new_note_contents = []
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch()
+        browser = playwright.chromium.launch(timeout=300000)
         page = browser.new_page()
         page.goto(frontend_url + "/lexical/convert")
         for note in notes:
