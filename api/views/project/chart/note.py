@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import generics, response
 
 from api.models.note import Note
+from api.permissions import IsWorkspaceMemberFullAccess
 from api.serializers.chart.note import ChartNoteSerializer
 
 
@@ -9,6 +10,7 @@ from api.serializers.chart.note import ChartNoteSerializer
 class ChartNoteCreateView(generics.CreateAPIView):
     serializer_class = ChartNoteSerializer
     queryset = Note.objects.all()
+    permission_classes = [IsWorkspaceMemberFullAccess]
 
     def get_queryset(self):
         return self.request.project.notes.all()

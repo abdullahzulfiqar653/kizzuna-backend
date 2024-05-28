@@ -28,6 +28,7 @@ class TestProjectNoteListCreateView(APITestCase):
         )
 
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         return super().setUp()

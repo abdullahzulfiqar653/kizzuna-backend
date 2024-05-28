@@ -22,6 +22,7 @@ class TestProjectSentimentListView(APITestCase):
         )
 
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         self.url = f"/api/projects/{self.project.id}/sentiments/"

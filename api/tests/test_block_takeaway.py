@@ -14,7 +14,7 @@ from api.models.workspace import Workspace
 
 
 # Create your tests here.
-class TestTakeawayTagView(APITestCase):
+class TestBlockTakeawayListCreateView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -27,6 +27,7 @@ class TestTakeawayTagView(APITestCase):
         )
 
         self.workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        self.workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=self.workspace)
         self.project.users.add(self.user)
 

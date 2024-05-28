@@ -6,9 +6,10 @@ from rest_framework.test import APITestCase
 from api.models.project import Project
 from api.models.user import User
 from api.models.workspace import Workspace
+from api.models.workspace_user import WorkspaceUser
 
 
-class TestProjectNoteListCreateView(APITestCase):
+class TestProjectUserListView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -32,6 +33,8 @@ class TestProjectNoteListCreateView(APITestCase):
         workspace = Workspace.objects.create(
             name="workspace", owned_by=self.workspace_owner
         )
+        workspace.members.add(self.workspace_owner, through_defaults={"role": "Owner"})
+        workspace.members.add(self.workspace_member)
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.workspace_owner)
         self.project.users.add(self.workspace_member)
@@ -47,13 +50,13 @@ class TestProjectNoteListCreateView(APITestCase):
                 "email": "workspace_owner@example.com",
                 "first_name": "",
                 "last_name": "",
-                "is_workspace_owner": True,
+                "role": WorkspaceUser.Role.OWNER,
             },
             {
                 "email": "workspace_member@example.com",
                 "first_name": "",
                 "last_name": "",
-                "is_workspace_owner": False,
+                "role": WorkspaceUser.Role.VIEWER,
             },
         ]
         self.assertEqual(response.json(), expected_data)

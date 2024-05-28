@@ -1,5 +1,5 @@
 import logging
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 from rest_framework import status
@@ -29,6 +29,7 @@ class TestBlockClusterCreateView(APITestCase):
         )
 
         self.workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        self.workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=self.workspace)
         self.project.users.add(self.user)
 
@@ -68,7 +69,8 @@ class TestBlockClusterCreateView(APITestCase):
         )
 
     @patch("api.views.block.block_cluster.cluster_block")
-    def test_user_call_theme_cluster(self, mocked_cluster_block):
+    def test_user_call_theme_cluster(self, mocked_cluster_block: Mock):
+        mocked_cluster_block.return_value = None
         url = f"/api/blocks/{self.theme_block.id}/cluster/"
         self.client.force_authenticate(self.user)
         response = self.client.post(url, data={})

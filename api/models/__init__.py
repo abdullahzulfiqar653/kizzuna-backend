@@ -19,6 +19,7 @@ from .usage.transciption import TranscriptionUsage
 from .user import User
 from .user_saved_takeaway import UserSavedTakeaway
 from .workspace import Workspace
+from .workspace_user import WorkspaceUser
 
 __all__ = [
     "Takeaway",
@@ -42,4 +43,5 @@ __all__ = [
     "Block",
     "UserSavedTakeaway",
     "Theme",
+    "WorkspaceUser",
 ]

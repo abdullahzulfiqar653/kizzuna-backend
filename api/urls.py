@@ -71,7 +71,7 @@ from api.views.user import UserRetrieveUpdateDestroyView
 from api.views.workspace import (
     WorkspaceListCreateView,
     WorkspaceProjectListCreateView,
-    WorkspaceUserListView,
+    WorkspaceUserListUpdateView,
 )
 
 from .views.auth import (
@@ -260,8 +260,8 @@ urlpatterns = [
     ),
     path(
         "workspaces/<str:pk>/users/",
-        WorkspaceUserListView.as_view(),
-        name="workspace-user-list",
+        WorkspaceUserListUpdateView.as_view(),
+        name="workspace-user-list-update",
     ),
     # =====================================================
     # Takeaway

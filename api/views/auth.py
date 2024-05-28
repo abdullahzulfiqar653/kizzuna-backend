@@ -2,7 +2,7 @@
 
 from django.utils.module_loading import import_string
 from rest_framework import generics
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView, api_settings
 
 from api.models.invitation import Invitation
@@ -38,6 +38,7 @@ class GoogleLoginView(generics.CreateAPIView):
 
 
 class PasswordUpdateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = PasswordUpdateSerializer
 
     def create(self, request, *args, **kwargs):
@@ -61,6 +62,8 @@ class DoPasswordResetView(generics.CreateAPIView):
 
 # Token
 class TokenObtainPairAndRefreshView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+
     def get_serializer_class(self):
         match self.request.data.get("grant_type"):
             case "password" | None:

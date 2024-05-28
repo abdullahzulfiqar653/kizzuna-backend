@@ -1,27 +1,37 @@
 from rest_framework import generics
-from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from api.models.project import Project
-from api.models.user import User
 from api.models.workspace import Workspace
+from api.models.workspace_user import WorkspaceUser
+from api.permissions import IsWorkspaceMemberReadOnly, IsWorkspaceOwner
 from api.serializers.project import ProjectSerializer
-from api.serializers.user import UserSerializer
+from api.serializers.user import WorkspaceUserSerializer
 from api.serializers.workspace import WorkspaceSerializer
 
 
-class WorkspaceUserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class WorkspaceUserListUpdateView(generics.ListAPIView, generics.UpdateAPIView):
+    queryset = WorkspaceUser.objects.all()
+    serializer_class = WorkspaceUserSerializer
+    permission_classes = [IsWorkspaceOwner | IsWorkspaceMemberReadOnly]
 
-    def list(self, request, pk=None):
-        members = self.request.workspace.members.all()
-        serializer = UserSerializer(members, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return WorkspaceUser.objects.filter(workspace=self.request.workspace)
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        username = self.request.data.get("username")
+        obj = generics.get_object_or_404(
+            queryset, user__username=username, workspace=self.request.workspace
+        )
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class WorkspaceListCreateView(generics.ListCreateAPIView):
     queryset = Workspace.objects.all()
     serializer_class = WorkspaceSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.request.user.workspaces.all()
