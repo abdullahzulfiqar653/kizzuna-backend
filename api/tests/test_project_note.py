@@ -137,7 +137,7 @@ class TestProjectNoteListCreateView(APITestCase):
 
     def test_user_create_report_with_long_title(self):
         data = {
-            "title": "Long title: " + "x" * 100,
+            "title": "Long title: " + "x" * 255,
             "organizations": [
                 {
                     "name": "Test company",

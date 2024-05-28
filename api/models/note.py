@@ -72,7 +72,7 @@ class Note(models.Model):
         NEGATIVE = "Negative"
 
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
