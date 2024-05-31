@@ -44,6 +44,7 @@ pgvector = "==0.2.5"
 mammoth = "==1.7.1"
 nltk = "==3.8.1"
 readability-lxml = "==0.8.1"
+lxml = {extras = ["html_clean"], version = "==5.2.2"}
 
 [dev-packages]
 ipykernel = "*"
