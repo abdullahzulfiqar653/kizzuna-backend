@@ -5,6 +5,7 @@ from django.utils import translation
 from html2text import HTML2Text
 from playwright._impl._errors import TimeoutError
 from playwright.sync_api import sync_playwright
+from readability import Document
 
 from api.ai.translator import google_translator
 from api.utils.markdown import MarkdownProcessor
@@ -47,16 +48,16 @@ class WebDownloader:
                 page.goto(url, timeout=10000)
                 # We wait for 2 seconds for the page to load
                 time.sleep(2)
-                result = page.content()
+                raw_html = page.content()
             except TimeoutError:
-                result = page.content()
+                raw_html = page.content()
+        html = Document(raw_html).summary()  # Remove unrelevant tags from raw html
         html2text = HTML2Text(baseurl=url)
         html2text.body_width = 0
-        raw_markdown_string = html2text.handle(result)
+        raw_markdown_string = html2text.handle(html)
         return (
             MarkdownProcessor(raw_markdown_string)
             .truncate()
-            .remove_before_header()
             .fix_links()
             .set_translator(self.translator)
             .translate(language)
