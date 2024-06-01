@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 
 from api.models.highlight import Highlight
 from api.models.keyword import Keyword
-from api.models.note import Note
+from api.models.note import Note, blank_content
 from api.models.organization import Organization
 from api.models.project import Project
 from api.models.user import User
@@ -27,6 +27,7 @@ class TestNoteKeywordDestroyView(APITestCase):
         )
 
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
 
@@ -69,6 +70,7 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
         )
 
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         self.note = Note.objects.create(
@@ -89,37 +91,65 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
             vector=np.random.rand(1536),
         )
         self.note.content = {
-            "blocks": [
-                {
-                    "text": "This is a sample text only.",
-                    "inlineStyleRanges": [
-                        {
-                            "style": "HIGHLIGHT",
-                            "offset": 10,
-                            "length": 6,
-                            "id": self.single_line_highlight.id,
-                        },
-                        {
-                            "style": "HIGHLIGHT",
-                            "offset": 22,
-                            "length": 5,
-                            "id": self.multiline_highlight.id,
-                        },
-                    ],
-                },
-                {
-                    "text": "This is a sample text in the second block.",
-                    "inlineStyleRanges": [
-                        {
-                            "style": "HIGHLIGHT",
-                            "offset": 0,
-                            "length": 4,
-                            "id": self.multiline_highlight.id,
-                        },
-                    ],
-                },
-            ]
+            "root": {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "text": "This is a ",
+                                "type": "text",
+                            },
+                            {
+                                "type": "mark",
+                                "ids": [self.single_line_highlight.id],
+                                "children": [
+                                    {
+                                        "text": "sample",
+                                        "type": "text",
+                                    }
+                                ],
+                            },
+                            {
+                                "text": " text only.",
+                                "type": "text",
+                            },
+                            {
+                                "type": "mark",
+                                "ids": [self.multiline_highlight.id],
+                                "children": [
+                                    {
+                                        "text": "only.",
+                                        "type": "text",
+                                    }
+                                ],
+                            },
+                        ],
+                        "type": "paragraph",
+                    },
+                    {
+                        "children": [
+                            {
+                                "type": "mark",
+                                "ids": [self.multiline_highlight.id],
+                                "children": [
+                                    {
+                                        "text": "This",
+                                        "type": "text",
+                                    }
+                                ],
+                            },
+                            {
+                                "text": " is a sample text in the second block.",
+                                "type": "text",
+                            },
+                        ],
+                        "type": "paragraph",
+                    },
+                ],
+                "type": "root",
+            }
         }
+
         self.highlight_count = 2
         self.note.save()
         return super().setUp()
@@ -129,13 +159,27 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
         url = f"/api/reports/{self.note.id}/"
         content = self.note.content
         # Add a new highlight "text" from the second block.
-        content["blocks"][1]["inlineStyleRanges"].append(
+        paragraph = content["root"]["children"][0]
+        paragraph["children"][2:3] = [
             {
-                "style": "HIGHLIGHT",
-                "offset": 17,
-                "length": 4,
-            }
-        )
+                "text": " ",
+                "type": "text",
+            },
+            {
+                "type": "mark",
+                "ids": [None],
+                "children": [
+                    {
+                        "text": "text",
+                        "type": "text",
+                    }
+                ],
+            },
+            {
+                "text": " only.",
+                "type": "text",
+            },
+        ]
         data = {"content": content}
         response = self.client.patch(url, data=data)
         self.note.refresh_from_db()
@@ -148,20 +192,8 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
         url = f"/api/reports/{self.note.id}/"
         content = self.note.content
         # Add a new highlight "text" that spans the first and second block.
-        content["blocks"][0]["inlineStyleRanges"].append(
-            {
-                "style": "HIGHLIGHT",
-                "offset": 22,
-                "length": 5,
-            }
-        )
-        content["blocks"][1]["inlineStyleRanges"].append(
-            {
-                "style": "HIGHLIGHT",
-                "offset": 0,
-                "length": 4,
-            }
-        )
+        content["root"]["children"][0]["children"][3]["ids"].append(None)
+        content["root"]["children"][1]["children"][0]["ids"].append(None)
         data = {"content": content}
         response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -173,7 +205,7 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
     def test_remove_content(self):
         self.client.force_authenticate(self.user)
         url = f"/api/reports/{self.note.id}/"
-        data = {"content": None}
+        data = {"content": blank_content()}
         response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.note.refresh_from_db()
@@ -182,7 +214,19 @@ class TestNoteRetrieveUpdateDeleteView(APITestCase):
     def test_remove_all_highlights_with_content(self):
         self.client.force_authenticate(self.user)
         url = f"/api/reports/{self.note.id}/"
-        data = {"content": {"blocks": [{"text": "Text with no highlights."}]}}
+        data = {
+            "content": {
+                "root": {
+                    "type": "root",
+                    "children": [
+                        {
+                            "type": "paragraph",
+                            "text": "This is a text with no highlights.",
+                        }
+                    ],
+                }
+            }
+        }
         response = self.client.patch(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.note.refresh_from_db()

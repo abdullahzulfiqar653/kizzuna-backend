@@ -9,7 +9,7 @@ from api.models.user import User
 from api.models.workspace import Workspace
 
 
-class TestProjectNoteListCreateView(APITestCase):
+class TestProjectAssetListCreateView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -22,6 +22,7 @@ class TestProjectNoteListCreateView(APITestCase):
         )
 
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         return super().setUp()

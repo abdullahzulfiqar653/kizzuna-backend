@@ -28,7 +28,9 @@ class TestNoteKeywordDestroyView(APITestCase):
         self.workspace = Workspace.objects.create(
             name="workspace", owned_by=self.existing_user
         )
-        self.workspace.members.add(self.existing_user)
+        self.workspace.members.add(
+            self.existing_user, through_defaults={"role": "Editor"}
+        )
         self.project = Project.objects.create(name="project", workspace=self.workspace)
         self.project.users.add(self.existing_user)
 

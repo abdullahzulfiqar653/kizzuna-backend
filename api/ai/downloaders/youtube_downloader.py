@@ -4,6 +4,7 @@ from django.utils import translation
 from youtube_transcript_api import YouTubeTranscriptApi
 
 from api.ai.paragrapher import Paragrapher
+from api.utils.text import TextProcessor
 
 
 class YoutubeDownloader:
@@ -46,7 +47,8 @@ class YoutubeDownloader:
         video_id = self.video_id_regex.search(url).group(1)
         language = translation.get_language().split("-")[0]
         transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
-        return "\n".join(self.group_segments(transcript, 5))
+        text = "\n".join(self.group_segments(transcript, 5))
+        return TextProcessor(text)
 
 
 __all__ = ["YoutubeDownloader"]

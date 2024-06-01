@@ -8,7 +8,7 @@ from api.models.user import User
 from api.models.workspace import Workspace
 
 
-class TestProjectNoteListCreateView(APITestCase):
+class TestProjectUserDeleteView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -69,4 +69,4 @@ class TestProjectNoteListCreateView(APITestCase):
             ],
         }
         response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

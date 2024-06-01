@@ -35,7 +35,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         workspace.save()
 
         request = self.context["request"]
-        request.user.workspaces.add(workspace)
+        request.user.workspaces.add(workspace, through_defaults={"role": "Owner"})
 
         return workspace
 

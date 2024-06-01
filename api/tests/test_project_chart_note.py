@@ -1,5 +1,6 @@
 import logging
 
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -12,7 +13,7 @@ from api.models.workspace import Workspace
 
 
 # Create your tests here.
-class TestSavedTakeawayView(APITestCase):
+class TestChartNoteCreateView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -25,6 +26,7 @@ class TestSavedTakeawayView(APITestCase):
         )
 
         self.workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        self.workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=self.workspace)
         self.project.users.add(self.user)
 
@@ -68,6 +70,12 @@ class TestSavedTakeawayView(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        start_of_month = (
+            timezone.now()
+            .replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
 
         expected_data = [
             {
@@ -79,7 +87,7 @@ class TestSavedTakeawayView(APITestCase):
                 "author_first_name": "",
                 "author_last_name": "",
                 "keyword": None,
-                "created_at_month": "2024-04-01T00:00:00Z",
+                "created_at_month": start_of_month,
                 "report_distinct_count": 1,
             },
             {
@@ -91,7 +99,7 @@ class TestSavedTakeawayView(APITestCase):
                 "author_first_name": "",
                 "author_last_name": "",
                 "keyword": "keyword",
-                "created_at_month": "2024-04-01T00:00:00Z",
+                "created_at_month": start_of_month,
                 "report_distinct_count": 1,
             },
         ]
