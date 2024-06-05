@@ -144,6 +144,8 @@ class NoteUpdateSerializer(NoteSerializer):
         fields = list(set(NoteSerializer.Meta.fields) - {"keywords", "questions"})
 
     def update(self, note: Note, validated_data):
+        if note.is_analyzing:
+            raise exceptions.ValidationError("Cannot update an analyzing note.")
         project = note.project
         organizations = validated_data.pop("organizations", None)
         note = super().update(note, validated_data)
@@ -213,13 +215,13 @@ class NoteUpdateSerializer(NoteSerializer):
                 print(highlight_id)
                 logger.warn(f"The highlight {highlight_id} is not found and skipped.")
                 continue
-            if highlight.title == highlight_title:
+            if highlight.quote == highlight_title:
                 # No need to update the highlight if the title is the same.
                 continue
-            highlight.title = highlight_title
+            highlight.quote = highlight_title
             highlight.vector = embedder.embed_documents([highlight_title])[0]
             highlights_to_update.append(highlight)
-        Highlight.objects.bulk_update(highlights_to_update, ["title", "vector"])
+        Highlight.objects.bulk_update(highlights_to_update, ["quote", "vector"])
         note.highlights.exclude(id__in=input_highlights.keys()).delete()
         # We save the note again as we have added the highlight id
         # to the newly created highlight in the content state.
