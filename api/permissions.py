@@ -112,6 +112,28 @@ class InProjectOrWorkspace(permissions.BasePermission):
                 project = request.theme.block.asset.project
                 workspace = project.workspace
 
+            case str(s) if s.startswith("/api/properties/"):
+                if not hasattr(request, "property"):
+                    Property = apps.get_model("api", "Property")
+                    property_id = view.kwargs.get("pk") or view.kwargs.get(
+                        "property_id"
+                    )
+                    queryset = Property.objects.select_related("project__workspace")
+                    request.property = get_instance(queryset, property_id)
+                project = request.property.project
+                workspace = project.workspace
+
+            case str(s) if s.startswith("/api/options/"):
+                if not hasattr(request, "option"):
+                    Option = apps.get_model("api", "Option")
+                    option_id = view.kwargs.get("pk") or view.kwargs.get("option_id")
+                    queryset = Option.objects.select_related(
+                        "property__project__workspace"
+                    )
+                    request.option = get_instance(queryset, option_id)
+                project = request.option.property.project
+                workspace = project.workspace
+
             case str(s) if s.startswith("/api/workspaces/"):
                 if not hasattr(request, "workspace"):
                     Workspace = apps.get_model("api", "Workspace")

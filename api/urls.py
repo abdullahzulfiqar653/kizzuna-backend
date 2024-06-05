@@ -25,6 +25,7 @@ from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
+from api.views.note.note_property import NotePropertyListView, NotePropertyUpdateView
 from api.views.note.note_question import (
     NoteQuestionListCreateView,
     NoteQuestionRemainingQuotaRetreiveView,
@@ -35,6 +36,7 @@ from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note.note_takeaway_type import NoteTakeawayTypeListView
 from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
 from api.views.note_template_question import NoteTemplateQuestionListView
+from api.views.option import OptionRetrieveUpdateDestroyView
 from api.views.project.chart.note import ChartNoteCreateView
 from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
@@ -46,6 +48,7 @@ from api.views.project.project_note import ProjectNoteListCreateView
 from api.views.project.project_note_template import ProjectNoteTemplateListCreateView
 from api.views.project.project_note_type import ProjectNoteTypeListView
 from api.views.project.project_organization import ProjectOrganizationListView
+from api.views.project.project_property import ProjectPropertyListCreateView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_summary import ProjectSummaryRetrieveView
 from api.views.project.project_tag import ProjectTagListView
@@ -53,6 +56,11 @@ from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListView
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
+from api.views.property.option import PropertyOptionListCreateView
+from api.views.property.property import (
+    PropertyDuplicateAPIView,
+    PropertyRetrieveUpdateDestroyAPIView,
+)
 from api.views.saved_items.saved_takeaway import (
     SavedTakeawayDeleteView,
     SavedTakeawayListCreateView,
@@ -138,6 +146,16 @@ urlpatterns = [
         "reports/<str:report_id>/questions/remaining-quotas/",
         NoteQuestionRemainingQuotaRetreiveView.as_view(),
         name="note-question-remaining-quota-retrieve",
+    ),
+    path(
+        "reports/<str:report_id>/properties/",
+        NotePropertyListView.as_view(),
+        name="note-property-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/properties/<str:property_id>/",
+        NotePropertyUpdateView.as_view(),
+        name="note-property-update",
     ),
     # =====================================================
     # Report Templates
@@ -244,6 +262,11 @@ urlpatterns = [
         "projects/<str:project_id>/charts/reports/",
         ChartNoteCreateView.as_view(),
         name="chart-report-create",
+    ),
+    path(
+        "projects/<str:project_id>/properties/",
+        ProjectPropertyListCreateView.as_view(),
+        name="project-property-list-create",
     ),
     # =====================================================
     # Workspace
@@ -367,6 +390,32 @@ urlpatterns = [
         "themes/<str:theme_id>/takeaways/delete/",
         ThemeTakeawayDeleteView.as_view(),
         name="theme-takeaway-delete",
+    ),
+    # =====================================================
+    # Property
+    # =====================================================
+    path(
+        "properties/<str:pk>/",
+        PropertyRetrieveUpdateDestroyAPIView.as_view(),
+        name="property-retrieve-update-destroy",
+    ),
+    path(
+        "properties/<str:property_id>/duplicate/",
+        PropertyDuplicateAPIView.as_view(),
+        name="property-duplicate",
+    ),
+    path(
+        "properties/<str:property_id>/options/",
+        PropertyOptionListCreateView.as_view(),
+        name="property-option-list-create",
+    ),
+    # =====================================================
+    # Option
+    # =====================================================
+    path(
+        "options/<str:pk>/",
+        OptionRetrieveUpdateDestroyView.as_view(),
+        name="option-destroy",
     ),
     # =====================================================
     # Saved
