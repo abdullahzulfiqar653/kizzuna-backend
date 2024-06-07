@@ -10,8 +10,16 @@ class NotePropertySerializer(serializers.ModelSerializer):
     property = PropertySerializer(read_only=True)
     options = OptionSerializer(many=True, read_only=True)
     option_ids = serializers.PrimaryKeyRelatedField(
-        source="options", queryset=Option.objects.all(), many=True, write_only=True
+        source="options", queryset=Option.objects.none(), many=True, write_only=True
     )
+
+    def __init__(self, *args, **kwargs):
+        # We set the queryset for the option_ids only after getting the instance
+        super().__init__(*args, **kwargs)
+        if self.instance and isinstance(self.instance, NoteProperty):
+            self.fields["option_ids"].child_relation.queryset = (
+                self.instance.property.options.all()
+            )
 
     class Meta:
         model = NoteProperty

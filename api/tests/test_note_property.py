@@ -77,9 +77,13 @@ class TestNotePropertyUpdateView(APITestCase):
         self.property2 = self.project.properties.create(
             name="select property", data_type="Select"
         )
+        self.property3 = self.project.properties.create(
+            name="select property 2", data_type="Select"
+        )
 
         self.option1 = self.property2.options.create(name="option 1")
         self.option2 = self.property2.options.create(name="option 2")
+        self.option3 = self.property3.options.create(name="option 3")
 
         self.note = self.project.notes.create(title="note 1", author=self.user)
 
@@ -137,6 +141,21 @@ class TestNotePropertyUpdateView(APITestCase):
             self.note.note_properties.get(property=self.property2).options.all(),
             [self.option1],
         )
+
+    def test_user_update_note_properties_with_option_of_another_property(self):
+        """
+        Prevent assigning an option to a property that it doesn't belong to
+        """
+        self.assertEqual(self.note.note_properties.count(), 0)
+
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(
+            f"/api/reports/{self.note.id}/properties/{self.property2.id}/",
+            data={
+                "option_ids": [self.option3.id],
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_update_note_properties_from_other_project(self):
         outsider_workspace = Workspace.objects.create(
