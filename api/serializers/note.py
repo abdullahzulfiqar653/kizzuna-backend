@@ -1,8 +1,6 @@
 # note/serializers.py
-import json
 import logging
 
-import numpy as np
 from django.db.models import Count
 from rest_framework import exceptions, serializers
 
@@ -16,6 +14,7 @@ from api.serializers.organization import OrganizationSerializer
 from api.serializers.question import QuestionSerializer
 from api.serializers.tag import KeywordSerializer
 from api.serializers.user import UserSerializer
+from api.utils.lexical import LexicalProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +78,8 @@ class NoteSerializer(serializers.ModelSerializer):
         }
 
     def validate_content(self, content):
-        if len(json.dumps(content)) > 250_000:
+        text = LexicalProcessor(content["root"]).to_markdown()
+        if len(text) > 250_000:
             raise exceptions.ValidationError("Content exceed length limit.")
         return content
 
@@ -144,6 +144,8 @@ class NoteUpdateSerializer(NoteSerializer):
         fields = list(set(NoteSerializer.Meta.fields) - {"keywords", "questions"})
 
     def update(self, note: Note, validated_data):
+        if note.is_analyzing:
+            raise exceptions.ValidationError("Cannot update an analyzing note.")
         project = note.project
         organizations = validated_data.pop("organizations", None)
         note = super().update(note, validated_data)
@@ -169,63 +171,61 @@ class NoteUpdateSerializer(NoteSerializer):
 
         return note
 
+    def extract_input_highlights(self, root: LexicalProcessor, new_highlight_id: str):
+        input_highlights = {}
+        for node in root.find_all("mark"):
+            if None in node.dict["ids"]:
+                # Replace None with the new highlight id
+                # and keep the other non-None ids.
+                node.dict["ids"] = [
+                    id if id is not None else new_highlight_id
+                    for id in node.dict["ids"]
+                ]
+            for id in node.dict["ids"]:
+                input_highlights.setdefault(id, "")
+                input_highlights[id] += node.to_text()
+        return input_highlights
+
     def extract_highlights_from_content_state(self, note):
         # Extract highlights from rich text and update
         request = self.context["request"]
-        if note.content is None:
-            note.highlights.delete()
-        else:  # note.content is not None
-            input_highlights = dict()
-            new_highlight_id = None
-            for block in note.content["blocks"]:
-                for srange in block.get("inlineStyleRanges", []):
-                    if srange["style"] != "HIGHLIGHT":
-                        continue
-                    highlight_id = srange.get("id")
-                    if highlight_id is None:
-                        if new_highlight_id is None:
-                            highlight = Highlight.objects.create(
-                                vector=np.zeros(1536),
-                                note=note,
-                                created_by=request.user,
-                            )
-                            highlight_id = highlight.id
-                            new_highlight_id = highlight_id
-                        else:  # new_highlight_id is not None
-                            # All the highlights without highlight id will consider as
-                            # one single new highlight
-                            highlight_id = new_highlight_id
-                        # Add the highlight id for the highlights in
-                        # the note.content inlineStyleRanges
-                        srange["id"] = highlight_id
-                    start = srange["offset"]
-                    end = srange["offset"] + srange["length"]
-                    highlighted_text = block["text"][start:end]
-                    input_highlights.setdefault(highlight_id, "")
-                    input_highlights[highlight_id] += highlighted_text
+        new_highlight_id = Highlight.id.field._generate_uuid()
+        root = LexicalProcessor(note.content["root"])
+        input_highlights = self.extract_input_highlights(root, new_highlight_id)
+        if new_highlight_id in input_highlights:
+            new_highlight_text = input_highlights.get(new_highlight_id)
+            Highlight.objects.create(
+                id=new_highlight_id,
+                title=new_highlight_text,
+                quote=new_highlight_text,
+                vector=embedder.embed_documents([new_highlight_text])[0],
+                note=note,
+                created_by=request.user,
+            )
 
-            db_highlights = {
-                highlight.id: highlight
-                for highlight in Highlight.objects.filter(note=note)
-            }
-            highlights_to_update = []
-            for highlight_id, highlight_title in input_highlights.items():
-                highlight = db_highlights.get(highlight_id)
-                if highlight is None:
-                    # The highlight id in the note.content doesn't match with
-                    # any of the highlights in the db. Will skip it.
-                    logger.warn(
-                        f"The highlight {highlight_id} is not found and skipped."
-                    )
-                    continue
-                highlight.title = highlight_title
-                highlight.vector = embedder.embed_documents([highlight_title])[0]
-                highlights_to_update.append(highlight)
-            Highlight.objects.bulk_update(highlights_to_update, ["title", "vector"])
-            note.highlights.exclude(id__in=input_highlights.keys()).delete()
-            # We save the note again as we have added the highlight id
-            # to the newly created highlight in the content state.
-            note.save()
+        db_highlights = {
+            highlight.id: highlight for highlight in Highlight.objects.filter(note=note)
+        }
+        highlights_to_update = []
+        for highlight_id, highlight_title in input_highlights.items():
+            highlight = db_highlights.get(highlight_id)
+            if highlight is None:
+                # The highlight id in the note.content doesn't match with
+                # any of the highlights in the db. Will skip it.
+                print(highlight_id)
+                logger.warn(f"The highlight {highlight_id} is not found and skipped.")
+                continue
+            if highlight.quote == highlight_title:
+                # No need to update the highlight if the title is the same.
+                continue
+            highlight.quote = highlight_title
+            highlight.vector = embedder.embed_documents([highlight_title])[0]
+            highlights_to_update.append(highlight)
+        Highlight.objects.bulk_update(highlights_to_update, ["quote", "vector"])
+        note.highlights.exclude(id__in=input_highlights.keys()).delete()
+        # We save the note again as we have added the highlight id
+        # to the newly created highlight in the content state.
+        note.save()
         return note
 
 

@@ -12,6 +12,7 @@ from api.models.project import Project
 from api.models.question import Question
 from api.models.user import User
 from api.models.workspace import Workspace
+from api.utils.lexical import LexicalProcessor
 
 
 def validate_file_size(value):
@@ -25,6 +26,28 @@ def validate_file_type(value):
     ext = value.name.split(".")[-1]
     if ext.lower() not in allowed_extensions:
         raise ValidationError(f"Only {allowed_extensions} files are allowed.")
+
+
+def blank_content():
+    return {
+        "root": {
+            "children": [
+                {
+                    "children": [],
+                    "direction": None,
+                    "format": "",
+                    "indent": 0,
+                    "type": "paragraph",
+                    "version": 1,
+                }
+            ],
+            "direction": None,
+            "format": "",
+            "indent": 0,
+            "type": "root",
+            "version": 1,
+        }
+    }
 
 
 class Note(models.Model):
@@ -49,7 +72,7 @@ class Note(models.Model):
         NEGATIVE = "Negative"
 
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
@@ -76,7 +99,7 @@ class Note(models.Model):
     file_size = models.IntegerField(null=True, help_text="File size measured in bytes.")
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
-    content = models.JSONField(null=True)
+    content = models.JSONField(default=blank_content)
     summary = models.JSONField(default=list)
     keywords = models.ManyToManyField(Keyword, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
@@ -108,5 +131,6 @@ class Note(models.Model):
             self.code = "".join(random.choice(chars) for _ in range(3))
         super().save(*args, **kwargs)
 
-    def get_content_text(self):
-        return "\n".join([block["text"] for block in self.content["blocks"]])
+    def get_content_markdown(self):
+        lexical = LexicalProcessor(self.content["root"])
+        return lexical.to_markdown()

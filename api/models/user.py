@@ -16,3 +16,9 @@ class User(AbstractUser):
         "api.Takeaway", related_name="saved_by", through="api.UserSavedTakeaway"
     )
     objects = CustomUserManager()
+
+    def get_role(self, workspace):
+        try:
+            return self.workspace_users.get(workspace=workspace).role
+        except models.ObjectDoesNotExist:
+            return None

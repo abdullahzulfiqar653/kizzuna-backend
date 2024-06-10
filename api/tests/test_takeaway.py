@@ -27,6 +27,7 @@ class TestTakeawayRetrieveUpdateDeleteView(APITestCase):
         )
 
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
 
@@ -45,19 +46,34 @@ class TestTakeawayRetrieveUpdateDeleteView(APITestCase):
         )
         self.takeaway = self.highlight.takeaway_ptr
         self.note.content = {
-            "blocks": [
-                {
-                    "text": "This is a sample text only.",
-                    "inlineStyleRanges": [
-                        {
-                            "style": "HIGHLIGHT",
-                            "offset": 10,
-                            "length": 6,
-                            "id": self.highlight.id,
-                        },
-                    ],
-                },
-            ]
+            "root": {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "text": "This is a ",
+                                "type": "text",
+                            },
+                            {
+                                "type": "mark",
+                                "ids": [self.highlight.id],
+                                "children": [
+                                    {
+                                        "text": "sample",
+                                        "type": "text",
+                                    }
+                                ],
+                            },
+                            {
+                                "text": " text only.",
+                                "type": "text",
+                            },
+                        ],
+                        "type": "paragraph",
+                    },
+                ],
+                "type": "root",
+            }
         }
         self.note.save()
 
@@ -123,7 +139,11 @@ class TestTakeawayRetrieveUpdateDeleteView(APITestCase):
 
         # Make sure that the highlight is removed from the note.content
         self.note.refresh_from_db()
-        self.assertEqual(self.note.content["blocks"][0]["inlineStyleRanges"], [])
+        stack = [self.note.content["root"]]
+        while stack:
+            node = stack.pop()
+            self.assertNotEqual(node.get("type"), "mark")
+            stack.extend(node.get("children", []))
 
         # Make sure that the takeaway type is cleaned up
         self.assertFalse(TakeawayType.objects.filter(id=self.takeaway_type.id).exists())

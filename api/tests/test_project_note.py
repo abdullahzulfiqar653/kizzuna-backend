@@ -28,6 +28,7 @@ class TestProjectNoteListCreateView(APITestCase):
         )
 
         workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
+        workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
         return super().setUp()
@@ -136,7 +137,7 @@ class TestProjectNoteListCreateView(APITestCase):
 
     def test_user_create_report_with_long_title(self):
         data = {
-            "title": "Long title: " + "x" * 100,
+            "title": "Long title: " + "x" * 255,
             "organizations": [
                 {
                     "name": "Test company",

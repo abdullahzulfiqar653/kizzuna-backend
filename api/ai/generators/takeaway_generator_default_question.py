@@ -1,21 +1,27 @@
 import json
 
+import numpy as np
+from django.db import transaction
+from django.db.models import QuerySet
 from django.utils.translation import gettext
 from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.document import Document
 from langchain.text_splitter import TokenTextSplitter
 from langchain_openai.chat_models import ChatOpenAI
+from nltk.tokenize import sent_tokenize
 from pydantic.v1 import BaseModel, Field
 
 from api.ai import config
 from api.ai.embedder import embedder
 from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 from api.ai.translator import google_translator
+from api.models.highlight import Highlight
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.user import User
+from api.utils.lexical import LexicalProcessor
 
 system_prompt = """Extract takeaways from the text below.
 
@@ -131,7 +137,7 @@ def generate_takeaways_default_question(note: Note, created_by: User):
     )
 
     bot = User.objects.get(username="bot@raijin.ai")
-    doc = Document(page_content=note.get_content_text())
+    doc = Document(page_content=note.get_content_markdown())
     docs = text_splitter.split_documents([doc])
     with token_tracker(note.project, note, "generate-takeaways", created_by):
         outputs = [
@@ -146,7 +152,7 @@ def generate_takeaways_default_question(note: Note, created_by: User):
     generated_takeaways = [
         {
             "title": google_translator.translate(
-                f'{takeaway["topic"]} - {takeaway["insight"]}: {takeaway["significance"]}',
+                f'{takeaway["topic"]} - {takeaway["insight"].rstrip(".")}: {takeaway["significance"]}',
                 note.project.language,
             ),
             "type": google_translator.translate(
@@ -171,6 +177,16 @@ def generate_takeaways_default_question(note: Note, created_by: User):
         )
     TakeawayType.objects.bulk_create(takeaway_types_to_create)
 
+    # Embed note content
+    lexical = LexicalProcessor(note.content["root"])
+    sentences = [
+        sentence
+        for paragraph in lexical.to_text().split("\n")
+        for sentence in sent_tokenize(paragraph)
+        if sentence.strip()  # Check if there is some text after stripping
+    ]
+    doc_vecs = np.array(embedder.embed_documents(sentences))
+
     # Create takeaways
     takeaway_type_dict = {
         takeaway_type.name: takeaway_type
@@ -178,22 +194,42 @@ def generate_takeaways_default_question(note: Note, created_by: User):
     }
     generated_takeaway_titles = [takeaway["title"] for takeaway in generated_takeaways]
     generated_takeaway_vectors = embedder.embed_documents(generated_takeaway_titles)
-    takeaways_to_add = []
     note_takeaway_sequence = note.takeaway_sequence
+    takeaways_to_create = []
+    highlights_to_create = []
     for generated_takeaway, vector in zip(
         generated_takeaways, generated_takeaway_vectors
     ):
         note_takeaway_sequence += 1
-        takeaways_to_add.append(
-            Takeaway(
-                title=generated_takeaway["title"],
-                vector=vector,
-                type=takeaway_type_dict[generated_takeaway["type"]],
-                note=note,
-                created_by=bot,
-                code=f"{note.code}-{note_takeaway_sequence}",
-            )
+        takeaway = Takeaway(
+            title=generated_takeaway["title"],
+            vector=vector,
+            type=takeaway_type_dict[generated_takeaway["type"]],
+            note=note,
+            created_by=bot,
+            code=f"{note.code}-{note_takeaway_sequence}",
         )
-    Takeaway.objects.bulk_create(takeaways_to_add)
+
+        vec = np.array(embedder.embed_documents([generated_takeaway["title"]]))
+        scores = vec.dot(doc_vecs.T)[0]
+        highlight_str = sentences[np.argmax(scores)]
+        lexical.highlight(highlight_str, takeaway.id)
+        highlight = Highlight(takeaway_ptr_id=takeaway.id, quote=highlight_str)
+
+        takeaways_to_create.append(takeaway)
+        highlights_to_create.append(highlight)
+
+    # Bulk create takeaways
+    Takeaway.objects.bulk_create(takeaways_to_create)
+
+    # Bulk create highlights
+    queryset = QuerySet(Highlight)
+    queryset._for_write = True
+    local_fields = Highlight._meta.local_fields
+    with transaction.atomic(using=queryset.db, savepoint=False):
+        queryset._batched_insert(highlights_to_create, local_fields, batch_size=None)
+
+    assert note.highlights.count() == len(highlights_to_create)
+
     note.takeaway_sequence = note_takeaway_sequence
     note.save()

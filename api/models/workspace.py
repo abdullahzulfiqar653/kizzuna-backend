@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from shortuuid.django_fields import ShortUUIDField
 
 from api.models.user import User
+from api.models.workspace_user import WorkspaceUser
 
 
 class Workspace(models.Model):
@@ -20,7 +21,9 @@ class Workspace(models.Model):
     logo_url = models.URLField(blank=True)
     domain_slug = models.SlugField(max_length=50, unique=True)
 
-    members = models.ManyToManyField(User, related_name="workspaces")
+    members = models.ManyToManyField(
+        User, through=WorkspaceUser, related_name="workspaces"
+    )
 
     @property
     def usage_seconds(self):

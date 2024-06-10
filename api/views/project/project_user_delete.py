@@ -2,11 +2,11 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 from api.permissions import IsWorkspaceOwner
-from api.serializers.user import UsersSerializer
+from api.serializers.user import ProjectUserDeleteSerializer
 
 
 class ProjectUserDeleteView(generics.CreateAPIView):
-    serializer_class = UsersSerializer
+    serializer_class = ProjectUserDeleteSerializer
     permission_classes = [IsWorkspaceOwner]
 
     def post(self, request, project_id):

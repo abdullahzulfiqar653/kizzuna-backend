@@ -1,4 +1,5 @@
 from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.filters.takeaway import TakeawayFilter
@@ -10,6 +11,7 @@ class SavedTakeawayListCreateView(generics.ListCreateAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
     filterset_class = TakeawayFilter
+    permission_classes = [IsAuthenticated]
     ordering_fields = [
         "created_at",
         "created_by__first_name",
@@ -53,6 +55,7 @@ class SavedTakeawayListCreateView(generics.ListCreateAPIView):
 
 class SavedTakeawayDeleteView(generics.GenericAPIView):
     queryset = Takeaway.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = SavedTakeawaysSerializer
 
     def get_valid_takeaways(self):

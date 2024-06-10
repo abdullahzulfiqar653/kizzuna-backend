@@ -1,6 +1,7 @@
 import openai
 
 from api.ai.paragrapher import Paragrapher
+from api.utils.text import TextProcessor
 
 from .base_transcriber import BaseTranscriber
 
@@ -32,7 +33,8 @@ class OpenAITranscriber(BaseTranscriber):
             )
         print("Transcript duration:", transcript.duration)
         segments = (segment["text"] for segment in transcript.segments)
-        return self.paragrapher.paragraphing(segments)
+        text = self.paragrapher.paragraphing(segments)
+        return TextProcessor(text)
 
 
 openai_transcriber = OpenAITranscriber()
