@@ -7,6 +7,7 @@ from shortuuid.django_fields import ShortUUIDField
 
 from api.models.highlight import Highlight
 from api.models.keyword import Keyword
+from api.models.note_type import NoteType
 from api.models.organization import Organization
 from api.models.project import Project
 from api.models.question import Question
@@ -83,7 +84,9 @@ class Note(models.Model):
     organizations = models.ManyToManyField(Organization, related_name="notes")
     revenue = models.CharField(max_length=6, choices=Revenue.choices, null=True)
     description = models.TextField()
-    type = models.CharField(max_length=255)
+    type = models.ForeignKey(
+        NoteType, on_delete=models.SET_NULL, related_name="notes", null=True
+    )
     is_published = models.BooleanField(default=False)
     code = models.CharField(max_length=5)
     takeaway_sequence = models.IntegerField(default=0)
