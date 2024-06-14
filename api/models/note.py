@@ -13,7 +13,7 @@ from api.models.project import Project
 from api.models.question import Question
 from api.models.user import User
 from api.models.workspace import Workspace
-from api.utils.lexical import LexicalProcessor
+from api.utils.lexical import LexicalProcessor, blank_content
 
 
 def validate_file_size(value):
@@ -27,28 +27,6 @@ def validate_file_type(value):
     ext = value.name.split(".")[-1]
     if ext.lower() not in allowed_extensions:
         raise ValidationError(f"Only {allowed_extensions} files are allowed.")
-
-
-def blank_content():
-    return {
-        "root": {
-            "children": [
-                {
-                    "children": [],
-                    "direction": None,
-                    "format": "",
-                    "indent": 0,
-                    "type": "paragraph",
-                    "version": 1,
-                }
-            ],
-            "direction": None,
-            "format": "",
-            "indent": 0,
-            "type": "root",
-            "version": 1,
-        }
-    }
 
 
 class Note(models.Model):

@@ -3,10 +3,10 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from api.views.asset.asset import AssetRetrieveUpdateDeleteView
-from api.views.asset.asset_block import AssetBlockListCreateView
-from api.views.block.block import BlockRetrieveUpdateDeleteView
+from api.views.asset.asset_block import AssetBlockListView
+from api.views.asset.asset_generate import AssetGenerateCreateView
+from api.views.block.block import BlockRetrieveView
 from api.views.block.block_cluster import BlockClusterCreateView
-from api.views.block.block_generate import BlockGenerateCreateView
 from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
@@ -355,21 +355,21 @@ urlpatterns = [
     ),
     path(
         "assets/<str:asset_id>/blocks/",
-        AssetBlockListCreateView.as_view(),
+        AssetBlockListView.as_view(),
         name="asset-block-list-create",
+    ),
+    path(
+        "assets/<str:asset_id>/generate/",
+        AssetGenerateCreateView.as_view(),
+        name="asset-generate-create",
     ),
     # =====================================================
     # Block
     # =====================================================
     path(
         "blocks/<str:pk>/",
-        BlockRetrieveUpdateDeleteView.as_view(),
-        name="block-retrieve-update-delete",
-    ),
-    path(
-        "blocks/<str:block_id>/generate/",
-        BlockGenerateCreateView.as_view(),
-        name="block-generate-create",
+        BlockRetrieveView.as_view(),
+        name="block-retrieve",
     ),
     path(
         "blocks/<str:block_id>/takeaways/",
