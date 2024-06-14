@@ -208,7 +208,7 @@ def generate_takeaways_default_question(note: Note, created_by: User):
             code=f"{note.code}-{note_takeaway_sequence}",
         )
 
-        scores = np.array(vector).dot(doc_vecs.T)[0]
+        scores = np.array(vector).dot(doc_vecs.T)
         highlight_str = sentences[np.argmax(scores)]
         lexical.highlight(highlight_str, takeaway.id)
         highlight = Highlight(takeaway_ptr_id=takeaway.id, quote=highlight_str)
