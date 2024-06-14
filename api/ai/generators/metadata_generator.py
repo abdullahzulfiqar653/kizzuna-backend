@@ -1,5 +1,6 @@
 from typing import Optional
 
+import numpy as np
 from django.utils.translation import gettext
 from langchain.chains.combine_documents.map_reduce import (
     MapReduceDocumentsChain,
@@ -135,9 +136,14 @@ def generate_metadata(note: Note, created_by: User):
 
     # Map meeting type
     vector = embedder.embed_query(metadata["meeting_type"])
-    note_type = note.project.note_types.order_by(
-        MaxInnerProduct("vector", vector)
-    ).first()
+    blank_vector = embedder.embed_documents([""])[0]
+    threshold = np.array(vector).dot(np.array(blank_vector))
+    note_type = (
+        note.project.note_types.annotate(score=-MaxInnerProduct("vector", vector))
+        .filter(score__gt=threshold)
+        .order_by("-score")
+        .first()
+    )
 
     note.title = metadata["title"]
     note.description = metadata["description"]
