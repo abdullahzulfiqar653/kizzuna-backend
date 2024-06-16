@@ -30,6 +30,11 @@ class AssetSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, asset: Asset, validated_data):
+        if "content" in validated_data:
+            self.update_content_blocks(asset, validated_data)
+        return super().update(asset, validated_data)
+
+    def update_content_blocks(self, asset: Asset, validated_data):
         lexical = LexicalProcessor(validated_data["content"]["root"])
         nodes = list(lexical.find_all("Takeaways"))
         nodes.extend(list(lexical.find_all("Themes")))
@@ -62,8 +67,6 @@ class AssetSerializer(serializers.ModelSerializer):
             blocks_to_create.append(block)
 
         Block.objects.bulk_create(blocks_to_create)
-
-        return super().update(asset, validated_data)
 
 
 class AssetGenerateSerializer(serializers.Serializer):
