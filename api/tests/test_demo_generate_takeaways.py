@@ -54,7 +54,6 @@ class TestDemoGenerateTakeawaysCreateView(APITestCase):
         with self.settings(DEMO_PROJECT_ID=self.project.id, DEMO_USER_ID=self.user.id):
             url = "/api/demo/takeaways/"
             data = {
-                "is_published": False,
                 "keywords": [],
                 "url": "www.example.com",
             }
