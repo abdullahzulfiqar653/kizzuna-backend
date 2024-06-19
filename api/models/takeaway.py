@@ -40,7 +40,6 @@ class Takeaway(models.Model):
     note = models.ForeignKey(
         "api.Note", on_delete=models.CASCADE, related_name="takeaways"
     )
-    code = models.CharField(max_length=10, unique=True)
 
     class Meta:
         indexes = [
@@ -53,11 +52,3 @@ class Takeaway(models.Model):
 
     def __str__(self):
         return self.title
-
-    def save(self, *args, **kwargs):
-        if self.code == "":
-            self.code = f"{self.note.code}-{self.note.takeaway_sequence + 1}"
-            note = self.note
-            note.takeaway_sequence += 1
-            note.save()
-        super().save(*args, **kwargs)

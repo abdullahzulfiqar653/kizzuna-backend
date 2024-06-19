@@ -42,7 +42,6 @@ class NoteSerializer(serializers.ModelSerializer):
         model = Note
         fields = [
             "id",
-            "code",
             "takeaway_count",
             "author",
             "is_analyzing",
@@ -58,7 +57,6 @@ class NoteSerializer(serializers.ModelSerializer):
             "description",
             "type",
             "type_id",
-            "is_published",
             "file",
             "file_type",
             "file_name",
@@ -67,7 +65,6 @@ class NoteSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
-            "code",
             "author",
             "is_analyzing",
             "is_auto_tagged",

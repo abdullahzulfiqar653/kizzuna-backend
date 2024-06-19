@@ -1,6 +1,3 @@
-import random
-import string
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from shortuuid.django_fields import ShortUUIDField
@@ -65,9 +62,6 @@ class Note(models.Model):
     type = models.ForeignKey(
         NoteType, on_delete=models.SET_NULL, related_name="notes", null=True
     )
-    is_published = models.BooleanField(default=False)
-    code = models.CharField(max_length=5)
-    takeaway_sequence = models.IntegerField(default=0)
 
     url = models.URLField(max_length=255, null=True)
     file = models.FileField(
@@ -88,11 +82,6 @@ class Note(models.Model):
         Question, related_name="notes", through="api.NoteQuestion"
     )
 
-    class Meta:
-        unique_together = [
-            ["workspace", "code"],
-        ]
-
     def __str__(self):
         return self.title
 
@@ -106,10 +95,6 @@ class Note(models.Model):
         else:
             self.file_type = None
         self.workspace = self.project.workspace
-        if not self.code:
-            # Generate random code
-            chars = string.ascii_letters[26:]
-            self.code = "".join(random.choice(chars) for _ in range(3))
         super().save(*args, **kwargs)
 
     def get_content_markdown(self):

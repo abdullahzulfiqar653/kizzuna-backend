@@ -194,13 +194,11 @@ def generate_takeaways_with_questions(
     }
     generated_takeaway_titles = [takeaway["title"] for takeaway in generated_takeaways]
     generated_takeaway_vectors = embedder.embed_documents(generated_takeaway_titles)
-    note_takeaway_sequence = note.takeaway_sequence
     takeaways_to_create = []
     highlights_to_create = []
     for generated_takeaway, vector in zip(
         generated_takeaways, generated_takeaway_vectors
     ):
-        note_takeaway_sequence += 1
         # Map takeaway type
         if generated_takeaway["type"] in takeaway_type_dict:
             takeaway_type = takeaway_type_dict[generated_takeaway["type"]]
@@ -219,7 +217,6 @@ def generate_takeaways_with_questions(
             note=note,
             created_by=bot,
             question_id=generated_takeaway["question_id"],
-            code=f"{note.code}-{note_takeaway_sequence}",
         )
 
         scores = np.array(vector).dot(doc_vecs.T)
@@ -242,5 +239,5 @@ def generate_takeaways_with_questions(
 
     assert note.highlights.count() == len(highlights_to_create)
 
-    note.takeaway_sequence = note_takeaway_sequence
+    # Update note.content
     note.save()
