@@ -32,7 +32,9 @@ class TestDemoGenerateTakeawaysCreateView(APITestCase):
     def test_demo_generate_takeaways(self, mocked_invoke: MagicMock):
         def side_effect(note, user):
             takeaway_type = TakeawayType.objects.create(
-                name="takeaway type 1", project=self.project
+                name="takeaway type 1",
+                project=self.project,
+                vector=np.random.rand(1536),
             )
             note.takeaways.create(
                 title="Takeaway 1 title",
@@ -52,7 +54,6 @@ class TestDemoGenerateTakeawaysCreateView(APITestCase):
         with self.settings(DEMO_PROJECT_ID=self.project.id, DEMO_USER_ID=self.user.id):
             url = "/api/demo/takeaways/"
             data = {
-                "is_published": False,
                 "keywords": [],
                 "url": "www.example.com",
             }

@@ -40,24 +40,15 @@ class Takeaway(models.Model):
     note = models.ForeignKey(
         "api.Note", on_delete=models.CASCADE, related_name="takeaways"
     )
-    code = models.CharField(max_length=10, unique=True)
 
     class Meta:
         indexes = [
             HnswIndex(
                 name="takeaway-vector-index",
                 fields=["vector"],
-                opclasses=["vector_ip_ops"],
+                opclasses=["vector_ip_ops"],  # Use the inner product operator
             )
         ]
 
     def __str__(self):
         return self.title
-
-    def save(self, *args, **kwargs):
-        if self.code == "":
-            self.code = f"{self.note.code}-{self.note.takeaway_sequence + 1}"
-            note = self.note
-            note.takeaway_sequence += 1
-            note.save()
-        super().save(*args, **kwargs)
