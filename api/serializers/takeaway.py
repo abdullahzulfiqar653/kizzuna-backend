@@ -9,6 +9,7 @@ from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.theme import Theme
 from api.models.user import User
+from api.serializers.organization import OrganizationSerializer
 from api.serializers.question import QuestionSerializer
 from api.serializers.tag import TagSerializer
 from api.serializers.takeaway_type import TakeawayTypeSerializer
@@ -16,11 +17,14 @@ from api.serializers.user import UserSerializer
 
 
 class BriefNoteSerializer(serializers.ModelSerializer):
+    organizations = OrganizationSerializer(read_only=True, many=True)
+
     class Meta:
         model = Note
         fields = [
             "id",
             "title",
+            "organizations",
         ]
 
 
@@ -72,16 +76,20 @@ class TakeawaySerializer(serializers.ModelSerializer):
     @classmethod
     def optimize_query(cls, queryset, user):
         return (
-            queryset.select_related("created_by", "type", "note", "question")
+            queryset.select_related(
+                "created_by", "type", "note", "question", "highlight"
+            )
             # The following line speed up the query but gives wrong takeaway count
             # .prefetch_related("tags")
+            .prefetch_related("note__organizations")
             .annotate(
                 is_saved=models.Case(
                     models.When(saved_by=user, then=models.Value(True)),
                     default=models.Value(False),
                     output_field=models.BooleanField(),
                 )
-            ).only(
+            )
+            .only(
                 "id",
                 "title",
                 "type",
