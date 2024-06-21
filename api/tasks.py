@@ -1,14 +1,15 @@
-import time
 from contextlib import contextmanager
 
 from celery import shared_task
+from django_celery_results.models import TaskResult
 
+from api.ai.analyzer.asset_analyzer import AssetAnalyzer
 from api.ai.analyzer.note_analyzer import ExistingNoteAnalyzer, NewNoteAnalyzer
 from api.ai.analyzer.project_summarizer import ProjectSummarizer
-from api.ai.generators.takeaway_generator_with_questions import (
-    generate_takeaways_with_questions,
-)
+from api.models.asset import Asset
 from api.models.note import Note
+from api.models.project import Project
+from api.models.takeaway_type import TakeawayType
 from api.models.user import User
 
 
@@ -39,8 +40,6 @@ def summarize_projects():
 @shared_task
 def analyze_new_note(note_id, user_id):
     print(f"analyzing new note {note_id} by {user_id}")
-    # Wait for a moment for the db to save the new note
-    time.sleep(1)
     try:
         note = Note.objects.select_related("project__workspace").get(id=note_id)
     except Exception as e:
@@ -62,26 +61,59 @@ def analyze_new_note(note_id, user_id):
 
 
 @shared_task
-def analyze_existing_note(note_id, user_id):
-    print(f"analyzing existing note {note_id} by {user_id}")
+def analyze_existing_note(note_id, takeaway_type_ids, user_id):
+    print(
+        f"analyzing existing note {note_id} with takeaway types {takeaway_type_ids} by {user_id}"
+    )
 
     note = Note.objects.select_related("project__workspace").get(id=note_id)
     if note.is_analyzing:
+        return
+
+    takeaway_types = note.project.takeaway_types.filter(id__in=takeaway_type_ids)
+    if not takeaway_types:
         return
 
     user = User.objects.get(id=user_id)
     with is_analyzing(note):
         analyzer = ExistingNoteAnalyzer()
-        analyzer.analyze(note, user)
+        analyzer.analyze(note, takeaway_types, user)
 
 
-@shared_task
-def ask_note_question(note_id, question_id, user_id):
-    note = Note.objects.select_related("project__workspace").get(id=note_id)
-    if note.is_analyzing:
-        return
-
-    questions = note.questions.filter(id=question_id)
+@shared_task(bind=True, track_started=True)
+def analyze_asset(self, project_id, note_ids, takeaway_type_ids, user_id):
+    print(
+        f"analyzing asset with {note_ids} and takeaway types {takeaway_type_ids} by {user_id}"
+    )
+    project = Project.objects.get(id=project_id)
     user = User.objects.get(id=user_id)
-    with is_analyzing(note):
-        generate_takeaways_with_questions(note, questions, user)
+    notes = Note.objects.filter(id__in=note_ids)
+    takeaway_types = TakeawayType.objects.filter(id__in=takeaway_type_ids)
+
+    # Create Asset
+    task = TaskResult.objects.get(task_id=self.request.id)
+    asset = Asset.objects.create(project=project, created_by=user, task=task)
+    notes = notes.filter(project=asset.project)
+    asset.notes.set(notes)
+
+    # Generate for each takeaway type
+    bot = User.objects.get(username="bot@raijin.ai")
+    for i, note in enumerate(notes):
+        note_takeaway_types = takeaway_types.exclude(
+            takeaways__note=note, takeaways__created_by=bot
+        )
+        self.update_state(
+            state="PROGRESS",
+            meta={"step": "analyzing report", "current": i + 1, "total": len(notes)},
+        )
+        with is_analyzing(note):
+            analyzer = ExistingNoteAnalyzer()
+            analyzer.analyze(note, note_takeaway_types, user)
+
+        # Generate asset
+        self.update_state(
+            state="PROGRESS",
+            meta={"step": "generating asset"},
+        )
+    analyzer = AssetAnalyzer()
+    analyzer.analyze(asset, takeaway_types, user)

@@ -10,7 +10,6 @@ from api.models.takeaway_type import TakeawayType
 from api.models.theme import Theme
 from api.models.user import User
 from api.serializers.organization import OrganizationSerializer
-from api.serializers.question import QuestionSerializer
 from api.serializers.tag import TagSerializer
 from api.serializers.takeaway_type import TakeawayTypeSerializer
 from api.serializers.user import UserSerializer
@@ -31,7 +30,6 @@ class BriefNoteSerializer(serializers.ModelSerializer):
 class TakeawaySerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    type = serializers.CharField(source="type.name", required=False, allow_null=True)
     type = TakeawayTypeSerializer(read_only=True)
     type_id = serializers.PrimaryKeyRelatedField(
         source="type",
@@ -41,7 +39,6 @@ class TakeawaySerializer(serializers.ModelSerializer):
         allow_null=True,
     )
     report = BriefNoteSerializer(source="note", read_only=True)
-    question = QuestionSerializer(read_only=True)
     is_saved = serializers.BooleanField(read_only=True)
     quote = serializers.CharField(source="highlight.quote", read_only=True)
 
@@ -58,7 +55,6 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "created_by",
             "report",
             "created_at",
-            "question",
             "is_saved",
             "quote",
         ]
@@ -76,9 +72,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
     @classmethod
     def optimize_query(cls, queryset, user):
         return (
-            queryset.select_related(
-                "created_by", "type", "note", "question", "highlight"
-            )
+            queryset.select_related("created_by", "type", "note", "highlight")
             # The following line speed up the query but gives wrong takeaway count
             # .prefetch_related("tags")
             .prefetch_related("note__organizations")
@@ -101,8 +95,6 @@ class TakeawaySerializer(serializers.ModelSerializer):
                 "note__id",
                 "note__title",
                 "created_at",
-                "question__id",
-                "question__title",
             )
         )
 
