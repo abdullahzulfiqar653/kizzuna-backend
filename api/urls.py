@@ -5,6 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from api.views.asset.asset import AssetRetrieveUpdateDeleteView
 from api.views.asset.asset_block import AssetBlockListView
 from api.views.asset.asset_generate import AssetGenerateCreateView
+from api.views.asset.asset_takeaway import AssetTakeawayListView
 from api.views.block.block import BlockRetrieveView
 from api.views.block.block_cluster import BlockClusterCreateView
 from api.views.block.block_takeaway import (
@@ -20,33 +21,25 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayListCreateView,
 )
 from api.views.note.note import NoteRetrieveUpdateDeleteView
-from api.views.note.note_extract import NoteExtractCreateView
 from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
 from api.views.note.note_property import NotePropertyListView, NotePropertyUpdateView
-from api.views.note.note_question import (
-    NoteQuestionListCreateView,
-    NoteQuestionRemainingQuotaRetreiveView,
-)
 from api.views.note.note_tag import NoteTagListView
-from api.views.note.note_tag_generate import NoteTagGenerateView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
-from api.views.note.note_takeaway_type import NoteTakeawayTypeListView
-from api.views.note_template import NoteTemplateRetrieveUpdateDestroyView
-from api.views.note_template_question import NoteTemplateQuestionListView
+from api.views.note.note_takeaway_type import NoteTakeawayTypeListCreateView
 from api.views.note_type import NoteTypeRetrieveUpdateDestroyView
 from api.views.option import OptionRetrieveUpdateDestroyView
 from api.views.project.chart.note import ChartNoteCreateView
 from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_asset import ProjectAssetListCreateView
+from api.views.project.project_asset_analyze import ProjectAssetAnalyzeCreateView
 from api.views.project.project_insight import ProjectInsightListCreateView
 from api.views.project.project_invitation import ProjectInvitationCreateView
 from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
-from api.views.project.project_note_template import ProjectNoteTemplateListCreateView
 from api.views.project.project_note_type import ProjectNoteTypeListCreateView
 from api.views.project.project_organization import ProjectOrganizationListView
 from api.views.project.project_property import ProjectPropertyListCreateView
@@ -78,11 +71,11 @@ from api.views.theme.theme_takeaway import (
     ThemeTakeawayListCreateView,
 )
 from api.views.user import UserRetrieveUpdateDestroyView
-from api.views.workspace import (
+from api.views.workspace.workspace import (
     WorkspaceListCreateView,
-    WorkspaceProjectListCreateView,
     WorkspaceUserListUpdateView,
 )
+from api.views.workspace.workspace_project import WorkspaceProjectListCreateView
 
 from .views.auth import (
     DoPasswordResetView,
@@ -111,7 +104,7 @@ urlpatterns = [
     ),
     path(
         "reports/<str:report_id>/takeaway-types/",
-        NoteTakeawayTypeListView.as_view(),
+        NoteTakeawayTypeListCreateView.as_view(),
         name="note-takeaway-type-list",
     ),
     path(
@@ -130,26 +123,6 @@ urlpatterns = [
         name="note-tag-list",
     ),
     path(
-        "reports/<str:report_id>/tags/generate/",
-        NoteTagGenerateView.as_view(),
-        name="note-tag-generate",
-    ),
-    path(
-        "reports/<str:report_id>/extract/",
-        NoteExtractCreateView.as_view(),
-        name="note-extract",
-    ),
-    path(
-        "reports/<str:report_id>/questions/",
-        NoteQuestionListCreateView.as_view(),
-        name="note-question-list-create",
-    ),
-    path(
-        "reports/<str:report_id>/questions/remaining-quotas/",
-        NoteQuestionRemainingQuotaRetreiveView.as_view(),
-        name="note-question-remaining-quota-retrieve",
-    ),
-    path(
         "reports/<str:report_id>/properties/",
         NotePropertyListView.as_view(),
         name="note-property-list-create",
@@ -158,19 +131,6 @@ urlpatterns = [
         "reports/<str:report_id>/properties/<str:property_id>/",
         NotePropertyUpdateView.as_view(),
         name="note-property-update",
-    ),
-    # =====================================================
-    # Report Templates
-    # =====================================================
-    path(
-        "report-templates/<str:pk>/",
-        NoteTemplateRetrieveUpdateDestroyView.as_view(),
-        name="note-template-retrieve-update-delete",
-    ),
-    path(
-        "report-templates/<str:report_template_id>/questions/",
-        NoteTemplateQuestionListView.as_view(),
-        name="note-template-question-list",
     ),
     # =====================================================
     # Report Types
@@ -254,14 +214,14 @@ urlpatterns = [
         name="project-summary-retrieve",
     ),
     path(
-        "projects/<str:project_id>/report-templates/",
-        ProjectNoteTemplateListCreateView.as_view(),
-        name="project-note-template-list-create",
-    ),
-    path(
         "projects/<str:project_id>/assets/",
         ProjectAssetListCreateView.as_view(),
         name="project-asset-list-create",
+    ),
+    path(
+        "projects/<str:project_id>/assets/analyze/",
+        ProjectAssetAnalyzeCreateView.as_view(),
+        name="project-asset-analyze",
     ),
     path(
         "projects/<str:project_id>/charts/takeaways/",
@@ -357,6 +317,11 @@ urlpatterns = [
         "assets/<str:asset_id>/blocks/",
         AssetBlockListView.as_view(),
         name="asset-block-list-create",
+    ),
+    path(
+        "assets/<str:asset_id>/takeaways/",
+        AssetTakeawayListView.as_view(),
+        name="asset-takeaway-list-create",
     ),
     path(
         "assets/<str:asset_id>/generate/",

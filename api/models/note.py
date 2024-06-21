@@ -7,7 +7,6 @@ from api.models.keyword import Keyword
 from api.models.note_type import NoteType
 from api.models.organization import Organization
 from api.models.project import Project
-from api.models.question import Question
 from api.models.user import User
 from api.models.workspace import Workspace
 from api.utils.lexical import LexicalProcessor, blank_content
@@ -78,9 +77,6 @@ class Note(models.Model):
     summary = models.JSONField(default=list)
     keywords = models.ManyToManyField(Keyword, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
-    questions = models.ManyToManyField(
-        Question, related_name="notes", through="api.NoteQuestion"
-    )
 
     def __str__(self):
         return self.title

@@ -10,10 +10,8 @@ from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.note_type import NoteType
 from api.models.organization import Organization
-from api.models.question import Question
 from api.serializers.note_type import NoteTypeSerializer
 from api.serializers.organization import OrganizationSerializer
-from api.serializers.question import QuestionSerializer
 from api.serializers.tag import KeywordSerializer
 from api.serializers.user import UserSerializer
 from api.utils.lexical import LexicalProcessor
@@ -26,7 +24,6 @@ class NoteSerializer(serializers.ModelSerializer):
     takeaway_count = serializers.IntegerField(read_only=True)
     author = UserSerializer(read_only=True)
     keywords = KeywordSerializer(many=True, required=False)
-    questions = QuestionSerializer(many=True, required=False)
     summary = serializers.JSONField(required=False, default=[])
     organizations = OrganizationSerializer(many=True, required=False)
     type = NoteTypeSerializer(read_only=True)
@@ -47,7 +44,6 @@ class NoteSerializer(serializers.ModelSerializer):
             "is_analyzing",
             "is_auto_tagged",
             "keywords",
-            "questions",
             "summary",
             "title",
             "created_at",
@@ -99,11 +95,6 @@ class NoteSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError("Content exceed length limit.")
         return content
 
-    def validate_questions(self, value):
-        if len(value) > 8:
-            raise exceptions.ValidationError("Please provide at most 8 questions.")
-        return value
-
     def add_organizations(self, note, organizations):
         organizations_to_create = [
             Organization(name=organization["name"], project=note.project)
@@ -123,41 +114,27 @@ class NoteSerializer(serializers.ModelSerializer):
         )
         note.keywords.add(*keywords_to_add)
 
-    def add_questions(self, note, questions):
-        questions_to_create = [
-            Question(title=question["title"], project=note.project)
-            for question in questions
-        ]
-        Question.objects.bulk_create(questions_to_create, ignore_conflicts=True)
-        questions_to_add = Question.objects.filter(project=note.project).filter(
-            title__in=[question["title"] for question in questions]
-        )
-        note.questions.add(*questions_to_add)
-
     def create(self, validated_data):
         if validated_data["file"] is not None:
             validated_data["file_size"] = validated_data["file"].size
         organizations = validated_data.pop("organizations", [])
         keywords = validated_data.pop("keywords", [])
-        questions = validated_data.pop("questions", [])
         note = Note.objects.create(**validated_data)
         self.add_organizations(note, organizations)
         self.add_keywords(note, keywords)
-        self.add_questions(note, questions)
         return note
 
 
 class NoteUpdateSerializer(NoteSerializer):
     """
-    Do not allow users to update keywords and questions through note endpoint directly.
-    They should use the dedicated endpoints to update keywords and questions instead.
+    Do not allow users to update keywords through note endpoint directly.
+    They should use the dedicated endpoints to update keywords instead.
     """
 
     keywords = None
-    questions = None
 
     class Meta(NoteSerializer.Meta):
-        fields = list(set(NoteSerializer.Meta.fields) - {"keywords", "questions"})
+        fields = list(set(NoteSerializer.Meta.fields) - {"keywords"})
 
     def update(self, note: Note, validated_data):
         if note.is_analyzing:

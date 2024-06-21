@@ -46,8 +46,11 @@ def cluster_block(block: Block, takeaways: QuerySet[Takeaway], created_by: User)
     if block.type != Block.Type.THEMES:
         raise exceptions.ValidationError("The block type must be themes.")
 
-    if takeaways.count() > 200:
-        raise exceptions.PermissionDenied("Too many takeaways to analyze.")
+    takeaway_count = takeaways.count()
+    if takeaway_count == 0:
+        raise exceptions.ValidationError("No takeaways to analyze.")
+    if takeaway_count > 200:
+        raise exceptions.ValidationError("Too many takeaways to analyze.")
 
     # We only consider takeaways in the same project as block so to not mess up
     takeaways = takeaways.filter(note__project=block.asset.project)

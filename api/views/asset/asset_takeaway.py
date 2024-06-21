@@ -5,7 +5,7 @@ from api.models.takeaway import Takeaway
 from api.serializers.takeaway import TakeawaySerializer
 
 
-class ProjectTakeawayListView(generics.ListAPIView):
+class AssetTakeawayListView(generics.ListAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
     filterset_class = TakeawayFilter
@@ -26,7 +26,4 @@ class ProjectTakeawayListView(generics.ListAPIView):
     query_field = "vector"
 
     def get_queryset(self):
-        return TakeawaySerializer.optimize_query(
-            Takeaway.objects.filter(note__project=self.request.project),
-            self.request.user,
-        )
+        return Takeaway.objects.filter(note__assets=self.request.asset)
