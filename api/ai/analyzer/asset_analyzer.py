@@ -55,7 +55,7 @@ class AssetAnalyzer:
         print("========> Generating title")
         question = "Give a short and concise title for this report. Do not repeat the content. Do not format."
         title = generate_content(asset, question, [], created_by)
-        asset.title = title
+        asset.title = title.replace("<cursor/>", "")
 
         asset.content["root"] = output.dict
         asset.save()
