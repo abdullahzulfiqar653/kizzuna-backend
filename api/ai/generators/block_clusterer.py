@@ -10,7 +10,6 @@ from api.ai import config
 from api.ai.generators.utils import token_tracker
 from api.models.block import Block
 from api.models.takeaway import Takeaway
-from api.models.theme import Theme
 from api.models.user import User
 
 
@@ -63,15 +62,17 @@ def cluster_block(block: Block, takeaways: QuerySet[Takeaway], created_by: User)
         clusters.setdefault(label, []).append(takeaway)
 
     chain = get_chain()
+    print("  ========> Before deleting themes.")
     block.themes.all().delete()
+    print("  ========> After deleting themes.")
     for label in range(max(labels)):
         text = "- " + "\n- ".join([takeaway.title for takeaway in clusters[label]])
 
         with token_tracker(block.asset.project, block, "cluster-block", created_by):
             output = chain.invoke({"text": text})[0]
 
-        theme = Theme.objects.create(
-            block=block,
+        print("  ========> Creating theme.")
+        theme = block.themes.create(
             title=output.title,
             description=output.description,
         )

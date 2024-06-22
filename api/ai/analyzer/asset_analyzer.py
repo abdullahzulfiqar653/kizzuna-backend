@@ -28,7 +28,7 @@ class AssetAnalyzer:
         lexical = LexicalProcessor(asset.content["root"])
         takeaways = Takeaway.objects.filter(note__assets=asset)
         for takeaway_type in takeaway_types:
-            block = Block.objects.create(asset=asset, type=Block.Type.THEMES)
+            print("  ========> Clustering takeaway type:", takeaway_type.name)
             filtered_takeaways = takeaways.filter(type=takeaway_type)
             if filtered_takeaways.count() > 200:
                 raise ValueError(
@@ -37,6 +37,8 @@ class AssetAnalyzer:
                 )
             block_title = create_lexical_from_markdown(f"**{takeaway_type}:**")
             lexical.append(block_title)
+            block = asset.blocks.create(type=Block.Type.THEMES)
+            print("  ========> Block created.")
             cluster_block(block, filtered_takeaways, created_by)
             lexical.add_block(block)
 
