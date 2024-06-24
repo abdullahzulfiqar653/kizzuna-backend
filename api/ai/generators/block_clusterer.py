@@ -46,8 +46,8 @@ def cluster_block(block: Block, takeaways: QuerySet[Takeaway], created_by: User)
         raise exceptions.ValidationError("The block type must be themes.")
 
     takeaway_count = takeaways.count()
-    if takeaway_count == 0:
-        raise exceptions.ValidationError("No takeaways to analyze.")
+    if takeaway_count < 2:
+        raise exceptions.ValidationError("Not enough takeaways to analyze.")
     if takeaway_count > 200:
         raise exceptions.ValidationError("Too many takeaways to analyze.")
 
