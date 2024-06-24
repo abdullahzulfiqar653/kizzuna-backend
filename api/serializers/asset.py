@@ -48,6 +48,10 @@ class AssetSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, asset: Asset, validated_data):
+        if asset.task.status in {"STARTED", "PROGRESS"}:
+            raise serializers.ValidationError(
+                "Asset is being analyzed. Please wait for the analysis to complete."
+            )
         if "content" in validated_data:
             self.update_content_blocks(asset, validated_data)
         return super().update(asset, validated_data)
