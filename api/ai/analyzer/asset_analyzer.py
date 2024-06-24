@@ -42,21 +42,23 @@ class AssetAnalyzer:
             cluster_block(block, filtered_takeaways, created_by)
             lexical.add_block(block)
 
+        empty_takeaways = Takeaway.objects.none()
+
         print("========> Generating recommendations")
         question = "Based on the themes, please recommends the next steps."
-        markdown = generate_content(asset, question, [], created_by)
+        markdown = generate_content(asset, question, empty_takeaways, created_by)
         output = create_lexical_from_markdown(markdown)
         lexical.append(output)
 
         print("========> Generating summary")
         question = "Write a single paragraph executive summary for this report."
-        markdown = generate_content(asset, question, [], created_by)
+        markdown = generate_content(asset, question, empty_takeaways, created_by)
         output = create_lexical_from_markdown(markdown)
         output.append(lexical)
 
         print("========> Generating title")
         question = "Give a short and concise title for this report. Do not repeat the content. Do not format."
-        title = generate_content(asset, question, [], created_by)
+        title = generate_content(asset, question, empty_takeaways, created_by)
         asset.title = title.replace("<cursor/>", "")
         if len(asset.title) > 255:
             asset.title = asset.title[:252] + "..."
