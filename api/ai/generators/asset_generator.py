@@ -4,6 +4,7 @@ from django.db.models import QuerySet
 from django.utils.translation import gettext
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai.chat_models import ChatOpenAI
+from rest_framework import exceptions
 
 from api.ai import config
 from api.ai.generators.utils import token_tracker
@@ -40,6 +41,8 @@ def construct_prompt(asset: Asset, instruction: str, takeaways: QuerySet[Takeawa
 def generate_content(
     asset: Asset, instruction: str, takeaways: QuerySet[Takeaway], created_by: User
 ):
+    if takeaways.count() < 2:
+        raise exceptions.ValidationError("Not enough takeaways to analyze.")
     system_prompt = dedent(
         """
             The user is working on a analysis report. 

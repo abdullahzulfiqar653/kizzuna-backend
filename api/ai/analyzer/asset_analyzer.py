@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from rest_framework import exceptions
 
 from api.ai.generators.asset_generator import generate_content
 from api.ai.generators.block_clusterer import cluster_block
@@ -31,14 +32,13 @@ class AssetAnalyzer:
             print("  ========> Clustering takeaway type:", takeaway_type.name)
             filtered_takeaways = takeaways.filter(type=takeaway_type)
             if filtered_takeaways.count() > 200:
-                raise ValueError(
+                raise exceptions.ValidationError(
                     f"Too many takeaways to analyze for takeaway type '{takeaway_type.name}'. "
                     "Please reduce to 200 takeaways and try again."
                 )
             block_title = create_lexical_from_markdown(f"**{takeaway_type}:**")
             lexical.append(block_title)
             block = asset.blocks.create(type=Block.Type.THEMES)
-            print("  ========> Block created.")
             cluster_block(block, filtered_takeaways, created_by)
             lexical.add_block(block)
 
@@ -58,6 +58,8 @@ class AssetAnalyzer:
         question = "Give a short and concise title for this report. Do not repeat the content. Do not format."
         title = generate_content(asset, question, [], created_by)
         asset.title = title.replace("<cursor/>", "")
+        if len(asset.title) > 255:
+            asset.title = asset.title[:252] + "..."
 
         asset.content["root"] = output.dict
         asset.save()
