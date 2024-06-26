@@ -78,6 +78,10 @@ class Note(models.Model):
     keywords = models.ManyToManyField(Keyword, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
 
+    # Slack Integration
+    slack_channel_id = models.CharField(max_length=25, null=True)
+    slack_team_id = models.CharField(max_length=25, null=True)
+
     def __str__(self):
         return self.title
 

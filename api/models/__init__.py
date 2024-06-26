@@ -2,6 +2,9 @@ from api.models.asset import Asset
 from api.models.block import Block
 from api.models.highlight import Highlight
 from api.models.insight import Insight
+from api.models.integrations.slack.slack_message_buffer import SlackMessageBuffer
+from api.models.integrations.slack.slack_oauth_state import SlackOAuthState
+from api.models.integrations.slack.slack_user import SlackUser
 from api.models.invitation import Invitation
 from api.models.keyword import Keyword
 from api.models.note import Note
@@ -40,6 +43,9 @@ __all__ = [
     "Asset",
     "Block",
     "UserSavedTakeaway",
+    "SlackUser",
+    "SlackOAuthState",
+    "SlackMessageBuffer",
     "Theme",
     "WorkspaceUser",
     "Property",

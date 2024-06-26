@@ -43,7 +43,6 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.kizunna\.com/?$",
     r"^https://\w+\.raijin\.ai/?$",
     "http://localhost:5173",
-    "http://localhost:3000",
 ]
 FRONTEND_URL = env("FRONTEND_URL")
 
@@ -308,6 +307,12 @@ DJANGO_EASY_HEALTH_CHECK = {
     "RETURN_STATUS_CODE": 200,
     "RETURN_BYTE_DATA": "Success",
 }
+
+# Slack Credentials
+SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID")
+SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET")
+SLACK_SIGNING_SECRET = os.getenv("SLACK_SIGNING_SECRET")
+SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 
 # Demo project settings
 DEMO_PROJECT_ID = env("DEMO_PROJECT_ID", default=None)

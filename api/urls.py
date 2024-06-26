@@ -20,6 +20,11 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayDeleteView,
     InsightTakeawayListCreateView,
 )
+from api.views.integrations.slack.channel import SlackChannelsListView
+from api.views.integrations.slack.event import SlackEventsCreateView
+from api.views.integrations.slack.oauth_redirect import SlackOauthRedirectCreateView
+from api.views.integrations.slack.oauth_url import SlackOauthUrlRetrieveView
+from api.views.integrations.slack.to_frontend import SlackToFrontendRedirectView
 from api.views.note.note import NoteRetrieveUpdateDeleteView
 from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
@@ -473,5 +478,33 @@ urlpatterns = [
         "password/do-reset/",
         DoPasswordResetView.as_view(),
         name="password-do-reset",
+    ),
+    # =====================================================
+    # Slack Integration
+    # =====================================================
+    path(
+        "integrations/slack/oauth-url/",
+        SlackOauthUrlRetrieveView.as_view(),
+        name="oauth_url",
+    ),
+    path(
+        "integrations/slack/oauth-redirect/",
+        SlackOauthRedirectCreateView.as_view(),
+        name="slack_oauth_redirect",
+    ),
+    path(
+        "integrations/slack/events/",
+        SlackEventsCreateView.as_view(),
+        name="slack_events",
+    ),
+    path(
+        "integrations/slack/to-frontend/",
+        SlackToFrontendRedirectView.as_view(),
+        name="slack_to_frontend",
+    ),
+    path(
+        "integrations/slack/channels/",
+        SlackChannelsListView.as_view(),
+        name="list_channels",
     ),
 ]
