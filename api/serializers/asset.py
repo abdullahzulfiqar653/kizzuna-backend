@@ -60,10 +60,12 @@ class AssetSerializer(serializers.ModelSerializer):
         lexical = LexicalProcessor(validated_data["content"]["root"])
         nodes = list(lexical.find_all("Takeaways"))
         nodes.extend(list(lexical.find_all("Themes")))
-
-        # Delete blocks
         block_ids = {node.dict["block_id"] for node in nodes if node.dict["block_id"]}
-        asset.blocks.exclude(id__in=block_ids).delete()
+
+        # We skip the steps to delete the blocks that are not in the content
+        # Because when users undo the deletion, the blocks are needed again
+        # We can always compare with the content again
+        # to find the blocks that are not in the content
 
         # Drop nodes that do not belong to the asset
         faulty_block_ids = set(

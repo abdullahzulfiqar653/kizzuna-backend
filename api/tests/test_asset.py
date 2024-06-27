@@ -158,7 +158,9 @@ class TestAssetRetrieveUpdateDeleteView(APITestCase):
         content["root"]["children"].pop()
         response = self.client.patch(url, {"content": content})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.asset.blocks.count(), 1)
+        # We will keep the block in the database
+        # In case the user wants to undo the deletion
+        self.assertEqual(self.asset.blocks.count(), 2)
 
     def test_user_delete_asset(self):
         self.client.force_authenticate(self.user)
