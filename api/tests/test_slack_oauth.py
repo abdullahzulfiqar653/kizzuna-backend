@@ -17,7 +17,7 @@ class SlackOAuthTests(APITestCase):
         MagicMock(),
     )
     def test_oauth_start_creates_state(self):
-        response = self.client.get("/api/integrations/slack/oauth_url/")
+        response = self.client.get("/api/integrations/slack/oauth-url/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("state=", response.data["url"])
 
@@ -37,7 +37,7 @@ class SlackOAuthTests(APITestCase):
 
         # Test callback with valid state
         response = self.client.post(
-            "/api/integrations/slack/oauth_redirect/",
+            "/api/integrations/slack/oauth-redirect/",
             {"code": "12345", "state": valid_state.state},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -47,7 +47,7 @@ class SlackOAuthTests(APITestCase):
 
         # Test callback with invalid state
         response = self.client.post(
-            "/api/integrations/slack/oauth_redirect/",
+            "/api/integrations/slack/oauth-redirect/",
             {"code": "12345", "state": "invalid_state123"},
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
