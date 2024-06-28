@@ -61,7 +61,11 @@ class TestWorkspaceProjectListCreateView(APITestCase):
                     "id": str(self.workspace.id),
                     "name": self.workspace.name,
                     "is_owner": False,
+                    "usage_type": "",
+                    "industry": "",
+                    "company_size": "",
                 },
+                "objective": "",
                 "language": "en",
             }
         ]

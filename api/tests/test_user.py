@@ -6,6 +6,27 @@ from rest_framework.test import APITestCase
 from api.models.user import User
 
 
+class TestSignupView(APITestCase):
+    def setUp(self) -> None:
+        """Reduce the log level to avoid errors like 'not found'"""
+        logger = logging.getLogger("django.request")
+        self.previous_level = logger.getEffectiveLevel()
+        logger.setLevel(logging.ERROR)
+        return super().setUp()
+
+    def test_user_signup(self):
+        url = "/api/signup/"
+        data = {
+            "username": "user@example.com",
+            "password": "somercomplexpassword",
+            "email": "user@example.com",
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(User.objects.count(), 2)  # 1 user AI bot is created by default
+        self.assertTrue(User.objects.filter(username="user@example.com").exists())
+
+
 class TestUserRetrieveUpdateDestroyView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
@@ -35,16 +56,23 @@ class TestUserRetrieveUpdateDestroyView(APITestCase):
             "email": "",
             "first_name": "",
             "last_name": "",
+            "job": "",
             "workspaces": [
                 {
                     "is_owner": True,
                     "id": self.workspace.id,
                     "name": self.workspace.name,
+                    "usage_type": "",
+                    "industry": "",
+                    "company_size": "",
                 },
                 {
                     "is_owner": False,
                     "id": self.outsider_owned_workspace.id,
                     "name": self.outsider_owned_workspace.name,
+                    "usage_type": "",
+                    "industry": "",
+                    "company_size": "",
                 },
             ],
             "skip_tutorial": False,
@@ -61,11 +89,15 @@ class TestUserRetrieveUpdateDestroyView(APITestCase):
             "email": "",
             "first_name": "",
             "last_name": "",
+            "job": "",
             "workspaces": [
                 {
                     "is_owner": True,
                     "id": self.outsider_owned_workspace.id,
                     "name": self.outsider_owned_workspace.name,
+                    "usage_type": "",
+                    "industry": "",
+                    "company_size": "",
                 },
             ],
             "skip_tutorial": False,

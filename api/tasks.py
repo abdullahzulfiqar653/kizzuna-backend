@@ -1,16 +1,22 @@
 from contextlib import contextmanager
+from datetime import datetime
 
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from django_celery_results.models import TaskResult
 
 from api.ai.analyzer.asset_analyzer import AssetAnalyzer
 from api.ai.analyzer.note_analyzer import ExistingNoteAnalyzer, NewNoteAnalyzer
 from api.ai.analyzer.project_summarizer import ProjectSummarizer
+from api.mixpanel import mixpanel
 from api.models.asset import Asset
+from api.models.integrations.slack.slack_message_buffer import SlackMessageBuffer
 from api.models.note import Note
 from api.models.project import Project
 from api.models.takeaway_type import TakeawayType
 from api.models.user import User
+
+logger = get_task_logger(__name__)
 
 
 @contextmanager
@@ -95,6 +101,15 @@ def analyze_asset(self, project_id, note_ids, takeaway_type_ids, user_id):
     asset = Asset.objects.create(project=project, created_by=user, task=task)
     notes = notes.filter(project=asset.project)
     asset.notes.set(notes)
+    mixpanel.track(
+        user.id,
+        "BE: Asset Created",
+        {
+            "asset_id": asset.id,
+            "project_id": asset.project.id,
+            "created_manually": False,
+        },
+    )
 
     # Generate for each takeaway type
     bot = User.objects.get(username="bot@raijin.ai")
@@ -117,3 +132,58 @@ def analyze_asset(self, project_id, note_ids, takeaway_type_ids, user_id):
         )
     analyzer = AssetAnalyzer()
     analyzer.analyze(asset, takeaway_types, user)
+
+
+@shared_task
+def process_slack_messages():
+    try:
+        current_time = datetime.now()
+        # logger.info("Starting to process slack messages")
+        messages = SlackMessageBuffer.objects.all()
+        # print(f"process slack messages task executed at time: {current_time}")
+        for msg in messages:
+            notes = Note.objects.filter(
+                slack_channel_id=msg.slack_channel_id, slack_team_id=msg.slack_team_id
+            )
+            for note in notes:
+                # If note.content is empty or doesn't have the "root" structure, add it
+                if not note.content or "root" not in note.content:
+                    note.content = {
+                        "root": {
+                            "type": "root",
+                            "format": "",
+                            "version": 1,
+                            "children": [],
+                            "direction": "ltr",
+                        }
+                    }
+
+                root_children = note.content["root"]["children"]
+
+                new_message_paragraph = {
+                    "type": "paragraph",
+                    "format": "",
+                    "version": 1,
+                    "children": [
+                        {
+                            "mode": "normal",
+                            "text": f"*{msg.slack_user}:* {msg.message_text} (_{msg.timestamp.strftime('%Y-%m-%d %H:%M:%S')}_)",
+                            "type": "text",
+                            "style": "",
+                            "detail": 0,
+                            "format": 0,
+                            "version": 1,
+                        }
+                    ],
+                    "direction": "ltr",
+                }
+
+                root_children.append(new_message_paragraph)
+                note.content["root"]["children"] = root_children
+                note.save()
+
+        # After processing, clear buffer
+        messages.delete()
+
+    except Exception as e:
+        logger.exception("Failed to process slack messages: %s", str(e))

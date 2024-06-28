@@ -5,6 +5,7 @@ from django.db.models import Count
 from rest_framework import exceptions, serializers
 
 from api.ai.embedder import embedder
+from api.mixpanel import mixpanel
 from api.models.highlight import Highlight
 from api.models.keyword import Keyword
 from api.models.note import Note
@@ -58,6 +59,8 @@ class NoteSerializer(serializers.ModelSerializer):
             "file_name",
             "url",
             "sentiment",
+            "slack_channel_id",
+            "slack_team_id",
         ]
         read_only_fields = [
             "id",
@@ -95,6 +98,19 @@ class NoteSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError("Content exceed length limit.")
         return content
 
+    def validate(self, data):
+        slack_team_id = data.get("slack_team_id")
+        slack_channel_id = data.get("slack_channel_id")
+
+        if (slack_team_id is None and slack_channel_id is not None) or (
+            slack_team_id is not None and slack_channel_id is None
+        ):
+            raise serializers.ValidationError(
+                "slack_team_id and slack_channel_id must either both be non-null or both be null."
+            )
+
+        return data
+
     def add_organizations(self, note, organizations):
         organizations_to_create = [
             Organization(name=organization["name"], project=note.project)
@@ -122,6 +138,11 @@ class NoteSerializer(serializers.ModelSerializer):
         note = Note.objects.create(**validated_data)
         self.add_organizations(note, organizations)
         self.add_keywords(note, keywords)
+        mixpanel.track(
+            note.author.id,
+            "BE: Knowledge Source Created",
+            {"source_id": note.id, "project_id": note.project.id},
+        )
         return note
 
 

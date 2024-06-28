@@ -18,6 +18,7 @@ from rest_framework_simplejwt.serializers import (
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from api.mixpanel import mixpanel
 from api.models.invitation import Invitation
 from api.models.user import User
 from api.serializers.project import ProjectSerializer
@@ -25,10 +26,22 @@ from api.serializers.user import UserSerializer
 from api.serializers.workspace import WorkspaceSerializer
 
 
+def create_mixpanel_user(user):
+    mixpanel.people_set(
+        user.id,
+        {
+            "$email": user.email,
+            "$first_name": user.first_name,
+            "$last_name": user.last_name,
+            "$created": user.date_joined,
+        },
+    )
+
+
 class SignupSerializer(serializers.Serializer):
     username = serializers.EmailField()
-    first_name = serializers.CharField(max_length=100)
-    last_name = serializers.CharField(max_length=100)
+    first_name = serializers.CharField(max_length=100, required=False)
+    last_name = serializers.CharField(max_length=100, required=False)
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -50,11 +63,12 @@ class SignupSerializer(serializers.Serializer):
         user = User(
             email=validated_data.get("username"),
             username=validated_data.get("username"),
-            first_name=validated_data.get("first_name"),
-            last_name=validated_data.get("last_name"),
+            first_name=validated_data.get("first_name", ""),
+            last_name=validated_data.get("last_name", ""),
         )
         user.set_password(validated_data.get("password"))
         user.save()
+        create_mixpanel_user(user)
 
         return user
 
@@ -94,6 +108,7 @@ class GoogleLoginSerializer(serializers.Serializer):
         if created:
             user.set_unusable_password()
             user.save()
+            create_mixpanel_user(user)
 
         # Generate access and refresh token
         refresh = RefreshToken.for_user(user)
@@ -228,9 +243,9 @@ class InviteUserSerializer(serializers.Serializer):
 class InvitationStatusSerializer(serializers.ModelSerializer):
     is_signed_up = serializers.BooleanField()
     email = serializers.EmailField(source="recipient_email")
-    workspace = WorkspaceSerializer()
-    project = ProjectSerializer()
-    sender = UserSerializer()
+    workspace = WorkspaceSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
+    sender = UserSerializer(read_only=True)
 
     class Meta:
         model = Invitation
@@ -305,6 +320,7 @@ class InvitationSignupSerializer(SignupSerializer):
         validated_data["workspace"] = invitation.workspace
         # Calling SignupSerializer.create method
         user = super().create(validated_data)
+        create_mixpanel_user(user)
         user.workspaces.add(invitation.workspace)
         user.projects.add(invitation.project)
 

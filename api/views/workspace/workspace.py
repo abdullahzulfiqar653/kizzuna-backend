@@ -33,3 +33,9 @@ class WorkspaceListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return self.request.user.workspaces.all()
+
+
+class WorkspaceRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Workspace.objects.all()
+    serializer_class = WorkspaceSerializer
+    permission_classes = [IsWorkspaceOwner]

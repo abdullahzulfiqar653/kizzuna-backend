@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from api.mixpanel import mixpanel
 from api.models.asset import Asset
 from api.models.block import Block
 from api.models.note import Note
@@ -45,7 +46,17 @@ class AssetSerializer(serializers.ModelSerializer):
         request = self.context["request"]
         validated_data["project"] = request.project
         validated_data["created_by"] = request.user
-        return super().create(validated_data)
+        asset = super().create(validated_data)
+        mixpanel.track(
+            request.user.id,
+            "BE: Asset Created",
+            {
+                "asset_id": asset.id,
+                "project_id": asset.project.id,
+                "created_manually": True,
+            },
+        )
+        return asset
 
     def update(self, asset: Asset, validated_data):
         if asset.task and asset.task.status in {"STARTED", "PROGRESS"}:
@@ -60,10 +71,12 @@ class AssetSerializer(serializers.ModelSerializer):
         lexical = LexicalProcessor(validated_data["content"]["root"])
         nodes = list(lexical.find_all("Takeaways"))
         nodes.extend(list(lexical.find_all("Themes")))
-
-        # Delete blocks
         block_ids = {node.dict["block_id"] for node in nodes if node.dict["block_id"]}
-        asset.blocks.exclude(id__in=block_ids).delete()
+
+        # We skip the steps to delete the blocks that are not in the content
+        # Because when users undo the deletion, the blocks are needed again
+        # We can always compare with the content again
+        # to find the blocks that are not in the content
 
         # Drop nodes that do not belong to the asset
         faulty_block_ids = set(

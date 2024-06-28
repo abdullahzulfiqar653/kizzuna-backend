@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.utils.text import slugify
 from rest_framework import exceptions, serializers
 
+from api.mixpanel import mixpanel
 from api.models.workspace import Workspace
 
 
@@ -13,7 +14,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workspace
-        fields = ["id", "name", "is_owner"]
+        fields = ["id", "name", "is_owner", "usage_type", "industry", "company_size"]
 
     def validate_name(self, value):
         name = value
@@ -31,11 +32,18 @@ class WorkspaceSerializer(serializers.ModelSerializer):
                 "You have reached your quota limit and cannot create more workspaces."
             )
 
-        workspace = Workspace(name=validated_data.get("name"), owned_by=request.user)
-        workspace.save()
+        validated_data["owned_by"] = request.user
+        workspace = super().create(validated_data)
 
         request = self.context["request"]
         request.user.workspaces.add(workspace, through_defaults={"role": "Owner"})
+
+        # TODO: To keep track whether it is personal or business plan
+        mixpanel.track(
+            request.user.id,
+            "BE: Workspace Created",
+            {"workspace_id": workspace.id, "workspace_name": workspace.name},
+        )
 
         return workspace
 
