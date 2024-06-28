@@ -18,6 +18,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "workspaces",
             "skip_tutorial",
             "consent_given",
+            "job",
         ]
 
     def validate_email(self, value):

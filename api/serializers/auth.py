@@ -27,8 +27,8 @@ from api.serializers.workspace import WorkspaceSerializer
 
 class SignupSerializer(serializers.Serializer):
     username = serializers.EmailField()
-    first_name = serializers.CharField(max_length=100)
-    last_name = serializers.CharField(max_length=100)
+    first_name = serializers.CharField(max_length=100, required=False)
+    last_name = serializers.CharField(max_length=100, required=False)
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -50,8 +50,8 @@ class SignupSerializer(serializers.Serializer):
         user = User(
             email=validated_data.get("username"),
             username=validated_data.get("username"),
-            first_name=validated_data.get("first_name"),
-            last_name=validated_data.get("last_name"),
+            first_name=validated_data.get("first_name", ""),
+            last_name=validated_data.get("last_name", ""),
         )
         user.set_password(validated_data.get("password"))
         user.save()
@@ -228,9 +228,9 @@ class InviteUserSerializer(serializers.Serializer):
 class InvitationStatusSerializer(serializers.ModelSerializer):
     is_signed_up = serializers.BooleanField()
     email = serializers.EmailField(source="recipient_email")
-    workspace = WorkspaceSerializer()
-    project = ProjectSerializer()
-    sender = UserSerializer()
+    workspace = WorkspaceSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
+    sender = UserSerializer(read_only=True)
 
     class Meta:
         model = Invitation

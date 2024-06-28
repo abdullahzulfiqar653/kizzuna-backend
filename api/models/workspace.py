@@ -10,6 +10,17 @@ from api.models.workspace_user import WorkspaceUser
 
 
 class Workspace(models.Model):
+    class UsageType(models.TextChoices):
+        PERSONAL = "Personal"
+        WORK = "Work"
+
+    class CompanySize(models.TextChoices):
+        SIZE_1_10 = "1-10"
+        SIZE_11_50 = "11-50"
+        SIZE_51_200 = "51-200"
+        SIZE_201_500 = "201-500"
+        SIZE_501_PLUS = "501+"
+
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -23,6 +34,14 @@ class Workspace(models.Model):
 
     members = models.ManyToManyField(
         User, through=WorkspaceUser, related_name="workspaces"
+    )
+
+    usage_type = models.CharField(
+        max_length=10, choices=UsageType.choices, editable=False
+    )
+    industry = models.CharField(max_length=100, blank=True)
+    company_size = models.CharField(
+        choices=CompanySize.choices, max_length=10, blank=True
     )
 
     @property

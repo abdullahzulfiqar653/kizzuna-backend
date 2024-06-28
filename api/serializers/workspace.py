@@ -13,7 +13,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workspace
-        fields = ["id", "name", "is_owner"]
+        fields = ["id", "name", "is_owner", "usage_type", "industry", "company_size"]
 
     def validate_name(self, value):
         name = value
@@ -31,8 +31,8 @@ class WorkspaceSerializer(serializers.ModelSerializer):
                 "You have reached your quota limit and cannot create more workspaces."
             )
 
-        workspace = Workspace(name=validated_data.get("name"), owned_by=request.user)
-        workspace.save()
+        validated_data["owned_by"] = request.user
+        workspace = super().create(validated_data)
 
         request = self.context["request"]
         request.user.workspaces.add(workspace, through_defaults={"role": "Owner"})

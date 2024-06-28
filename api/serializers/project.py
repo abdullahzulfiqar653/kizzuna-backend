@@ -15,7 +15,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ["id", "name", "description", "workspace", "language"]
+        fields = ["id", "name", "description", "workspace", "language", "objective"]
 
     def create_default_note_types(self, project):
         vectors = embedder.embed_documents(default_note_types)
@@ -65,7 +65,7 @@ class ProjectDetailSerializer(ProjectSerializer):
 
     class Meta:
         model = Project
-        fields = ["id", "name", "description", "workspace", "language"]
+        fields = ["id", "name", "description", "workspace", "language", "objective"]
 
 
 class ProjectKeyThemeSerializer(serializers.Serializer):

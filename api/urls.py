@@ -78,6 +78,7 @@ from api.views.theme.theme_takeaway import (
 from api.views.user import UserRetrieveUpdateDestroyView
 from api.views.workspace.workspace import (
     WorkspaceListCreateView,
+    WorkspaceRetrieveUpdateView,
     WorkspaceUserListUpdateView,
 )
 from api.views.workspace.workspace_project import WorkspaceProjectListCreateView
@@ -252,12 +253,17 @@ urlpatterns = [
         name="workspace-list-create",
     ),
     path(
+        "workspaces/<str:pk>/",
+        WorkspaceRetrieveUpdateView.as_view(),
+        name="workspace-retrieve-update",
+    ),
+    path(
         "workspaces/<str:workspace_id>/projects/",
         WorkspaceProjectListCreateView.as_view(),
         name="workspace-project-list-create",
     ),
     path(
-        "workspaces/<str:pk>/users/",
+        "workspaces/<str:workspace_id>/users/",
         WorkspaceUserListUpdateView.as_view(),
         name="workspace-user-list-update",
     ),
