@@ -7,15 +7,11 @@ from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.note_property import NoteProperty
 from api.models.note_property_option import NotePropertyOption
-from api.models.note_question import NoteQuestion
-from api.models.note_template import NoteTemplate
-from api.models.note_template_question import NoteTemplateQuestion
 from api.models.note_type import NoteType
 from api.models.option import Option
 from api.models.organization import Organization
 from api.models.project import Project
 from api.models.property import Property
-from api.models.question import Question
 from api.models.tag import Tag
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
@@ -39,10 +35,6 @@ __all__ = [
     "Keyword",
     "Invitation",
     "Workspace",
-    "NoteQuestion",
-    "NoteTemplate",
-    "NoteTemplateQuestion",
-    "Question",
     "TranscriptionUsage",
     "TokenUsage",
     "Asset",

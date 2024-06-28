@@ -34,7 +34,6 @@ class TestDemoGenerateTakeawaysCreateView(APITestCase):
             takeaway_type = TakeawayType.objects.create(
                 name="takeaway type 1",
                 project=self.project,
-                vector=np.random.rand(1536),
             )
             note.takeaways.create(
                 title="Takeaway 1 title",

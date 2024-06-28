@@ -1,14 +1,14 @@
 from rest_framework import generics
 
-from api.filters.takeaway import NoteTakeawayFilter
+from api.filters.takeaway import TakeawayFilter
 from api.models.takeaway import Takeaway
 from api.serializers.takeaway import TakeawaySerializer
 
 
-class NoteTakeawayListCreateView(generics.ListCreateAPIView):
+class AssetTakeawayListView(generics.ListAPIView):
     queryset = Takeaway.objects.all()
     serializer_class = TakeawaySerializer
-    filterset_class = NoteTakeawayFilter
+    filterset_class = TakeawayFilter
     ordering_fields = [
         "created_at",
         "created_by__first_name",
@@ -26,6 +26,4 @@ class NoteTakeawayListCreateView(generics.ListCreateAPIView):
     query_field = "vector"
 
     def get_queryset(self):
-        return TakeawaySerializer.optimize_query(
-            self.request.note.takeaways.all(), self.request.user
-        )
+        return Takeaway.objects.filter(note__assets=self.request.asset)
