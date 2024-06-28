@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from api.ai.embedder import embedder
+from api.mixpanel import mixpanel
 from api.models.note_type import NoteType, default_note_types
 from api.models.project import Project
 from api.models.takeaway_type import TakeawayType, default_takeaway_types
@@ -57,6 +58,11 @@ class ProjectSerializer(serializers.ModelSerializer):
         project = super().create(validated_data)
         self.create_default_note_types(project)
         self.create_default_takeaway_types(project)
+        mixpanel.track(
+            user.id,
+            "BE: Project Created",
+            {"project_id": project.id, "project_name": project.name},
+        )
         return project
 
 

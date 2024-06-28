@@ -317,3 +317,5 @@ SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 # Demo project settings
 DEMO_PROJECT_ID = env("DEMO_PROJECT_ID", default=None)
 DEMO_USER_ID = env("DEMO_USER_ID", default=None)
+
+MIXPANEL_TOKEN = env("MIXPANEL_TOKEN")

@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.utils.text import slugify
 from rest_framework import exceptions, serializers
 
+from api.mixpanel import mixpanel
 from api.models.workspace import Workspace
 
 
@@ -36,6 +37,13 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
         request = self.context["request"]
         request.user.workspaces.add(workspace, through_defaults={"role": "Owner"})
+
+        # TODO: To keep track whether it is personal or business plan
+        mixpanel.track(
+            request.user.id,
+            "BE: Workspace Created",
+            {"workspace_id": workspace.id, "workspace_name": workspace.name},
+        )
 
         return workspace
 

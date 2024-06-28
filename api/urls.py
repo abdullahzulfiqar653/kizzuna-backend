@@ -20,6 +20,7 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayDeleteView,
     InsightTakeawayListCreateView,
 )
+from api.views.integrations.mixpanel.event import MixpanelEventCreateView
 from api.views.integrations.slack.channel import SlackChannelsListView
 from api.views.integrations.slack.event import SlackEventsCreateView
 from api.views.integrations.slack.oauth_redirect import SlackOauthRedirectCreateView
@@ -484,6 +485,14 @@ urlpatterns = [
         "password/do-reset/",
         DoPasswordResetView.as_view(),
         name="password-do-reset",
+    ),
+    # =====================================================
+    # Mixpanel
+    # =====================================================
+    path(
+        "integrations/mixpanel/event/",
+        MixpanelEventCreateView.as_view(),
+        name="mixpanel-event-create",
     ),
     # =====================================================
     # Slack Integration
