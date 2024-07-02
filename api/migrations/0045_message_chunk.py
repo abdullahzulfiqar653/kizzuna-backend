@@ -16,42 +16,25 @@ def update_chunks(apps, schema_editor):
     Chunk = apps.get_model("api", "Chunk")
     Note = apps.get_model("api", "Note")
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    if Note.objects.count() == 0:
+        return
 
-    # Collect all sentences
-    print("step 1")
-    sentences = set()
-    for note in Note.objects.all():
+    print()
+    for i, note in enumerate(Note.objects.all()):
+        print(f"{i}/{Note.objects.count()}", end="\r", flush=True)
         lexical = LexicalProcessor(note.content["root"])
-        sentences |= {
+        sentences = {
             text.strip()
             for paragraph in lexical.to_text().split("\n")
             for text in text_splitter.split_text(paragraph)
             if text.strip()  # Check if there is some text after stripping
         }
-
-    # Embed
-    print("step 2")
-    vectors = embedder.embed_documents(sentences)
-    get_vector = {sentence: vector for sentence, vector in zip(sentences, vectors)}
-
-    # Create chunks
-    print("step 3")
-    chunks_to_create = []
-    for note in Note.objects.all():
-        lexical = LexicalProcessor(note.content["root"])
-        note_sentences = {
-            text.strip()
-            for paragraph in lexical.to_text().split("\n")
-            for text in text_splitter.split_text(paragraph)
-            if text.strip()  # Check if there is some text after stripping
-        }
-        chunks_to_create.extend(
-            [
-                Chunk(text=sentence, note=note, vector=get_vector[sentence])
-                for sentence in note_sentences
-            ]
-        )
-    Chunk.objects.bulk_create(chunks_to_create)
+        vectors = embedder.embed_documents(sentences)
+        chunks = [
+            Chunk(text=sentence, note=note, vector=vector)
+            for sentence, vector in zip(sentences, vectors)
+        ]
+        Chunk.objects.bulk_create(chunks)
 
 
 class Migration(migrations.Migration):
