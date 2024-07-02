@@ -1,5 +1,6 @@
 from api.models.asset import Asset
 from api.models.block import Block
+from api.models.chunk import Chunk
 from api.models.highlight import Highlight
 from api.models.insight import Insight
 from api.models.integrations.slack.slack_message_buffer import SlackMessageBuffer
@@ -7,6 +8,7 @@ from api.models.integrations.slack.slack_oauth_state import SlackOAuthState
 from api.models.integrations.slack.slack_user import SlackUser
 from api.models.invitation import Invitation
 from api.models.keyword import Keyword
+from api.models.message import Message
 from api.models.note import Note
 from api.models.note_property import NoteProperty
 from api.models.note_property_option import NotePropertyOption
@@ -54,4 +56,6 @@ __all__ = [
     "NotePropertyOption",
     "NoteType",
     "TakeawayType",
+    "Chunk",
+    "Message",
 ]
