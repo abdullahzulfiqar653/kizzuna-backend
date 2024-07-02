@@ -6,35 +6,6 @@ import pgvector.django
 import shortuuid.django_fields
 from django.conf import settings
 from django.db import migrations, models
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from api.ai.embedder import embedder
-from api.utils.lexical import LexicalProcessor
-
-
-def update_chunks(apps, schema_editor):
-    Chunk = apps.get_model("api", "Chunk")
-    Note = apps.get_model("api", "Note")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    if Note.objects.count() == 0:
-        return
-
-    print()
-    for i, note in enumerate(Note.objects.all()):
-        print(f"{i}/{Note.objects.count()}", end="\r", flush=True)
-        lexical = LexicalProcessor(note.content["root"])
-        sentences = {
-            text.strip()
-            for paragraph in lexical.to_text().split("\n")
-            for text in text_splitter.split_text(paragraph)
-            if text.strip()  # Check if there is some text after stripping
-        }
-        vectors = embedder.embed_documents(sentences)
-        chunks = [
-            Chunk(text=sentence, note=note, vector=vector)
-            for sentence, vector in zip(sentences, vectors)
-        ]
-        Chunk.objects.bulk_create(chunks)
 
 
 class Migration(migrations.Migration):
@@ -142,9 +113,5 @@ class Migration(migrations.Migration):
                     ),
                 ],
             },
-        ),
-        migrations.RunPython(
-            code=update_chunks,
-            reverse_code=migrations.RunPython.noop,
         ),
     ]
