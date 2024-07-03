@@ -66,6 +66,7 @@ from api.views.saved_items.saved_takeaway import (
     SavedTakeawayDeleteView,
     SavedTakeawayListCreateView,
 )
+from api.views.stripe.webhook import StripeWebhookView
 from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
 from api.views.takeaway.takeaway_tag import (
     TakeawayTagCreateView,
@@ -78,6 +79,9 @@ from api.views.theme.theme_takeaway import (
     ThemeTakeawayListCreateView,
 )
 from api.views.user import UserRetrieveUpdateDestroyView
+from api.views.workspace.customer_billing_portal_session import (
+    StripeBillingPortalSessionCreateView,
+)
 from api.views.workspace.workspace import (
     WorkspaceListCreateView,
     WorkspaceRetrieveUpdateView,
@@ -254,6 +258,11 @@ urlpatterns = [
     # =====================================================
     # Workspace
     # =====================================================
+    path(
+        "workspaces/<str:workspace_id>/billing-portal-session/",
+        StripeBillingPortalSessionCreateView.as_view(),
+        name="workspace-billing-portal-session",
+    ),
     path(
         "workspaces/",
         WorkspaceListCreateView.as_view(),
@@ -499,6 +508,14 @@ urlpatterns = [
         "integrations/mixpanel/event/",
         MixpanelEventCreateView.as_view(),
         name="mixpanel-event-create",
+    ),
+    # =====================================================
+    # Stripe
+    # =====================================================
+    path(
+        "stripe/webhook/",
+        StripeWebhookView.as_view(),
+        name="stripe-webhook",
     ),
     # =====================================================
     # Slack Integration

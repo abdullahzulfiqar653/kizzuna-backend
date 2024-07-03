@@ -47,6 +47,7 @@ lxml = {extras = ["html_clean"], version = "==5.2.2"}
 celery = {extras = ["sqs", "redis"], version = "==5.4.0"}
 django-celery-results = "==2.5.1"
 mixpanel = "==4.10.1"
+stripe = "==10.1.0"
 
 [dev-packages]
 ipykernel = "*"
