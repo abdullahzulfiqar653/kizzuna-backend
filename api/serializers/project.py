@@ -4,6 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 
 from api.ai.embedder import embedder
 from api.mixpanel import mixpanel
+from api.models import Feature
 from api.models.note_type import NoteType, default_note_types
 from api.models.option import Option
 from api.models.project import Project
@@ -64,8 +65,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         if workspace is None:
             raise PermissionDenied("Do not have permission to access the workspace.")
 
-        if workspace.projects.count() > 1:
-            # We restrict user from creating more than 2 projects per workspace
+        feature_value = workspace.get_feature_value(Feature.Code.NUMBER_OF_PROJECTS)
+        if workspace.projects.count() >= feature_value:
+            # We limit users to the specified number of projects per workspace.
             raise PermissionDenied("Hit project limit of the workspace.")
 
         validated_data["workspace"] = workspace
