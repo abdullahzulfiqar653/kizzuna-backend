@@ -76,7 +76,7 @@ class MarkdownProcessor:
         return re.sub(r"<pre>(.*?)</pre>", replace_newlines, text, flags=re.DOTALL)
 
     def to_html(self):
-        raw_html = markdown.markdown(self.markdown, extensions=["tables"])
+        raw_html = markdown.markdown(self.markdown, extensions=["tables"], tab_length=2)
         return self.replace_newlines_in_pre_tags(raw_html)
 
     def to_lexical(self):

@@ -208,6 +208,11 @@ class LexicalProcessor:
         self.dict["children"].extend(another.dict["children"])
         return self
 
+    def prepend(self, another: LexicalProcessor):
+        another = deepcopy(another)
+        self.dict["children"] = another.dict["children"] + self.dict["children"]
+        return self
+
     def add_block(self, block):
         self.dict["children"].append(
             {
