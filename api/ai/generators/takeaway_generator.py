@@ -27,7 +27,7 @@ from api.utils.lexical import LexicalProcessor
 
 def get_chain(takeaway_type: TakeawayType):
     system_prompt = dedent(
-        """Extract {takeaway_type_name} from the source below.
+        """Extract highly impactful {takeaway_type_name} from the source below.
 
         Separate different ideas into each {takeaway_type_name},
         each {takeaway_type_name} should convey a single idea only.
@@ -60,7 +60,10 @@ def get_chain(takeaway_type: TakeawayType):
             description=f"The {takeaway_type.name} - {takeaway_type.definition}."
         )
         significance: str = Field(
-            description=f"The reason why the {takeaway_type.name} is important."
+            description=(
+                f"Give robust reason to your inference as to why the {takeaway_type.name} is important, "
+                "based on the severity of the language used, how much it was stressed, and/or the frequency of this is mentioned."
+            )
         )
 
     class TakeawaysSchema(BaseModel):
@@ -151,7 +154,7 @@ def generate_takeaways(
     generated_takeaways = [
         {
             "title": google_translator.translate(
-                f'{takeaway["topic"]} - {takeaway["insight"].rstrip(".")}: {takeaway["significance"]}',
+                f'Topic: {takeaway["topic"]} - {takeaway["insight"].rstrip(".")}: {takeaway["significance"]}',
                 note.project.language,
             ),
             "takeaway_type": output["takeaway_type"],
