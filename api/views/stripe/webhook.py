@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.models import StripePrice, StripeProduct, StripeSubscription, User
+from api.models import StripeSubscription
 from api.stripe import stripe
 
 
@@ -18,7 +18,15 @@ class StripeWebhookView(APIView):
         endpoint_secret = settings.STRIPE_WEBHOOK_SECRET_KEY
 
         def get_date(date):
-            return timezone.datetime.fromtimestamp(date)
+            # Convert timestamp to UTC datetime
+            return timezone.datetime.fromtimestamp(date, tz=timezone.timezone.utc)
+
+        def is_free_trial(date):
+            return (
+                False
+                if date is None
+                else get_date(date) > timezone.now().astimezone(timezone.utc)
+            )
 
         # Authenticate stripe request
         try:
@@ -30,63 +38,50 @@ class StripeWebhookView(APIView):
 
         # Handling events
         match event["type"]:
-            case "charge.succeeded":
-                pass
-            case "payment_method.attached":
-                pass
             case "customer.subscription.created":
-                # This will be call when we create the subscription automatically
                 subscription = event["data"]["object"]
-                StripeSubscription.objects.create(
-                    user_id=subscription["metadata"]["user_id"],
+                # Fetch customer details
+                customer = stripe.Customer.retrieve(subscription["customer"])
+                StripeSubscription.objects.update_or_create(
                     id=subscription["id"],
-                    status=subscription["status"],
-                    product_id=subscription["plan"]["product"],
-                    workspace_id=subscription["metadata"]["workspace_id"],
-                    end_at=get_date(subscription["current_period_end"]),
+                    defaults={
+                        "user_id": customer["metadata"]["user_id"],
+                        "product_id": subscription["plan"]["product"],
+                        "workspace_id": customer["metadata"]["workspace_id"],
+                        "end_at": get_date(subscription["current_period_end"]),
+                    },
                 )
-            case "customer.subscription.deleted":
-                pass
-            case "customer.subscription.resumed":
-                pass
-            case "customer.subscription.paused":
-                pass
             case "customer.subscription.updated":
                 # This will be called from billing portal
                 subscription = event["data"]["object"]
-                StripeSubscription.objects.filter(id=subscription["id"]).update(
-                    product_id=subscription["plan"]["product"],
-                    # TODO: To figure out how to accurately check if it is free trial
-                    is_free_trial=False,
-                    end_at=get_date(subscription["current_period_end"]),
+                sub, _ = StripeSubscription.objects.update_or_create(
+                    id=subscription["id"],
+                    defaults={
+                        "status": subscription["status"],
+                        "product_id": subscription["plan"]["product"],
+                        "end_at": get_date(subscription["current_period_end"]),
+                        "is_free_trial": is_free_trial(subscription["trial_end"]),
+                    },
                 )
+
                 # TODO: will send this to mixpanel
                 if subscription["cancel_at_period_end"]:
                     time_of_cancellation = subscription["canceled_at"]
                     will_cancelled_at = subscription["cancel_at"]
                     comment = subscription["cancellation_details"]["comment"]
                     feedback = subscription["cancellation_details"]["feedback"]
+            case "customer.subscription.deleted":
+                subscription = event["data"]["object"]
+                if not subscription["cancel_at_period_end"]:
+                    StripeSubscription.objects.filter(id=subscription["id"]).delete()
+            case "customer.subscription.resumed":
+                pass
+            case "customer.subscription.paused":
                 pass
             case "customer.subscription.trial_will_end":
                 pass
-            case "payment_intent.succeeded":
-                pass
-            case "payment_intent.created":
-                pass
             case "checkout.session.completed":
-                # This is called from pricing table
-                session = event["data"]["object"]
-                user = User.objects.get(username=session.get("customer_email"))
-                workspace_id = session.get("client_reference_id")
-                subscription = stripe.Subscription.retrieve(session["subscription"])
-                product_id = subscription["plan"]["product"]
-                StripeSubscription.objects.create(
-                    user=user,
-                    id=subscription["id"],
-                    product_id=product_id,
-                    workspace_id=workspace_id,
-                    end_at=get_date(subscription["current_period_end"]),
-                )
+                pass
             case "product.created":
                 StripeProduct.update_or_create(event["data"]["object"])
             case "product.updated":

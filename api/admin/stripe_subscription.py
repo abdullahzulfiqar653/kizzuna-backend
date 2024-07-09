@@ -7,7 +7,6 @@ from api.models.stripe_subscription import StripeSubscription
 class StripeSubscriptionAdmin(admin.ModelAdmin):
     list_filter = ("status", "is_free_trial")
     list_display = (
-        "id",
         "workspace",
         "product",
         "user",

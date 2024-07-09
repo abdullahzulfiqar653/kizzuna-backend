@@ -7,11 +7,11 @@ from api.stripe import stripe
 @admin.register(Workspace)
 class WorkspaceAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
         "name",
         "get_owner_username",
-        "get_subscription_product_name",
         "get_subscription_status",
+        "get_subscription_product_name",
+        "get_subscription_is_free_trial",
     )
     search_fields = ("id", "name", "owned_by__username")
     readonly_fields = ["id"]

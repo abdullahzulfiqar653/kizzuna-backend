@@ -79,7 +79,7 @@ from api.views.theme.theme_takeaway import (
     ThemeTakeawayListCreateView,
 )
 from api.views.user import UserRetrieveUpdateDestroyView
-from api.views.workspace.customer_billing_portal_session import (
+from api.views.workspace.billing_portal_session import (
     StripeBillingPortalSessionCreateView,
 )
 from api.views.workspace.workspace import (
