@@ -14,7 +14,6 @@ class ThemeSerializer(OrderedModelSerializer, serializers.ModelSerializer):
             "id",
             "block",
             "title",
-            "description",
             "order",
         ]
         read_only_fields = ["block"]

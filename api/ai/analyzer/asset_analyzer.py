@@ -36,7 +36,7 @@ class AssetAnalyzer:
                     f"Too many takeaways to analyze for takeaway type '{takeaway_type.name}'. "
                     "Please reduce to 200 takeaways and try again."
                 )
-            block_title = create_lexical_from_markdown(f"**{takeaway_type}:**")
+            block_title = create_lexical_from_markdown(f"# {takeaway_type}:")
             lexical.append(block_title)
             block = asset.blocks.create(type=Block.Type.THEMES)
             cluster_block(block, filtered_takeaways, created_by)
@@ -45,16 +45,20 @@ class AssetAnalyzer:
         empty_takeaways = Takeaway.objects.none()
 
         print("========> Generating recommendations")
+        recommendation_title = create_lexical_from_markdown("# Recommendations:")
+        lexical.append(recommendation_title)
         question = "Based on the themes, please recommends the next steps."
         markdown = generate_content(asset, question, empty_takeaways, created_by)
         output = create_lexical_from_markdown(markdown)
         lexical.append(output)
 
         print("========> Generating summary")
-        question = "Write a single paragraph executive summary for this report."
+        question = "Write a single paragraph executive summary for this report. Do not include title. Do not format."
         markdown = generate_content(asset, question, empty_takeaways, created_by)
+        summary = create_lexical_from_markdown("# Executive Summary:")
         output = create_lexical_from_markdown(markdown)
-        output.append(lexical)
+        summary.append(output)
+        lexical.prepend(summary)
 
         print("========> Generating title")
         question = "Give a short and concise title for this report. Do not repeat the content. Do not format."
@@ -63,6 +67,6 @@ class AssetAnalyzer:
         if len(asset.title) > 255:
             asset.title = asset.title[:252] + "..."
 
-        asset.content["root"] = output.dict
+        asset.content["root"] = lexical.dict
         asset.save()
         print("========> End analyzing")

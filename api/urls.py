@@ -20,11 +20,18 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayDeleteView,
     InsightTakeawayListCreateView,
 )
+from api.views.integrations.mixpanel.event import MixpanelEventCreateView
+from api.views.integrations.slack.channel import SlackChannelsListView
+from api.views.integrations.slack.event import SlackEventsCreateView
+from api.views.integrations.slack.oauth_redirect import SlackOauthRedirectCreateView
+from api.views.integrations.slack.oauth_url import SlackOauthUrlRetrieveView
+from api.views.integrations.slack.to_frontend import SlackToFrontendRedirectView
 from api.views.note.note import NoteRetrieveUpdateDeleteView
 from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
+from api.views.note.note_message import NoteMessageListCreateView
 from api.views.note.note_property import NotePropertyListView, NotePropertyUpdateView
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
@@ -59,6 +66,7 @@ from api.views.saved_items.saved_takeaway import (
     SavedTakeawayDeleteView,
     SavedTakeawayListCreateView,
 )
+from api.views.stripe.webhook import StripeWebhookView
 from api.views.takeaway.takeaway import TakeawayRetrieveUpdateDeleteView
 from api.views.takeaway.takeaway_tag import (
     TakeawayTagCreateView,
@@ -71,8 +79,12 @@ from api.views.theme.theme_takeaway import (
     ThemeTakeawayListCreateView,
 )
 from api.views.user import UserRetrieveUpdateDestroyView
+from api.views.workspace.billing_portal_session import (
+    StripeBillingPortalSessionCreateView,
+)
 from api.views.workspace.workspace import (
     WorkspaceListCreateView,
+    WorkspaceRetrieveUpdateView,
     WorkspaceUserListUpdateView,
 )
 from api.views.workspace.workspace_project import WorkspaceProjectListCreateView
@@ -131,6 +143,11 @@ urlpatterns = [
         "reports/<str:report_id>/properties/<str:property_id>/",
         NotePropertyUpdateView.as_view(),
         name="note-property-update",
+    ),
+    path(
+        "reports/<str:report_id>/messages/",
+        NoteMessageListCreateView.as_view(),
+        name="note-message-list-create",
     ),
     # =====================================================
     # Report Types
@@ -242,9 +259,19 @@ urlpatterns = [
     # Workspace
     # =====================================================
     path(
+        "workspaces/<str:workspace_id>/billing-portal-session/",
+        StripeBillingPortalSessionCreateView.as_view(),
+        name="workspace-billing-portal-session",
+    ),
+    path(
         "workspaces/",
         WorkspaceListCreateView.as_view(),
         name="workspace-list-create",
+    ),
+    path(
+        "workspaces/<str:pk>/",
+        WorkspaceRetrieveUpdateView.as_view(),
+        name="workspace-retrieve-update",
     ),
     path(
         "workspaces/<str:workspace_id>/projects/",
@@ -252,7 +279,7 @@ urlpatterns = [
         name="workspace-project-list-create",
     ),
     path(
-        "workspaces/<str:pk>/users/",
+        "workspaces/<str:workspace_id>/users/",
         WorkspaceUserListUpdateView.as_view(),
         name="workspace-user-list-update",
     ),
@@ -473,5 +500,49 @@ urlpatterns = [
         "password/do-reset/",
         DoPasswordResetView.as_view(),
         name="password-do-reset",
+    ),
+    # =====================================================
+    # Mixpanel
+    # =====================================================
+    path(
+        "integrations/mixpanel/event/",
+        MixpanelEventCreateView.as_view(),
+        name="mixpanel-event-create",
+    ),
+    # =====================================================
+    # Stripe
+    # =====================================================
+    path(
+        "stripe/webhook/",
+        StripeWebhookView.as_view(),
+        name="stripe-webhook",
+    ),
+    # =====================================================
+    # Slack Integration
+    # =====================================================
+    path(
+        "integrations/slack/oauth-url/",
+        SlackOauthUrlRetrieveView.as_view(),
+        name="oauth_url",
+    ),
+    path(
+        "integrations/slack/oauth-redirect/",
+        SlackOauthRedirectCreateView.as_view(),
+        name="slack_oauth_redirect",
+    ),
+    path(
+        "integrations/slack/events/",
+        SlackEventsCreateView.as_view(),
+        name="slack_events",
+    ),
+    path(
+        "integrations/slack/to-frontend/",
+        SlackToFrontendRedirectView.as_view(),
+        name="slack_to_frontend",
+    ),
+    path(
+        "integrations/slack/channels/",
+        SlackChannelsListView.as_view(),
+        name="list_channels",
     ),
 ]

@@ -34,5 +34,7 @@ class Project(models.Model):
     summary = models.TextField(blank=True)
     key_themes = models.JSONField(default=list)
 
+    objective = models.CharField(max_length=255, blank=True)
+
     def __str__(self):
         return self.name

@@ -8,7 +8,6 @@ class Theme(OrderedModel):
     id = models.AutoField(primary_key=True)
     block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name="themes")
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
     takeaways = models.ManyToManyField("Takeaway", related_name="themes")
     order_with_respect_to = "block"
 
