@@ -19,11 +19,13 @@ class StripeSubscription(models.Model):
         editable=False,
         verbose_name="Stripe Subscription ID",
     )
-    end_at = models.DateTimeField()  # this comes from Stripe
-    status = models.CharField(max_length=20, choices=Status.choices)
+    end_at = models.DateTimeField(null=True)  # this comes from Stripe
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.TRIALING
+    )
     started_at = models.DateTimeField(auto_now_add=True)
     is_free_trial = models.BooleanField(default=True)
-    user = models.ForeignKey("api.User", on_delete=models.CASCADE)
+    user = models.ForeignKey("api.User", on_delete=models.SET_NULL, null=True)
     product = models.ForeignKey(
         "api.StripeProduct",
         on_delete=models.SET_NULL,
