@@ -34,7 +34,9 @@ class LexicalProcessor:
         self.parent = parent
         self.depth = parent.depth + 1 if parent else 0
 
-    def find_all(self, target: str | Callable[[LexicalProcessor], bool]):
+    def find_all(
+        self, target: str | Callable[[LexicalProcessor], bool], recursive: bool = False
+    ):
         """
         Traverse a tree of nodes and yield nodes of a specific type.
         @param target: The target type to search for
@@ -48,6 +50,8 @@ class LexicalProcessor:
             current_node = stack.pop()
             if target(current_node):
                 yield current_node
+                if recursive:
+                    stack.extend(reversed(current_node.children))
             elif "children" in current_node.dict:
                 stack.extend(reversed(current_node.children))
 
@@ -172,6 +176,16 @@ class LexicalProcessor:
 
         # Highlight the text
         for node, start, end in matches:
+            if (
+                start == 0
+                and end == len(node.dict["text"])
+                and node.parent.dict["type"] == "mark"
+                and node.parent.dict["children"] == [node.dict]
+            ):
+                # The text is already highlighted
+                node.parent.dict["ids"].append(id)
+                continue
+
             replacing_nodes = []
             if start > 0:
                 # Split the text node

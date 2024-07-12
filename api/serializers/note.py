@@ -189,7 +189,7 @@ class NoteUpdateSerializer(NoteSerializer):
 
     def extract_input_highlights(self, root: LexicalProcessor, new_highlight_id: str):
         input_highlights = {}
-        for node in root.find_all("mark"):
+        for node in root.find_all("mark", recursive=True):
             if None in node.dict["ids"]:
                 # Replace None with the new highlight id
                 # and keep the other non-None ids.

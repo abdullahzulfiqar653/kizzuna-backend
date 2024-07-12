@@ -43,6 +43,7 @@ from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_asset import ProjectAssetListCreateView
 from api.views.project.project_asset_analyze import ProjectAssetAnalyzeCreateView
+from api.views.project.project_dummy_note import ProjectDummyNoteCreateView
 from api.views.project.project_insight import ProjectInsightListCreateView
 from api.views.project.project_invitation import ProjectInvitationCreateView
 from api.views.project.project_keyword import ProjectKeywordListView
@@ -254,6 +255,11 @@ urlpatterns = [
         "projects/<str:project_id>/properties/",
         ProjectPropertyListCreateView.as_view(),
         name="project-property-list-create",
+    ),
+    path(
+        "projects/<str:pk>/dummy-reports/",
+        ProjectDummyNoteCreateView.as_view(),
+        name="project-dummy-note-create",
     ),
     # =====================================================
     # Workspace

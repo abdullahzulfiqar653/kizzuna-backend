@@ -24,7 +24,7 @@ class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
                 node.dict["type"] == "mark"
                 and takeaway.highlight.id in node.dict["ids"]
             )
-            for node in root.find_all(node_to_handle):
+            for node in root.find_all(node_to_handle, recursive=True):
                 node.dict["ids"].remove(takeaway.highlight.id)
                 if len(node.dict["ids"]) == 0:
                     # Remove the "mark" node and move its children up one level
