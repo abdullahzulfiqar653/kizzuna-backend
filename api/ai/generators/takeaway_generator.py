@@ -153,6 +153,9 @@ def generate_takeaways(
             for doc in docs
         ]
 
+    if not outputs:
+        return
+
     generated_takeaways = [
         {
             "title": google_translator.translate(
