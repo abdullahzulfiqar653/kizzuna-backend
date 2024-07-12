@@ -1,0 +1,1182 @@
+[
+  {
+    "model": "api.tag",
+    "pk": "32FCtDuWYnMR",
+    "fields": {
+      "name": "Productivity",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-16T11:07:04.935Z",
+      "updated_at": "2024-02-16T11:07:04.935Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "39Mg8sUsg4cC",
+    "fields": {
+      "name": "manual transcription process",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3aQXTCn53B8E",
+    "fields": {
+      "name": "reading",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3Az5aQGacHma",
+    "fields": {
+      "name": "AI tool",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-04-16T15:05:12.556Z",
+      "updated_at": "2024-04-16T15:05:12.556Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3crprxhpkzjg",
+    "fields": {
+      "name": "Efficiency Gains",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.716Z",
+      "updated_at": "2024-07-10T06:49:18.716Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3ctxJvrVf4aa",
+    "fields": {
+      "name": "human error",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3DaDyTBFwhdX",
+    "fields": {
+      "name": "usability",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3GJU82DFr7Et",
+    "fields": {
+      "name": "Categorization",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-13T09:41:44.861Z",
+      "updated_at": "2024-02-13T09:41:44.861Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3JFM2M83R5Xu",
+    "fields": {
+      "name": "support",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.322Z",
+      "updated_at": "2024-07-10T06:43:28.322Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3KyHx4jo6qkd",
+    "fields": {
+      "name": "Visualizing User Journeys",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.716Z",
+      "updated_at": "2024-07-10T06:49:18.716Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3LLarkZcHRKf",
+    "fields": {
+      "name": "categorization",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:57.900Z",
+      "updated_at": "2023-11-21T23:21:01.856Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3PABPvrmYV8u",
+    "fields": {
+      "name": "tone",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3PE2BfcQWGhB",
+    "fields": {
+      "name": "Research Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3QbpiHWJ7Gmo",
+    "fields": {
+      "name": "improve accuracy",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3QCEL7WjCs82",
+    "fields": {
+      "name": "Reliability",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3SBjWB29hjgJ",
+    "fields": {
+      "name": "analysis process",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:59.432Z",
+      "updated_at": "2023-11-21T23:21:01.989Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3TM5Zv9RQgZf",
+    "fields": {
+      "name": "User Behavior",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-23T06:29:02.487Z",
+      "updated_at": "2024-03-23T06:29:02.487Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3TM9vSqCvgHj",
+    "fields": {
+      "name": "Scoot",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.321Z",
+      "updated_at": "2024-07-10T06:43:28.321Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3VrvhEA9msE4",
+    "fields": {
+      "name": "Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-09T07:29:03.596Z",
+      "updated_at": "2024-02-09T07:29:03.596Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3vxvHgyfnoWJ",
+    "fields": {
+      "name": "desired outcomes",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3wjUwEx3ykC5",
+    "fields": {
+      "name": "user experience",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:45.046Z",
+      "updated_at": "2023-11-21T23:21:02.058Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3wJVbxYCaLa2",
+    "fields": {
+      "name": "inefficiencies",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3Y2XZP679c67",
+    "fields": {
+      "name": "manual transcription",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3yK7mi3VJzWG",
+    "fields": {
+      "name": "Connections",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-23T11:21:20.782Z",
+      "updated_at": "2024-03-23T11:21:20.782Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "3ZbQqFqmZTrn",
+    "fields": {
+      "name": "productivity",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:52.635Z",
+      "updated_at": "2023-12-30T05:29:09.601Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "42GASwBpUbcb",
+    "fields": {
+      "name": "AI accuracy",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "44Evr3PQK4wk",
+    "fields": {
+      "name": "consistency",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-12-02T14:19:33.793Z",
+      "updated_at": "2023-12-02T14:19:33.793Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "45b3d7gbas9w",
+    "fields": {
+      "name": "user research",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:49.090Z",
+      "updated_at": "2023-11-21T23:21:02.143Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "47RpBBTJQkkt",
+    "fields": {
+      "name": "Inconsistencies",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4e4jrnh39afj",
+    "fields": {
+      "name": "errors",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T14:23:33.606Z",
+      "updated_at": "2024-07-10T14:23:33.606Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4ehGmfKbrUxr",
+    "fields": {
+      "name": "Efficiency",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-09T07:29:03.596Z",
+      "updated_at": "2024-02-09T07:29:03.596Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4F3YYjbBwRxh",
+    "fields": {
+      "name": "enhancing collaboration",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4fyrfUaJDEDb",
+    "fields": {
+      "name": "reduction in analysis time",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4Gj2fpdi3nxW",
+    "fields": {
+      "name": "collaborative analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4j8mxeBJSSun",
+    "fields": {
+      "name": "onboarding",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-01-03T04:09:28.789Z",
+      "updated_at": "2024-01-03T04:09:28.789Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4ndt4euVaZMn",
+    "fields": {
+      "name": "extracting insights",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4onYu5Yyvuxi",
+    "fields": {
+      "name": "Researchers",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-16T11:07:04.935Z",
+      "updated_at": "2024-02-16T11:07:04.935Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4PGR2BsmD8F4",
+    "fields": {
+      "name": "interactive guides",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4QrgjhSU7Vqz",
+    "fields": {
+      "name": "User Needs",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-16T11:07:04.935Z",
+      "updated_at": "2024-02-16T11:07:04.935Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4sNFaZJMVjJV",
+    "fields": {
+      "name": "Automation",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-28T15:44:12.519Z",
+      "updated_at": "2024-03-28T15:44:12.519Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4uPnSTpcDWy5",
+    "fields": {
+      "name": "Emotions",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.717Z",
+      "updated_at": "2024-07-10T06:49:18.717Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4v5hiMh9TeLi",
+    "fields": {
+      "name": "User Experience",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-13T11:02:44.339Z",
+      "updated_at": "2024-03-13T11:02:44.339Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4vg3sTZckSPS",
+    "fields": {
+      "name": "hesitation",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4wMgh7GZh8Jo",
+    "fields": {
+      "name": "Challenges",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-13T09:41:44.861Z",
+      "updated_at": "2024-02-13T09:41:44.861Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4yiH3nrFVNLp",
+    "fields": {
+      "name": "conversations",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-01-18T05:22:28.410Z",
+      "updated_at": "2024-01-18T05:22:28.410Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "4ZBsM57SJhrr",
+    "fields": {
+      "name": "User Sentiment",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.716Z",
+      "updated_at": "2024-07-10T06:49:18.716Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "52ZLhatb8McR",
+    "fields": {
+      "name": "discussion",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "55sQkFv84g5F",
+    "fields": {
+      "name": "Identifying Trends",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5dhTWmq8em8H",
+    "fields": {
+      "name": "Visualization",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-31T07:58:23.587Z",
+      "updated_at": "2024-03-31T07:58:23.587Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5DVtkFHKoANz",
+    "fields": {
+      "name": "reliability concerns",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5fSzJEwx75sy",
+    "fields": {
+      "name": "interviews",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:48.116Z",
+      "updated_at": "2023-11-21T23:21:02.856Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5KgMwKUKLmu3",
+    "fields": {
+      "name": "Affinity Diagrams",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5QH3vMiahzW3",
+    "fields": {
+      "name": "inconsistencies",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T14:23:33.607Z",
+      "updated_at": "2024-07-10T14:23:33.607Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5rqbqRkLWq45",
+    "fields": {
+      "name": "Patterns",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5syFhJDBW6tq",
+    "fields": {
+      "name": "design",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5tfDEuubLAcE",
+    "fields": {
+      "name": "team members",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-22T11:24:41.374Z",
+      "updated_at": "2024-03-22T11:24:41.374Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5UiVAfgDgXL2",
+    "fields": {
+      "name": "contextual nuances",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5wxyvkhmCgbi",
+    "fields": {
+      "name": "improved collaboration",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "5Xb95Fnro5he",
+    "fields": {
+      "name": "Rev",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "62evhdUY7523",
+    "fields": {
+      "name": "User Sentiment Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.717Z",
+      "updated_at": "2024-07-10T06:49:18.717Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "657Mom7pHs7n",
+    "fields": {
+      "name": "automated tagging",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6657dRr2gzjn",
+    "fields": {
+      "name": "help center",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.322Z",
+      "updated_at": "2024-07-10T06:43:28.322Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "66DeAn5RtY5H",
+    "fields": {
+      "name": "training",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:48.394Z",
+      "updated_at": "2023-11-21T23:21:03.209Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "687kWx3aHCTJ",
+    "fields": {
+      "name": "transcription tool",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6AceWTNVqJqx",
+    "fields": {
+      "name": "AI tools",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-04-19T14:45:47.146Z",
+      "updated_at": "2024-04-19T14:45:47.146Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6CZUyW2KRynv",
+    "fields": {
+      "name": "insights",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:58.938Z",
+      "updated_at": "2023-11-21T23:21:03.292Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6Di7n7EnKHU5",
+    "fields": {
+      "name": "user sessions",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.321Z",
+      "updated_at": "2024-07-10T06:43:28.321Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6fVfp8QRAPLD",
+    "fields": {
+      "name": "tedious",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T14:23:33.607Z",
+      "updated_at": "2024-07-10T14:23:33.607Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6oQSrmFyKARN",
+    "fields": {
+      "name": "Automated Sentiment Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.716Z",
+      "updated_at": "2024-07-10T06:49:18.716Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6pn6z9xnJKiA",
+    "fields": {
+      "name": "Accuracy",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-12T08:25:52.096Z",
+      "updated_at": "2024-06-12T08:25:52.096Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6Pq8ZDpVr8KF",
+    "fields": {
+      "name": "Automated Transcript Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6PyqiUPcHaxv",
+    "fields": {
+      "name": "desired features",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6sCHxgk9QsVF",
+    "fields": {
+      "name": "summaries",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-12-11T14:55:16.732Z",
+      "updated_at": "2023-12-11T14:55:16.732Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6Vczz8ZVVyFT",
+    "fields": {
+      "name": "analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:51.143Z",
+      "updated_at": "2023-11-21T23:21:03.604Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6VdkGcvfGmap",
+    "fields": {
+      "name": "collaboration",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:48.227Z",
+      "updated_at": "2023-11-21T23:21:03.606Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6W3hsvkpdLnr",
+    "fields": {
+      "name": "labor-intensive",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6xFCHrCiJk4W",
+    "fields": {
+      "name": "Insights Extraction",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-23T14:35:01.271Z",
+      "updated_at": "2024-03-23T14:35:01.271Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6xhkKqbTyHfm",
+    "fields": {
+      "name": "time consumption",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.321Z",
+      "updated_at": "2024-07-10T06:43:28.321Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "6YnW3St9Qusi",
+    "fields": {
+      "name": "increased accuracy",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "73exzwa4aiS8",
+    "fields": {
+      "name": "Pain Points",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-09T07:29:03.595Z",
+      "updated_at": "2024-02-09T07:29:03.595Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "73tgeW5uXTBy",
+    "fields": {
+      "name": "user interface",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "75ksy7JtcdP9",
+    "fields": {
+      "name": "time-consuming",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:41.478Z",
+      "updated_at": "2023-11-21T23:21:03.696Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "75ZLBD7a5Bbk",
+    "fields": {
+      "name": "summary features",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "76yxiMfJfcEa",
+    "fields": {
+      "name": "reliability",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "79M2wVwumH9v",
+    "fields": {
+      "name": "Manual Transcript Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7cMx2rFRp5LP",
+    "fields": {
+      "name": "Otter.ai",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7dazTHShxWfW",
+    "fields": {
+      "name": "context",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-01-03T04:09:28.790Z",
+      "updated_at": "2024-01-03T04:09:28.790Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7DrMZjSfdF8J",
+    "fields": {
+      "name": "Time-saving",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-04-29T13:28:33.668Z",
+      "updated_at": "2024-04-29T13:28:33.668Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7j8BwZ2i7gnG",
+    "fields": {
+      "name": "positive feedback",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-22T11:24:41.374Z",
+      "updated_at": "2024-03-22T11:24:41.374Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7KdiPy4wPXPH",
+    "fields": {
+      "name": "manual correction",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7LBGMeAqtdLV",
+    "fields": {
+      "name": "User Insights",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-03-23T14:35:01.270Z",
+      "updated_at": "2024-03-23T14:35:01.270Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7nehE3AAzzLy",
+    "fields": {
+      "name": "collaborative efforts",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7Q7S6MzcT2aC",
+    "fields": {
+      "name": "accuracy",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-04-16T15:05:12.557Z",
+      "updated_at": "2024-04-16T15:05:12.557Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7qgTVmR3XSqv",
+    "fields": {
+      "name": "Transcript Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-04-13T08:02:39.895Z",
+      "updated_at": "2024-04-13T08:02:39.895Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "7XCFUF58xyQN",
+    "fields": {
+      "name": "nuance",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T14:23:33.607Z",
+      "updated_at": "2024-07-10T14:23:33.607Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "88nNUD2YgsoL",
+    "fields": {
+      "name": "reduce manual effort",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "8JsHyVEKV2re",
+    "fields": {
+      "name": "concerns",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "8MkwmHusBjTe",
+    "fields": {
+      "name": "error",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "8NBD9Jqhp6yN",
+    "fields": {
+      "name": "challenges",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:47.154Z",
+      "updated_at": "2023-11-21T23:21:04.384Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "8NvQftN5hNBL",
+    "fields": {
+      "name": "transcription tools",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "A9YpoquRVtCE",
+    "fields": {
+      "name": "tight deadlines",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.321Z",
+      "updated_at": "2024-07-10T06:43:28.321Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "EXorRVaPmEkm",
+    "fields": {
+      "name": "Raijin.ai usage",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "gcWAEFD4wN9z",
+    "fields": {
+      "name": "categorizing insights",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.319Z",
+      "updated_at": "2024-07-10T06:43:28.319Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "JcsTbfBv8ysh",
+    "fields": {
+      "name": "pain points",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:55.957Z",
+      "updated_at": "2023-11-21T23:21:04.543Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "jHo7tfR6mvBc",
+    "fields": {
+      "name": "Time-consuming",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "k7CtvABJVZEj",
+    "fields": {
+      "name": "Benefits",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "ojrCF3Q34ohK",
+    "fields": {
+      "name": "tutorial videos",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "P7VNkFHqTU3v",
+    "fields": {
+      "name": "importance of AI",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.318Z",
+      "updated_at": "2024-07-10T06:43:28.318Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "PobFsa4DYNN4",
+    "fields": {
+      "name": "efficiency",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:44.056Z",
+      "updated_at": "2023-11-21T23:21:04.656Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "Q5WLWfHEf6nv",
+    "fields": {
+      "name": "Insights",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-09T07:29:03.597Z",
+      "updated_at": "2024-02-09T07:29:03.597Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "S6iaHMZSiwGa",
+    "fields": {
+      "name": "accuracy challenges",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T14:23:33.606Z",
+      "updated_at": "2024-07-10T14:23:33.606Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "t2byypRdtVYz",
+    "fields": {
+      "name": "Claudia",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "tWoL5MEBDbGW",
+    "fields": {
+      "name": "nuances",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:47.872Z",
+      "updated_at": "2023-11-21T23:21:04.732Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "VfvYfMkT35RV",
+    "fields": {
+      "name": "Raijin.ai",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-13T09:41:44.861Z",
+      "updated_at": "2024-02-13T09:41:44.861Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "VLWbz6Yympyw",
+    "fields": {
+      "name": "transcripts",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2023-11-21T23:20:49.768Z",
+      "updated_at": "2023-11-21T23:21:04.758Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "vmn7koJA3wVM",
+    "fields": {
+      "name": "Consistency",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-04-16T14:34:54.572Z",
+      "updated_at": "2024-04-16T14:34:54.572Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "xYedorytFRyw",
+    "fields": {
+      "name": "Difficulty",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:49:18.715Z",
+      "updated_at": "2024-07-10T06:49:18.715Z"
+    }
+  },
+  {
+    "model": "api.tag",
+    "pk": "zCigmmFYYqrm",
+    "fields": {
+      "name": "comprehensive",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-07-10T06:43:28.320Z",
+      "updated_at": "2024-07-10T06:43:28.320Z"
+    }
+  }
+]

@@ -2,7 +2,6 @@ import json
 from textwrap import dedent
 
 import numpy as np
-from django.db import transaction
 from django.db.models import QuerySet
 from django.utils.translation import gettext
 from langchain.output_parsers import PydanticOutputParser
@@ -198,15 +197,8 @@ def generate_takeaways(
         takeaways_to_create.append(takeaway)
         highlights_to_create.append(highlight)
 
-    # Bulk create takeaways
     Takeaway.objects.bulk_create(takeaways_to_create)
-
-    # Bulk create highlights
-    queryset = QuerySet(Highlight)
-    queryset._for_write = True
-    local_fields = Highlight._meta.local_fields
-    with transaction.atomic(using=queryset.db, savepoint=False):
-        queryset._batched_insert(highlights_to_create, local_fields, batch_size=None)
+    Highlight.bulk_create(highlights_to_create)
 
     # Update note.content
     note.save()

@@ -1,0 +1,247 @@
+[
+  {
+    "model": "api.highlight",
+    "pk": "4SbACBZAd7ix",
+    "fields": {
+      "quote": "What tools are you using for transcription and analysis?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "oZGMcems5fWp",
+    "fields": {
+      "quote": "As you know, we're developing Raijin.ai, an application that uses AI to extract important points from transcripts."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "8B2AxMVNxD3a",
+    "fields": {
+      "quote": "Can you describe an example from your work where understanding context and nuance was crucial?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "4MSoGg8cTKZq",
+    "fields": {
+      "quote": "How do you see Raijin.ai fitting into or enhancing this collaborative aspect?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "tDEPkdJyixbR",
+    "fields": {
+      "quote": "The idea of using AI to automatically extract important points from transcripts sounds like it could save us a lot of time and effort."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7wkSVjUmug7H",
+    "fields": {
+      "quote": "Claudia: It can vary depending on the length of the interview and the depth of insights we’re looking for, but on average, I’d say each transcript can take anywhere from 3 to 6 hours to process."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "8C4QoYpTnbjG",
+    "fields": {
+      "quote": "I’m curious to know how Raijin.ai handles these subtleties."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "8GFuSnsfpjKe",
+    "fields": {
+      "quote": "Caleb: Would an automated tagging system within Raijin.ai help with this?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "yfNPELMYAy4s",
+    "fields": {
+      "quote": "Caleb: On a related note, how important is the user interface and experience of Raijin.ai for you and your team?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7dwUizfbDUpD",
+    "fields": {
+      "quote": "I’d say we usually have to spend about 15-30 minutes per transcript just cleaning up errors and making sure everything is correct."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "62xxFHbM5hHA",
+    "fields": {
+      "quote": "If you had to name the top three outcomes or benefits you’d like to see from using Raijin.ai, what would they be?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "473dxQbdajUh",
+    "fields": {
+      "quote": "Claudia: My main concern is whether the AI can truly understand the nuances of human conversation."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "5dxQq9Bh4pMm",
+    "fields": {
+      "quote": "Claudia: It would be great if the AI could not only extract key points but also categorize them."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "5n4V9fCLjbUC",
+    "fields": {
+      "quote": "Claudia: A comprehensive but straightforward onboarding process would be ideal."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "hGaoXMk8my9f",
+    "fields": {
+      "quote": "We record these sessions, transcribe them, and then manually go through the transcripts to highlight key insights."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7mxFamKsQn3X",
+    "fields": {
+      "quote": "What would you say are the biggest challenges you face with this manual process?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "yuTFjL2ntN53",
+    "fields": {
+      "quote": "For transcription, we rely on services like Rev or Otter.ai."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "4tisRNnC2yUk",
+    "fields": {
+      "quote": "We’re planning to include a robust onboarding process and ongoing support."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7f7PQyqHdeZW",
+    "fields": {
+      "quote": "Claudia: It can vary depending on the length of the interview and the depth of insights we’re looking for, but on average, I’d say each transcript can take anywhere from 3 to 6 hours to process."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "33rzNnpg7kY4",
+    "fields": {
+      "quote": "The transcription tools don’t integrate directly with our analysis documents, so there’s a lot of copy-pasting involved, which adds to the time and potential for errors."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7kR5X3Yhm82u",
+    "fields": {
+      "quote": "Can you describe an example from your work where understanding context and nuance was crucial?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7BuFdBhFMfsK",
+    "fields": {
+      "quote": "Claudia: We manually tag sections of the transcript with different categories like pain points, positive feedback, suggestions, etc."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "3YCnJNpxqwMk",
+    "fields": {
+      "quote": "What are some of the biggest challenges you face when analyzing transcripts manually?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "4uWwMcvkqLMG",
+    "fields": {
+      "quote": "Jim:  Another challenge is ensuring consistency across researchers."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "5nj73Zz9LGcE",
+    "fields": {
+      "quote": "So, as you mentioned, Raijin.ai utilizes AI and natural language processing (NLP) to analyze transcripts."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "4SumvpFmSceD",
+    "fields": {
+      "quote": "With multiple interviews, it can be challenging to keep track of everything and identify recurring themes across the data set."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7Hbadm4PumwW",
+    "fields": {
+      "quote": "Even with a coding system, different researchers might highlight different points based on their interpretations."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "3BdT5jXZutbP",
+    "fields": {
+      "quote": "Does the volume of text ever make it difficult to identify important trends or patterns?"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "5JE5YUDftBm6",
+    "fields": {
+      "quote": "Understanding Raijin.ai and Potential Benefits"
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7y4Kn8YqPbEh",
+    "fields": {
+      "quote": "An application that could automatically summarize key points and identify patterns across transcripts would be incredibly valuable."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "3dUuNLYDLMUN",
+    "fields": {
+      "quote": "It sounds like Raijin.ai could potentially address some of these pain points by automating the initial analysis and highlighting key themes."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "4SgL57X9xqNF",
+    "fields": {
+      "quote": "Raijin.ai can automatically categorize these elements based on pre-defined criteria or user personas you establish."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "f5PYSqTKEcY8",
+    "fields": {
+      "quote": "Caleb:  Finally, Raijin.ai is being developed to visualize connections across transcripts."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "ma2oBnZb2MSM",
+    "fields": {
+      "quote": "Analyzing transcripts can be very time-consuming, especially with large datasets."
+    }
+  },
+  {
+    "model": "api.highlight",
+    "pk": "7oszgsytyH65",
+    "fields": {
+      "quote": "Raijin.ai can analyze how users feel throughout the interview, whether they're frustrated, excited, or confused."
+    }
+  }
+]
