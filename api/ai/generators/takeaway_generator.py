@@ -1,7 +1,6 @@
 import json
 from textwrap import dedent
 
-import numpy as np
 from django.db.models import QuerySet
 from django.utils.translation import gettext
 from langchain.output_parsers import PydanticOutputParser
@@ -11,6 +10,7 @@ from langchain.text_splitter import TokenTextSplitter
 from langchain_openai.chat_models import ChatOpenAI
 from nltk.tokenize import sent_tokenize
 from pydantic.v1 import BaseModel, Field
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from api.ai import config
 from api.ai.embedder import embedder
@@ -63,6 +63,9 @@ def get_chain(takeaway_type: TakeawayType):
                 f"Give robust reason to your inference as to why the {takeaway_type.name} is important, "
                 "based on the severity of the language used, how much it was stressed, and/or the frequency of this is mentioned."
             )
+        )
+        quote: str = Field(
+            description=f"The verbatim quote from the source that supports the {takeaway_type.name}."
         )
 
     class TakeawaysSchema(BaseModel):
@@ -156,6 +159,7 @@ def generate_takeaways(
                 f'Topic: {takeaway["topic"]} - {takeaway["insight"].rstrip(".")}: {takeaway["significance"]}',
                 note.project.language,
             ),
+            "quote": takeaway["quote"],
             "takeaway_type": output["takeaway_type"],
         }
         for output in outputs
@@ -165,20 +169,41 @@ def generate_takeaways(
     # Embed note content
     lexical = LexicalProcessor(note.content["root"])
     sentences = [
-        sentence
+        sentence.strip()
         for paragraph in lexical.to_text().split("\n")
         for sentence in sent_tokenize(paragraph)
         if sentence.strip()  # Check if there is some text after stripping
     ]
-    doc_vecs = np.array(embedder.embed_documents(sentences))
+    bi_sentences = [
+        f"{sentence1} {sentence2}"
+        for sentence1, sentence2 in zip(sentences[:-1], sentences[1:])
+    ]
+    tri_sentences = [
+        f"{sentence1} {sentence2} {sentence3}"
+        for sentence1, sentence2, sentence3 in zip(
+            sentences[:-2], sentences[1:-1], sentences[2:]
+        )
+    ]
+    sentences.extend(bi_sentences)
+    sentences.extend(tri_sentences)
+    vectorizer = TfidfVectorizer()
+    doc_vecs = vectorizer.fit_transform(sentences)
 
-    # Create takeaways
+    # Find best matches
+    generated_takeaway_quotes = [takeaway["quote"] for takeaway in generated_takeaways]
+    quote_vectors = vectorizer.transform(generated_takeaway_quotes)
+    cosine_similarities = quote_vectors.dot(doc_vecs.T)
+    best_matches = cosine_similarities.argmax(axis=1).A1
+
+    # Embed generated takeaways
     generated_takeaway_titles = [takeaway["title"] for takeaway in generated_takeaways]
     generated_takeaway_vectors = embedder.embed_documents(generated_takeaway_titles)
+
+    # Create takeaways
     takeaways_to_create = []
     highlights_to_create = []
-    for generated_takeaway, vector in zip(
-        generated_takeaways, generated_takeaway_vectors
+    for generated_takeaway, vector, index in zip(
+        generated_takeaways, generated_takeaway_vectors, best_matches
     ):
 
         takeaway = Takeaway(
@@ -189,8 +214,7 @@ def generate_takeaways(
             type=generated_takeaway["takeaway_type"],
         )
 
-        scores = np.array(vector).dot(doc_vecs.T)
-        highlight_str = sentences[np.argmax(scores)]
+        highlight_str = sentences[index]
         lexical.highlight(highlight_str, takeaway.id)
         highlight = Highlight(takeaway_ptr_id=takeaway.id, quote=highlight_str)
 
