@@ -1,0 +1,112 @@
+[
+  {
+    "model": "api.takeawaytype",
+    "pk": "3C3MEJgTbgvp",
+    "fields": {
+      "name": "Current Challenges",
+      "definition": "",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-18T02:56:32.564Z",
+      "updated_at": "2024-06-18T02:56:32.564Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "7tB4Q4TvRznB",
+    "fields": {
+      "name": "Opportunities",
+      "definition": "Part of SWOT Analysis",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-18T03:17:31.306Z",
+      "updated_at": "2024-06-26T10:19:26.022Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "sdADPtE2YDmw",
+    "fields": {
+      "name": "Other Insights",
+      "definition": "Insights that do not fall in any other existing category",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-19T04:13:21.482Z",
+      "updated_at": "2024-06-26T10:19:06.992Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "6Jqw3ZWobi2F",
+    "fields": {
+      "name": "Aha Moment",
+      "definition": "A point in time when a customer or user suddenly realizes the value or benefit of a product or service, leading to increased engagement and satisfaction.",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-12T10:15:06.283Z",
+      "updated_at": "2024-06-12T10:15:06.283Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "3heDW7UKEs5K",
+    "fields": {
+      "name": "Churn Signal",
+      "definition": "An indication that a customer or user is likely to stop using a product or service, often based on a decrease in engagement or satisfaction.",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-12T10:15:06.285Z",
+      "updated_at": "2024-06-12T10:15:06.285Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "72XEEpCFvbrH",
+    "fields": {
+      "name": "Price Mention",
+      "definition": "A reference made by a customer or user to the cost or pricing of a product or service, which may indicate price sensitivity or a willingness to pay.",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-12T10:15:06.287Z",
+      "updated_at": "2024-06-12T10:15:06.287Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "3P5hMQ4DtBs4",
+    "fields": {
+      "name": "Competitor Mention",
+      "definition": "A reference made by a customer or user to a competing product or service, which may indicate a comparison of features, pricing, or overall satisfaction.",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-12T10:15:06.289Z",
+      "updated_at": "2024-06-12T10:15:06.289Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "56PBwcWaehdr",
+    "fields": {
+      "name": "Budget Mention",
+      "definition": "",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-06-21T09:34:34.920Z",
+      "updated_at": "2024-06-21T09:34:34.920Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "7XCLiQzCRtin",
+    "fields": {
+      "name": "Pain Point",
+      "definition": "A specific problem or frustration experienced by a customer or user when using a product or service.",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-01T10:42:14.142Z",
+      "updated_at": "2024-02-01T10:42:14.142Z"
+    }
+  },
+  {
+    "model": "api.takeawaytype",
+    "pk": "4fH8MGXJZFFT",
+    "fields": {
+      "name": "Feature Request",
+      "definition": "A suggestion or demand from a customer or user for a new feature or functionality to be added to a product or service.",
+      "project": "6ncEsDadTiyn",
+      "created_at": "2024-02-13T09:41:35.953Z",
+      "updated_at": "2024-02-13T09:41:35.953Z"
+    }
+  }
+]

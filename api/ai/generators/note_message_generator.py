@@ -15,6 +15,7 @@ def generate_message(note: Note, created_by: User):
     system_prompt = dedent(
         """
             Using the following context, generate a message that is relevant to the context and is in a readable format.
+            If the user's query not related to the given context, tell user that the context is irrelevant.
 
             Context:
             {context}
