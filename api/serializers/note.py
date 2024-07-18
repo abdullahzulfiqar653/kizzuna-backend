@@ -138,7 +138,6 @@ class NoteSerializer(serializers.ModelSerializer):
         note = Note.objects.create(**validated_data)
         self.add_organizations(note, organizations)
         self.add_keywords(note, keywords)
-        note.update_chunks()
         mixpanel.track(
             note.author.id,
             "BE: Knowledge Source Created",
@@ -184,7 +183,6 @@ class NoteUpdateSerializer(NoteSerializer):
                 .delete()
             )
 
-        note.update_chunks()
         return note
 
     def extract_input_highlights(self, root: LexicalProcessor, new_highlight_id: str):
