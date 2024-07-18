@@ -1,6 +1,5 @@
 from api.models.asset import Asset
 from api.models.block import Block
-from api.models.chunk import Chunk
 from api.models.feature import Feature
 from api.models.highlight import Highlight
 from api.models.insight import Insight
@@ -61,7 +60,6 @@ __all__ = [
     "NotePropertyOption",
     "NoteType",
     "TakeawayType",
-    "Chunk",
     "Message",
     "Feature",
     "ProductFeature",

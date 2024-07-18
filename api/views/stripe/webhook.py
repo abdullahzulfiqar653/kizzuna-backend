@@ -4,7 +4,10 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.models import StripeSubscription
+from api.models.stripe_price import StripePrice
+from api.models.stripe_product import StripeProduct
+from api.models.stripe_subscription import StripeSubscription
+
 from api.stripe import stripe
 
 
@@ -75,9 +78,23 @@ class StripeWebhookView(APIView):
                 if not subscription["cancel_at_period_end"]:
                     StripeSubscription.objects.filter(id=subscription["id"]).delete()
             case "customer.subscription.resumed":
-                pass
+                subscription = event["data"]["object"]
+                # Attempt to update an existing subscription
+                StripeSubscription.objects.filter(id=subscription["id"]).update(
+                    status=subscription["status"],
+                    product_id=subscription["plan"]["product"],
+                    end_at=get_date(subscription["current_period_end"]),
+                    is_free_trial=is_free_trial(subscription["trial_end"]),
+                )
             case "customer.subscription.paused":
-                pass
+                subscription = event["data"]["object"]
+                # Attempt to update an existing subscription
+                StripeSubscription.objects.filter(id=subscription["id"]).update(
+                    status=subscription["status"],
+                    product_id=subscription["plan"]["product"],
+                    end_at=get_date(subscription["current_period_end"]),
+                    is_free_trial=is_free_trial(subscription["trial_end"]),
+                )
             case "customer.subscription.trial_will_end":
                 pass
             case "checkout.session.completed":
