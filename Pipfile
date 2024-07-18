@@ -50,6 +50,7 @@ mixpanel = "==4.10.1"
 stripe = "==10.1.0"
 whitenoise = "==6.7.0"
 langchain-google-genai = "==1.0.7"
+langchain-community = "==0.2.7"
 
 [dev-packages]
 ipykernel = "*"
