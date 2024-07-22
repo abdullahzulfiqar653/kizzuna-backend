@@ -85,7 +85,7 @@ from api.views.workspace.billing_portal_session import (
 )
 from api.views.workspace.workspace import (
     WorkspaceListCreateView,
-    WorkspaceRetrieveUpdateView,
+    WorkspaceRetrieveUpdateDestroyView,
     WorkspaceUserListUpdateView,
 )
 from api.views.workspace.workspace_project import WorkspaceProjectListCreateView
@@ -276,7 +276,7 @@ urlpatterns = [
     ),
     path(
         "workspaces/<str:pk>/",
-        WorkspaceRetrieveUpdateView.as_view(),
+        WorkspaceRetrieveUpdateDestroyView.as_view(),
         name="workspace-retrieve-update",
     ),
     path(

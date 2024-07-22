@@ -32,10 +32,13 @@ class WorkspaceListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.request.user.workspaces.all()
+        return self.request.user.workspaces.select_related("subscription").all()
 
 
-class WorkspaceRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+class WorkspaceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Workspace.objects.all()
     serializer_class = WorkspaceSerializer
     permission_classes = [IsWorkspaceOwner]
+
+    def get_queryset(self):
+        return self.queryset.select_related("subscription")

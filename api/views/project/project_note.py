@@ -80,6 +80,14 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     def check_eligibility(self, serializer):
         workspace = self.request.project.workspace
 
+        notes_limit = workspace.get_feature_value(
+            Feature.Code.NUMBER_OF_KNOWLEDGE_SOURCES
+        )
+        if workspace.notes.count() >= notes_limit:
+            raise exceptions.PermissionDenied(
+                f"You have reached the limit of {notes_limit} Knowledge sources."
+            )
+
         if serializer.validated_data["file"] is None:
             # Skip checking if no file uploaded
             return
@@ -89,14 +97,6 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
         if file_type not in openai_transcriber.supported_filetypes:
             # Skip checking for transcription limit if not audio file
             return
-
-        notes_limit = workspace.get_feature_value(
-            Feature.Code.NUMBER_OF_KNOWLEDGE_SOURCES
-        )
-        if workspace.notes.count() >= notes_limit:
-            raise exceptions.PermissionDenied(
-                f"You have reached the limit of {notes_limit} Knowledge sources."
-            )
 
         file_size_in_bytes = serializer.validated_data["file"].size
         file_size_in_mb = file_size_in_bytes / 1024 / 1024
