@@ -20,6 +20,15 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayDeleteView,
     InsightTakeawayListCreateView,
 )
+from api.views.integrations.googledrive.googledrive_list_files import (
+    GoogleDriveListFilesView,
+)
+from api.views.integrations.googledrive.googledrive_oauth_redirect import (
+    GoogleDriveOauthRedirectView,
+)
+from api.views.integrations.googledrive.googledrive_oauth_url import (
+    GoogleDriveOauthUrlRetrieveView,
+)
 from api.views.integrations.mixpanel.event import MixpanelEventCreateView
 from api.views.integrations.slack.channel import SlackChannelsListView
 from api.views.integrations.slack.event import SlackEventsCreateView
@@ -31,6 +40,7 @@ from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
+from api.views.note.note_highlight import NoteHighlightCreateView
 from api.views.note.note_message import NoteMessageListCreateView
 from api.views.note.note_property import NotePropertyListView, NotePropertyUpdateView
 from api.views.note.note_tag import NoteTagListView
@@ -150,6 +160,11 @@ urlpatterns = [
         NoteMessageListCreateView.as_view(),
         name="note-message-list-create",
     ),
+    path(
+        "reports/<str:report_id>/highlight/",
+        NoteHighlightCreateView.as_view(),
+        name="note-highlight-create",
+    ),
     # =====================================================
     # Report Types
     # =====================================================
@@ -260,6 +275,21 @@ urlpatterns = [
         "projects/<str:pk>/dummy-reports/",
         ProjectDummyNoteCreateView.as_view(),
         name="project-dummy-note-create",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/google_drive/oauth-url/",
+        GoogleDriveOauthUrlRetrieveView.as_view(),
+        name="project-googledrive-oauth-url",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/google_drive/oauth-redirect/",
+        GoogleDriveOauthRedirectView.as_view(),
+        name="project-googledrive-oauth-redirect",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/google_drive/files/",
+        GoogleDriveListFilesView.as_view(),
+        name="project-googledrive-files",
     ),
     # =====================================================
     # Workspace

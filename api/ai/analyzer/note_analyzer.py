@@ -13,7 +13,7 @@ from api.ai.downloaders.youtube_downloader import YoutubeDownloader
 from api.ai.generators.metadata_generator import generate_metadata
 from api.ai.generators.tag_generator import generate_tags
 from api.ai.generators.takeaway_generator import generate_takeaways
-from api.ai.transcribers import openai_transcriber
+from api.ai.transcribers import assemblyai_transcriber
 from api.ai.transcribers.transcriber_router import TranscriberRouter
 from api.models.note import Note
 from api.models.takeaway_type import TakeawayType
@@ -46,7 +46,10 @@ class NewNoteAnalyzer:
             )
 
             if transcript is not None:
-                note.content = transcript.to_lexical()
+                if self.transcriber_router.transcriber_used is assemblyai_transcriber:
+                    note.transcript = transcript.to_transcript()
+                else:
+                    note.content = transcript.to_lexical()
                 note.save()
             self.track_audio_filesize(note, filepath, created_by)
 
@@ -56,12 +59,15 @@ class NewNoteAnalyzer:
         language = note.project.language
         transcript = self.transcriber_router.transcribe(filepath, filetype, language)
         if transcript is not None:
-            note.content = transcript.to_lexical()
+            if self.transcriber_router.transcriber_used is assemblyai_transcriber:
+                note.transcript = transcript.to_transcript()
+            else:
+                note.content = transcript.to_lexical()
             note.save()
         self.track_audio_filesize(note, filepath, created_by)
 
     def track_audio_filesize(self, note: Note, filepath: str, created_by: User):
-        if self.transcriber_router.transcriber_used is openai_transcriber:
+        if self.transcriber_router.transcriber_used is assemblyai_transcriber:
             audio_info = mediainfo(filepath)
             duration_second = round(float(audio_info["duration"]))
             t = TranscriptionUsage.objects.create(

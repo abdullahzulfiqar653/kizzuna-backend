@@ -1,15 +1,17 @@
-from django.core.exceptions import ValidationError
 from django.db import models
+from django.core.exceptions import ValidationError
 from shortuuid.django_fields import ShortUUIDField
 
-from api.models.highlight import Highlight
-from api.models.keyword import Keyword
-from api.models.note_type import NoteType
-from api.models.organization import Organization
-from api.models.project import Project
 from api.models.user import User
+from api.models.keyword import Keyword
+from api.models.project import Project
+from api.models.note_type import NoteType
 from api.models.workspace import Workspace
+from api.models.highlight import Highlight
+from api.models.organization import Organization
+
 from api.utils.lexical import LexicalProcessor, blank_content
+from api.utils.assembly import blank_transcript, AssemblyProcessor
 
 
 def validate_file_size(value):
@@ -71,9 +73,11 @@ class Note(models.Model):
     )
     file_type = models.CharField(max_length=4, choices=FileType.choices, null=True)
     file_size = models.IntegerField(null=True, help_text="File size measured in bytes.")
+    google_drive_file_timestamp = models.DateTimeField(null=True)
     is_analyzing = models.BooleanField(default=False)
     is_auto_tagged = models.BooleanField(default=False)
     content = models.JSONField(default=blank_content)
+    transcript = models.JSONField(default=blank_transcript)
     summary = models.JSONField(default=list)
     keywords = models.ManyToManyField(Keyword, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
@@ -97,6 +101,30 @@ class Note(models.Model):
         self.workspace = self.project.workspace
         super().save(*args, **kwargs)
 
+    @property
+    def media_type(self):
+        # Mapping of file types to media types
+        to_media_type = {
+            "flac": "audio",
+            "mp3": "audio",
+            "mp4": "video",
+            "mpga": "audio",
+            "m4a": "audio",
+            "ogg": "audio",
+            "wav": "audio",
+            "webm": "video",
+            "docx": "text",
+            "pdf": "text",
+            "txt": "text",
+        }
+
+        # Return the media type based on the file type
+        return to_media_type.get(self.file_type, "unknown")
+
     def get_content_markdown(self):
         lexical = LexicalProcessor(self.content["root"])
         return lexical.to_markdown()
+
+    def get_transcript_markdown(self):
+        assembly = AssemblyProcessor(self.transcript)
+        return assembly.to_markdown()

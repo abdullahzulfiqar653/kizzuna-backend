@@ -41,6 +41,15 @@ class TakeawaySerializer(serializers.ModelSerializer):
     report = BriefNoteSerializer(source="note", read_only=True)
     is_saved = serializers.BooleanField(read_only=True)
     quote = serializers.CharField(source="highlight.quote", read_only=True)
+    media_type = serializers.CharField(source="note.media_type", read_only=True)
+    end = serializers.IntegerField(source="highlight.end", read_only=True)
+    start = serializers.IntegerField(source="highlight.start", read_only=True)
+    clip = serializers.FileField(
+        source="highlight.clip", allow_null=True, max_length=100, read_only=True
+    )
+    thumbnail = serializers.FileField(
+        source="highlight.thumbnail", allow_null=True, max_length=100, read_only=True
+    )
 
     class Meta:
         model = Takeaway
@@ -57,6 +66,11 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "created_at",
             "is_saved",
             "quote",
+            "clip",
+            "media_type",
+            "thumbnail",
+            "start",
+            "end",
         ]
 
     def __init__(self, *args, **kwargs):

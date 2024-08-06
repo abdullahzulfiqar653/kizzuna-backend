@@ -35,6 +35,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
+ASSEMBLY_AI_API_KEY = env("ASSEMBLY_AI_API_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", cast=bool)
@@ -315,6 +317,11 @@ SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 DEMO_PROJECT_ID = env("DEMO_PROJECT_ID", default=None)
 DEMO_USER_ID = env("DEMO_USER_ID", default=None)
 
+# Google drive integration credentials
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI = env("GOOGLE_REDIRECT_URI")
+GOOGLE_SCOPES = env("GOOGLE_SCOPES")
 
 MIXPANEL_TOKEN = env("MIXPANEL_TOKEN")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")

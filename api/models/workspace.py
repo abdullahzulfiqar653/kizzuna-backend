@@ -1,17 +1,18 @@
 from django.db import models
-from django.db.models import Sum
-from django.db.models.functions import Coalesce
+from django.apps import apps
 from django.utils import timezone
 from django.utils.text import slugify
+from django.db.models import Sum, F, Value
+from django.db.models.functions import Coalesce
 from shortuuid.django_fields import ShortUUIDField
 
-from api.models.feature import Feature
-from api.models.product_feature import ProductFeature
-from api.models.stripe_price import StripePrice
-from api.models.stripe_subscription import StripeSubscription
-from api.models.user import User
-from api.models.workspace_user import WorkspaceUser
 from api.stripe import stripe
+from api.models.user import User
+from api.models.feature import Feature
+from api.models.stripe_price import StripePrice
+from api.models.workspace_user import WorkspaceUser
+from api.models.product_feature import ProductFeature
+from api.models.stripe_subscription import StripeSubscription
 
 
 class Workspace(models.Model):
@@ -74,7 +75,20 @@ class Workspace(models.Model):
 
     @property
     def total_file_size(self) -> int:
-        return self.notes.aggregate(value=Coalesce(Sum("file_size"), 0)).get("value")
+        Highlight = apps.get_model("api", "Highlight")
+        highlights_total_size = (
+            Highlight.objects.filter(note__workspace=self)
+            .aggregate(
+                total_size=Coalesce(Sum(F("clip_size") + F("thumbnail_size")), Value(0))
+            )
+            .get("total_size")
+        )
+
+        notes_total_size = self.notes.aggregate(
+            value=Coalesce(Sum("file_size"), 0)
+        ).get("value")
+
+        return highlights_total_size + notes_total_size
 
     def __str__(self):
         return f"{self.id} - {self.name}"
