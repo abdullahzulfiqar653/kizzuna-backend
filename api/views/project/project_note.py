@@ -6,7 +6,7 @@ from django.http.request import QueryDict
 from pydub.utils import mediainfo
 from rest_framework import exceptions, generics, serializers
 
-from api.ai.transcribers import openai_transcriber
+from api.ai.transcribers import assemblyai_transcriber
 from api.filters.note import NoteFilter
 from api.models.feature import Feature
 from api.models.note import Note
@@ -94,7 +94,7 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
 
         file = serializer.validated_data["file"].file
         file_type = file.name.split(".")[-1]
-        if file_type not in openai_transcriber.supported_filetypes:
+        if file_type not in assemblyai_transcriber.supported_filetypes:
             # Skip checking for transcription limit if not audio file
             return
 

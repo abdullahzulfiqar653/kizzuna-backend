@@ -40,6 +40,7 @@ from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
+from api.views.note.note_highlight import NoteHighlightCreateView
 from api.views.note.note_message import NoteMessageListCreateView
 from api.views.note.note_property import NotePropertyListView, NotePropertyUpdateView
 from api.views.note.note_tag import NoteTagListView
@@ -158,6 +159,11 @@ urlpatterns = [
         "reports/<str:report_id>/messages/",
         NoteMessageListCreateView.as_view(),
         name="note-message-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/highlight/",
+        NoteHighlightCreateView.as_view(),
+        name="note-highlight-create",
     ),
     # =====================================================
     # Report Types

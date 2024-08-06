@@ -8,34 +8,79 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0050_delete_chunk'),
+        ("api", "0050_delete_chunk"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='note',
-            name='google_drive_file_timestamp',
+            model_name="note",
+            name="google_drive_file_timestamp",
             field=models.DateTimeField(null=True),
         ),
         migrations.CreateModel(
-            name='GoogleDriveOAuthState',
+            name="GoogleDriveOAuthState",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('state', models.CharField(max_length=255)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("state", models.CharField(max_length=255)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='GoogleDriveCredential',
+            name="GoogleDriveCredential",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('access_token', models.CharField(max_length=255)),
-                ('refresh_token', models.CharField(max_length=255)),
-                ('token_type', models.CharField(choices=[('Access', 'Access'), ('Refresh', 'Refresh'), ('Bearer', 'Bearer')], max_length=50)),
-                ('expires_in', models.IntegerField()),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='google_drive_credentials', to='api.project')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("access_token", models.CharField(max_length=255)),
+                ("refresh_token", models.CharField(max_length=255)),
+                (
+                    "token_type",
+                    models.CharField(
+                        choices=[
+                            ("Access", "Access"),
+                            ("Refresh", "Refresh"),
+                            ("Bearer", "Bearer"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                ("expires_in", models.IntegerField()),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="google_drive_credentials",
+                        to="api.project",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
