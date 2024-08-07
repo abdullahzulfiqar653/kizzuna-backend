@@ -86,6 +86,17 @@ class InProjectOrWorkspace(permissions.BasePermission):
                 project = request.insight.project
                 workspace = project.workspace
 
+            case str(s) if s.startswith("/api/playbooks/"):
+                if not hasattr(request, "playbook"):
+                    PlayBook = apps.get_model("api", "PlayBook")
+                    playbook_id = view.kwargs.get("pk") or view.kwargs.get(
+                        "playbook_id"
+                    )
+                    queryset = PlayBook.objects.select_related("project__workspace")
+                    request.playbook = get_instance(queryset, playbook_id)
+                project = request.playbook.project
+                workspace = project.workspace
+
             case str(s) if s.startswith("/api/assets/"):
                 if not hasattr(request, "asset"):
                     Asset = apps.get_model("api", "Asset")

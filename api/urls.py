@@ -68,6 +68,8 @@ from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
+from api.views.project.project_playbook import ProjectPlayBookListCreateView
+from api.views.playbook import PlaybookRetrieveUpdateDeleteView
 from api.views.property.option import PropertyOptionListCreateView
 from api.views.property.property import (
     PropertyDuplicateAPIView,
@@ -291,6 +293,11 @@ urlpatterns = [
         GoogleDriveListFilesView.as_view(),
         name="project-googledrive-files",
     ),
+    path(
+        "projects/<str:project_id>/playbooks/",
+        ProjectPlayBookListCreateView.as_view(),
+        name="project-playbook-list-create",
+    ),
     # =====================================================
     # Workspace
     # =====================================================
@@ -483,6 +490,14 @@ urlpatterns = [
         "demo/takeaways/",
         DemoGenerateTakeawaysCreateView.as_view(),
         name="demo-generate-takeaway-create",
+    ),
+    # =====================================================
+    # Playbooks
+    # =====================================================
+    path(
+        "playbooks/<pk>/",
+        PlaybookRetrieveUpdateDeleteView.as_view(),
+        name="playbook-update-retrieve-delete",
     ),
     # =====================================================
     # Auth
