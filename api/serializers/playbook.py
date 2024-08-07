@@ -16,13 +16,13 @@ class PlayBookSerializer(serializers.ModelSerializer):
 
     report_ids = serializers.PrimaryKeyRelatedField(
         source="notes",
-        queryset=Note.objects.all(),
+        queryset=Note.objects.none(),
         many=True,
         required=False,
     )
     takeaway_ids = serializers.PrimaryKeyRelatedField(
         source="highlights",
-        queryset=Highlight.objects.all(),
+        queryset=Highlight.objects.none(),
         many=True,
         required=False,
     )
