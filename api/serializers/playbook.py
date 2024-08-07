@@ -5,14 +5,15 @@ from api.models.playbook import PlayBook
 from api.models.highlight import Highlight
 
 
-class HighlightSerializer(serializers.ModelSerializer):
+class PlaybookTakeawaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Highlight
         fields = ["id", "clip", "thumbnail"]
 
 
 class PlayBookSerializer(serializers.ModelSerializer):
-    takeaways = serializers.SerializerMethodField()
+    highlights = PlaybookTakeawaySerializer(many=True, read_only=True)
+
     report_ids = serializers.PrimaryKeyRelatedField(
         source="notes",
         queryset=Note.objects.all(),
@@ -26,41 +27,50 @@ class PlayBookSerializer(serializers.ModelSerializer):
         required=False,
     )
 
-    def get_takeaways(self, obj):
-        takeaways = obj.highlights.all()
-        return HighlightSerializer(takeaways, many=True).data
-
     class Meta:
         model = PlayBook
         fields = [
             "id",
             "title",
-            "description",
+            "highlights",
             "report_ids",
+            "description",
             "takeaway_ids",
-            "takeaways",
         ]
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     request = self.context.get("request")
-    #     if hasattr(request, "project"):
-    #         self.fields["report_ids"].child_relation.queryset = (
-    #             request.project.notes.all()
-    #         )
-    #         self.fields["report_ids"].child_relation.queryset = (
-    #             request.project.notes.all()
-    #         )
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["takeaways"] = representation.pop("highlights")
+        return representation
 
-    def validate_title(self, title):
+    def get_project(self):
+        """
+        Helper method to retrieve the project from the context.
+        """
         request = self.context.get("request")
         if hasattr(request, "project"):
-            project = request.project
-        elif hasattr(request, "playbook"):
-            project = request.playbook.project
+            return request.project
+        if hasattr(request, "playbook"):
+            return request.playbook.project
+        raise serializers.ValidationError(
+            "Project information is missing in the request context."
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        project = self.get_project()
+        self.fields["report_ids"].child_relation.queryset = project.notes.all()
+        self.fields["takeaway_ids"].child_relation.queryset = Highlight.objects.filter(
+            note__id__in=project.notes.values_list("id", flat=True)
+        )
+
+    def validate_title(self, title):
+        project = self.get_project()
+        if self.instance and self.instance.title == title:
+            return title  # Title hasn't changed, no need for validation
         if PlayBook.objects.filter(title=title, project=project).exists():
             raise serializers.ValidationError(
-                "A PlayBook with this title in current project already exists."
+                "A PlayBook with this title in the current project already exists."
             )
         return title
 

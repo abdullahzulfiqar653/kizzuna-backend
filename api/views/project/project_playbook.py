@@ -7,4 +7,4 @@ class ProjectPlayBookListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]
 
     def get_queryset(self):
-        return self.request.project.workspace.playbooks.all()
+        return self.request.project.playbooks.prefetch_related("highlights").all()
