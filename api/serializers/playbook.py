@@ -3,12 +3,21 @@ from rest_framework import serializers
 from api.models.note import Note
 from api.models.playbook import PlayBook
 from api.models.highlight import Highlight
+from api.serializers.takeaway import TakeawaySerializer
 
 
 class PlaybookTakeawaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Highlight
         fields = ["id", "clip", "thumbnail"]
+
+
+class PlayBookNoteTakeawaysSerializer(serializers.ModelSerializer):
+    takeaways = TakeawaySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Note
+        fields = ["id", "title", "takeaways"]
 
 
 class PlayBookSerializer(serializers.ModelSerializer):
@@ -80,3 +89,6 @@ class PlayBookSerializer(serializers.ModelSerializer):
         validated_data["workspace"] = request.project.workspace
         validated_data["project"] = request.project
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)

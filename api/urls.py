@@ -69,7 +69,9 @@ from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreat
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
 from api.views.project.project_playbook import ProjectPlayBookListCreateView
-from api.views.playbook import PlaybookRetrieveUpdateDeleteView
+from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
+from api.views.playbook.playbook_takeaways import PlaybookTakeawaysListView
+from api.views.playbook.playbook_video_takeaways import PlaybookVideoTakeawaysListView
 from api.views.property.option import PropertyOptionListCreateView
 from api.views.property.property import (
     PropertyDuplicateAPIView,
@@ -498,6 +500,16 @@ urlpatterns = [
         "playbooks/<pk>/",
         PlaybookRetrieveUpdateDeleteView.as_view(),
         name="playbook-update-retrieve-delete",
+    ),
+    path(
+        "playbooks/<pk>/takeaways/",
+        PlaybookTakeawaysListView.as_view(),
+        name="playbook-takeaways-list",
+    ),
+    path(
+        "playbooks/<pk>/video/takeaways/",
+        PlaybookVideoTakeawaysListView.as_view(),
+        name="playbook-video-takeaways-list",
     ),
     # =====================================================
     # Auth
