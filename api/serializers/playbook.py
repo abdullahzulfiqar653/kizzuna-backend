@@ -6,12 +6,6 @@ from api.models.highlight import Highlight
 from api.serializers.takeaway import TakeawaySerializer
 
 
-class PlaybookTakeawaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Highlight
-        fields = ["id", "clip", "thumbnail"]
-
-
 class PlayBookNoteTakeawaySerializer(serializers.ModelSerializer):
     takeaways = TakeawaySerializer(many=True, read_only=True)
 
@@ -21,8 +15,6 @@ class PlayBookNoteTakeawaySerializer(serializers.ModelSerializer):
 
 
 class PlayBookSerializer(serializers.ModelSerializer):
-    highlights = PlaybookTakeawaySerializer(many=True, read_only=True)
-
     report_ids = serializers.PrimaryKeyRelatedField(
         source="notes",
         queryset=Note.objects.none(),
@@ -41,16 +33,10 @@ class PlayBookSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
-            "highlights",
             "report_ids",
             "description",
             "takeaway_ids",
         ]
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation["takeaways"] = representation.pop("highlights")
-        return representation
 
     def get_project(self):
         """
