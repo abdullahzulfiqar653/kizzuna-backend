@@ -7,6 +7,5 @@ class ProjectPlayBookListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]
     search_fields = ["name", "description"]
 
-
     def get_queryset(self):
-        return self.request.project.playbooks.prefetch_related("highlights").all()
+        return self.request.project.playbooks.prefetch_related("takeaways").all()

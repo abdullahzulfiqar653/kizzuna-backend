@@ -3,16 +3,7 @@ from rest_framework import serializers
 from api.models.note import Note
 from api.models.playbook import PlayBook
 from api.models.highlight import Highlight
-from api.serializers.takeaway import TakeawaySerializer
-
-
-class PlayBookNoteTakeawaySerializer(serializers.ModelSerializer):
-    takeaways = TakeawaySerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Note
-        fields = ["id", "title", "takeaways"]
-
+from api.models.takeaway import Takeaway
 
 class PlayBookSerializer(serializers.ModelSerializer):
     report_ids = serializers.PrimaryKeyRelatedField(
@@ -22,7 +13,7 @@ class PlayBookSerializer(serializers.ModelSerializer):
         required=False,
     )
     takeaway_ids = serializers.PrimaryKeyRelatedField(
-        source="highlights",
+        source="takeaways",
         queryset=Highlight.objects.none(),
         many=True,
         required=False,
@@ -55,7 +46,7 @@ class PlayBookSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         project = self.get_project()
         self.fields["report_ids"].child_relation.queryset = project.notes.all()
-        self.fields["takeaway_ids"].child_relation.queryset = Highlight.objects.filter(
+        self.fields["takeaway_ids"].child_relation.queryset = Takeaway.objects.filter(
             note__id__in=project.notes.values_list("id", flat=True)
         )
 

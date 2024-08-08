@@ -1,10 +1,10 @@
 from django.db import models
 from shortuuid.django_fields import ShortUUIDField
 
+from api.models.takeaway import Takeaway
 from api.models.user import User
 from api.models.note import Note
 from api.models.workspace import Workspace
-from api.models.highlight import Highlight
 from api.models.project import Project
 
 
@@ -23,8 +23,15 @@ class PlayBook(models.Model):
     workspace = models.ForeignKey(
         Workspace, on_delete=models.CASCADE, related_name="playbooks"
     )
+    thumbnail = models.URLField(blank=True)
+    clip = models.FileField(
+        upload_to="attachments/",
+        null=True,
+        max_length=255,
+    )
+    thumbnail = models.FileField(upload_to="thumbnails/", null=True)
     notes = models.ManyToManyField(Note, related_name="playbooks")
-    highlights = models.ManyToManyField(Highlight, related_name="playbooks")
+    takeaways = models.ManyToManyField(Takeaway, related_name="playbooks")
 
     class Meta:
         unique_together = ("title", "project")

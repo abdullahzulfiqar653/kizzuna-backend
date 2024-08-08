@@ -7,5 +7,5 @@ class PlaybookRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return self.request.playbook.project.playbooks.prefetch_related(
-            "highlights"
+            "takeaways"
         ).all()

@@ -1,10 +1,10 @@
 from rest_framework import generics
 from api.filters.takeaway import TakeawayFilter
-from api.serializers.takeaway import TakeawaySerializer
+from api.serializers.playbook_takeaway import PlaybookTakeawaySerializer
 
 
 class PlaybookVideoTakeawaysListView(generics.ListAPIView):
-    serializer_class = TakeawaySerializer
+    serializer_class = PlaybookTakeawaySerializer
     filterset_class = TakeawayFilter
     search_fields = [
         "title",
@@ -22,4 +22,4 @@ class PlaybookVideoTakeawaysListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return self.request.playbook.highlights.all()
+        return self.request.playbook.takeaways.all()

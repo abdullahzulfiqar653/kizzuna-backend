@@ -70,7 +70,9 @@ from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
 from api.views.project.project_playbook import ProjectPlayBookListCreateView
 from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
-from api.views.playbook.playbook_takeaways import PlaybookTakeawaysListView
+from api.views.playbook.playbook_takeaways import (
+    PlaybookTakeawaysListView,
+)
 from api.views.playbook.playbook_video_takeaways import PlaybookVideoTakeawaysListView
 from api.views.property.option import PropertyOptionListCreateView
 from api.views.property.property import (
