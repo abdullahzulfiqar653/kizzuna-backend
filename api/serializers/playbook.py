@@ -12,7 +12,7 @@ class PlaybookTakeawaySerializer(serializers.ModelSerializer):
         fields = ["id", "clip", "thumbnail"]
 
 
-class PlayBookNoteTakeawaysSerializer(serializers.ModelSerializer):
+class PlayBookNoteTakeawaySerializer(serializers.ModelSerializer):
     takeaways = TakeawaySerializer(many=True, read_only=True)
 
     class Meta:
@@ -89,6 +89,3 @@ class PlayBookSerializer(serializers.ModelSerializer):
         validated_data["workspace"] = request.project.workspace
         validated_data["project"] = request.project
         return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
