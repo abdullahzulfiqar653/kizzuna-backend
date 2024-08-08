@@ -499,17 +499,17 @@ urlpatterns = [
     # Playbooks
     # =====================================================
     path(
-        "playbooks/<str:pk>/",
+        "playbooks/<str:playbook_id>/",
         PlaybookRetrieveUpdateDeleteView.as_view(),
         name="playbook-update-retrieve-delete",
     ),
     path(
-        "playbooks/<str:pk>/takeaways/",
+        "playbooks/<str:playbook_id>/takeaways/",
         PlaybookTakeawaysListView.as_view(),
         name="playbook-takeaways-list",
     ),
     path(
-        "playbooks/<str:pk>/video/takeaways/",
+        "playbooks/<str:playbook_id>/video/takeaways/",
         PlaybookVideoTakeawaysListView.as_view(),
         name="playbook-video-takeaways-list",
     ),

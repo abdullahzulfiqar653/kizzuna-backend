@@ -87,6 +87,10 @@ def notes_in_scope(request):
     if block_id is not None:
         return Note.objects.filter(project__assets__blocks=block_id)
 
+    playbook_id = kwargs.get("playbook_id")
+    if playbook_id is not None:
+        return Note.objects.filter(playbooks__id=playbook_id)
+
     return Note.objects.none()
 
 
