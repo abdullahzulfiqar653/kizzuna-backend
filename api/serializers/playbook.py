@@ -48,7 +48,7 @@ class PlayBookSerializer(serializers.ModelSerializer):
         project = self.get_project()
         self.fields["report_ids"].child_relation.queryset = project.notes.all()
         self.fields["takeaway_ids"].child_relation.queryset = Takeaway.objects.filter(
-            note__id__in=project.notes.values_list("id", flat=True)
+            note__in=project.notes.all()
         )
 
     def validate_title(self, title):
