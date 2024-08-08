@@ -2,8 +2,9 @@ from rest_framework import serializers
 
 from api.models.note import Note
 from api.models.playbook import PlayBook
-from api.models.highlight import Highlight
 from api.models.takeaway import Takeaway
+from api.models.highlight import Highlight
+
 
 class PlayBookSerializer(serializers.ModelSerializer):
     report_ids = serializers.PrimaryKeyRelatedField(

@@ -23,13 +23,18 @@ class PlayBook(models.Model):
     workspace = models.ForeignKey(
         Workspace, on_delete=models.CASCADE, related_name="playbooks"
     )
-    thumbnail = models.URLField(blank=True)
     clip = models.FileField(
         upload_to="attachments/",
         null=True,
         max_length=255,
     )
-    thumbnail = models.FileField(upload_to="thumbnails/", null=True)
+    thumbnail = models.ImageField(upload_to="thumbnails/", null=True)
+    clip_size = models.PositiveIntegerField(
+        null=True, help_text="File size measured in bytes."
+    )
+    thumbnail_size = models.PositiveIntegerField(
+        null=True, help_text="Image size measured in bytes."
+    )
     notes = models.ManyToManyField(Note, related_name="playbooks")
     takeaways = models.ManyToManyField(Takeaway, related_name="playbooks")
 
