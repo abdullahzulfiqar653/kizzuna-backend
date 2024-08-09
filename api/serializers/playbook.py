@@ -16,7 +16,9 @@ class PlayBookSerializer(serializers.ModelSerializer):
         model = PlayBook
         fields = [
             "id",
+            "clip",
             "title",
+            "thumbnail",
             "report_ids",
             "description",
         ]
