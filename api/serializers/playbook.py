@@ -3,7 +3,6 @@ from rest_framework import serializers
 from api.models.note import Note
 from api.models.playbook import PlayBook
 from api.models.takeaway import Takeaway
-from api.models.highlight import Highlight
 
 
 class PlayBookSerializer(serializers.ModelSerializer):
@@ -15,7 +14,7 @@ class PlayBookSerializer(serializers.ModelSerializer):
     )
     takeaway_ids = serializers.PrimaryKeyRelatedField(
         source="takeaways",
-        queryset=Highlight.objects.none(),
+        queryset=Takeaway.objects.all(),
         many=True,
         required=False,
     )
@@ -39,17 +38,15 @@ class PlayBookSerializer(serializers.ModelSerializer):
             return request.project
         if hasattr(request, "playbook"):
             return request.playbook.project
-        raise serializers.ValidationError(
-            "Project information is missing in the request context."
-        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         project = self.get_project()
-        self.fields["report_ids"].child_relation.queryset = project.notes.all()
-        self.fields["takeaway_ids"].child_relation.queryset = Takeaway.objects.filter(
-            note__in=project.notes.all()
-        )
+        if project:
+            self.fields["report_ids"].child_relation.queryset = project.notes.all()
+            self.fields["takeaway_ids"].child_relation.queryset = (
+                Takeaway.objects.filter(note__in=project.notes.all())
+            )
 
     def validate_title(self, title):
         project = self.get_project()
