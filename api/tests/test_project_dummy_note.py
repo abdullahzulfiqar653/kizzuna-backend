@@ -40,4 +40,4 @@ class TestProjectDummyNoteCreateView(APITestCase):
         response = self.client.post(f"/api/projects/{self.project.id}/dummy-reports/")
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.project.notes.count(), 2)
-        self.assertEqual(Takeaway.objects.count(), 31)
+        self.assertEqual(Takeaway.objects.count(), 35)

@@ -1,17 +1,16 @@
-from django.db import models
 from django.core.exceptions import ValidationError
+from django.db import models
 from shortuuid.django_fields import ShortUUIDField
 
-from api.models.user import User
-from api.models.keyword import Keyword
-from api.models.project import Project
-from api.models.note_type import NoteType
-from api.models.workspace import Workspace
 from api.models.highlight import Highlight
+from api.models.keyword import Keyword
+from api.models.note_type import NoteType
 from api.models.organization import Organization
-
+from api.models.project import Project
+from api.models.user import User
+from api.models.workspace import Workspace
+from api.utils.assembly import AssemblyProcessor, blank_transcript
 from api.utils.lexical import LexicalProcessor, blank_content
-from api.utils.assembly import blank_transcript, AssemblyProcessor
 
 
 def validate_file_size(value):
@@ -42,6 +41,12 @@ class Note(models.Model):
         TXT = "txt"
         WAV = "wav"
         M4A = "m4a"
+
+    class MediaType(models.TextChoices):
+        AUDIO = "audio"
+        VIDEO = "video"
+        TEXT = "text"
+        UNKNOWN = "unknown"
 
     class Sentiment(models.TextChoices):
         POSITIVE = "Positive"
@@ -102,29 +107,29 @@ class Note(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def media_type(self):
+    def media_type(self) -> MediaType:
         # Mapping of file types to media types
         to_media_type = {
-            "flac": "audio",
-            "mp3": "audio",
-            "mp4": "video",
-            "mpga": "audio",
-            "m4a": "audio",
-            "ogg": "audio",
-            "wav": "audio",
-            "webm": "video",
-            "docx": "text",
-            "pdf": "text",
-            "txt": "text",
+            "flac": Note.MediaType.AUDIO,
+            "mp3": Note.MediaType.AUDIO,
+            "mp4": Note.MediaType.VIDEO,
+            "mpga": Note.MediaType.AUDIO,
+            "m4a": Note.MediaType.AUDIO,
+            "ogg": Note.MediaType.AUDIO,
+            "wav": Note.MediaType.AUDIO,
+            "webm": Note.MediaType.VIDEO,
+            "docx": Note.MediaType.TEXT,
+            "pdf": Note.MediaType.TEXT,
+            "txt": Note.MediaType.TEXT,
         }
 
         # Return the media type based on the file type
-        return to_media_type.get(self.file_type, "unknown")
+        return to_media_type.get(self.file_type, Note.MediaType.UNKNOWN)
 
-    def get_content_markdown(self):
-        lexical = LexicalProcessor(self.content["root"])
-        return lexical.to_markdown()
-
-    def get_transcript_markdown(self):
-        assembly = AssemblyProcessor(self.transcript)
-        return assembly.to_markdown()
+    def get_markdown(self):
+        if self.media_type in {Note.MediaType.AUDIO, Note.MediaType.VIDEO}:
+            assembly = AssemblyProcessor(self.transcript)
+            return assembly.to_markdown()
+        else:  # Note.MediaType.TEXT or Note.MediaType.UNKNOWN
+            lexical = LexicalProcessor(self.content["root"])
+            return lexical.to_markdown()

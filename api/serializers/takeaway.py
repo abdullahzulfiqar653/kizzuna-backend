@@ -47,7 +47,7 @@ class TakeawaySerializer(serializers.ModelSerializer):
     clip = serializers.FileField(
         source="highlight.clip", allow_null=True, max_length=100, read_only=True
     )
-    thumbnail = serializers.FileField(
+    thumbnail = serializers.ImageField(
         source="highlight.thumbnail", allow_null=True, max_length=100, read_only=True
     )
 

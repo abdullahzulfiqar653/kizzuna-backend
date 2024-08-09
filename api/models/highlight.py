@@ -9,7 +9,7 @@ class Highlight(Takeaway):
     start = models.IntegerField(null=True)
     end = models.IntegerField(null=True)
     clip = models.FileField(upload_to="clips/", null=True)
-    thumbnail = models.FileField(upload_to="thumbnails/", null=True)
+    thumbnail = models.ImageField(upload_to="thumbnails/", null=True)
     clip_size = models.PositiveIntegerField(
         null=True, help_text="File size measured in bytes."
     )

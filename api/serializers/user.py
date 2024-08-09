@@ -1,7 +1,7 @@
 # user/serializers.py
-from rest_framework import serializers, exceptions
+from rest_framework import exceptions, serializers
 
-from api.models import User, WorkspaceUser, Feature
+from api.models import Feature, User, WorkspaceUser
 
 
 # User serializer class as nested field in other serializer class
@@ -52,12 +52,17 @@ class WorkspaceUserSerializer(serializers.ModelSerializer):
                 {"username": ["You cannot change the role of the workspace owner"]}
             )
 
-        if validated_data['role'] == WorkspaceUser.Role.EDITOR:
-            editors_limit = instance.workspace.get_feature_value(Feature.Code.NUMBER_OF_EDITORS)
-            if instance.workspace.workspace_users.count() >= editors_limit:
-                raise exceptions.PermissionDenied(
-                f"You have reached the limit of {editors_limit} Editors."
+        if validated_data["role"] == WorkspaceUser.Role.EDITOR:
+            editors_limit = instance.workspace.get_feature_value(
+                Feature.Code.NUMBER_OF_EDITORS
             )
+            number_of_editors = instance.workspace.workspace_users.filter(
+                role__in=[WorkspaceUser.Role.EDITOR, WorkspaceUser.Role.OWNER]
+            ).count()
+            if number_of_editors >= editors_limit:
+                raise exceptions.PermissionDenied(
+                    f"You have reached the limit of {editors_limit} Editors."
+                )
 
         # username is used only to get the instance in the view
         # and is not to be updated
