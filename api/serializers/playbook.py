@@ -2,19 +2,12 @@ from rest_framework import serializers
 
 from api.models.note import Note
 from api.models.playbook import PlayBook
-from api.models.takeaway import Takeaway
 
 
 class PlayBookSerializer(serializers.ModelSerializer):
     report_ids = serializers.PrimaryKeyRelatedField(
         source="notes",
         queryset=Note.objects.none(),
-        many=True,
-        required=False,
-    )
-    takeaway_ids = serializers.PrimaryKeyRelatedField(
-        source="takeaways",
-        queryset=Takeaway.objects.all(),
         many=True,
         required=False,
     )
@@ -26,7 +19,6 @@ class PlayBookSerializer(serializers.ModelSerializer):
             "title",
             "report_ids",
             "description",
-            "takeaway_ids",
         ]
 
     def get_project(self):
@@ -44,9 +36,6 @@ class PlayBookSerializer(serializers.ModelSerializer):
         project = self.get_project()
         if project:
             self.fields["report_ids"].child_relation.queryset = project.notes.all()
-            self.fields["takeaway_ids"].child_relation.queryset = (
-                Takeaway.objects.filter(note__in=project.notes.all())
-            )
 
     def validate_title(self, title):
         project = self.get_project()
@@ -64,3 +53,10 @@ class PlayBookSerializer(serializers.ModelSerializer):
         validated_data["workspace"] = request.project.workspace
         validated_data["project"] = request.project
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        notes_data = validated_data.pop("notes", None)
+        notes_to_add = set(notes_data) - set(instance.notes.all())
+        instance.notes.add(*notes_to_add)
+
+        return super().update(instance, validated_data)
