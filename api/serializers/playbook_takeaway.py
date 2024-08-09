@@ -15,8 +15,16 @@ class PlaybookTakeawaySerializer(TakeawaySerializer):
         read_only_fields = list(set(TakeawaySerializer.Meta.fields))
 
     def validate(self, attrs):
-        if PlayBookTakeaway.objects.filter(takeaway_id=attrs["takeaway_id"]).exists():
-            raise serializers.ValidationError("Takeaway already exists in playbook")
+        request = self.context.get("request")
+
+        if request.method == "POST":
+            if request.playbook.takeaways.filter(pk=attrs["takeaway_id"]).exists():
+                raise serializers.ValidationError("Takeaway already exists in playbook")
+
+        if request.method in ("PUT", "PATCH"):
+            if not request.playbook.takeaways.filter(pk=attrs["takeaway_id"]).exists():
+                raise serializers.ValidationError("Takeaway doesn't exists in playbook")
+
         return super().validate(attrs)
 
     def create(self, validated_data):
@@ -24,3 +32,10 @@ class PlaybookTakeawaySerializer(TakeawaySerializer):
         return PlayBookTakeaway.objects.create(
             playbook=request.playbook, takeaway_id=validated_data["takeaway_id"]
         )
+
+    def update(self, playbook, validated_data):
+        takeaway = PlayBookTakeaway.objects.get(
+            playbook=playbook, takeaway_id=validated_data["takeaway_id"]
+        )
+        takeaway.to(validated_data["order"])
+        return super().update(playbook, validated_data)

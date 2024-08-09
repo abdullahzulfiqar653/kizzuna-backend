@@ -73,7 +73,10 @@ from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
 from api.views.playbook.playbook_takeaways import (
     PlaybookTakeawaysListView,
 )
-from api.views.playbook.playbook_video_takeaways import PlaybookVideoTakeawaysListView
+from api.views.playbook.playbook_video_takeaways import (
+    PlaybookVideoTakeawaysListCreateView,
+    PlaybookVideoTakeawaysRetrieveUpdateDestroyView,
+)
 from api.views.property.option import PropertyOptionListCreateView
 from api.views.property.property import (
     PropertyDuplicateAPIView,
@@ -510,8 +513,13 @@ urlpatterns = [
     ),
     path(
         "playbooks/<str:playbook_id>/video/takeaways/",
-        PlaybookVideoTakeawaysListView.as_view(),
-        name="playbook-video-takeaways-list",
+        PlaybookVideoTakeawaysListCreateView.as_view(),
+        name="playbook-video-takeaways-list-create",
+    ),
+    path(
+        "playbooks/video/takeaways/<str:pk>/",
+        PlaybookVideoTakeawaysRetrieveUpdateDestroyView.as_view(),  # Retrieve, Update, Destroy
+        name="playbook-video-takeaways-retrieve-update-destroy",
     ),
     # =====================================================
     # Auth

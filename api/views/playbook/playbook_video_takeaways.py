@@ -3,7 +3,7 @@ from api.filters.takeaway import TakeawayFilter
 from api.serializers.playbook_takeaway import PlaybookTakeawaySerializer
 
 
-class PlaybookVideoTakeawaysListView(generics.ListCreateAPIView):
+class PlaybookVideoTakeawaysListCreateView(generics.ListCreateAPIView):
     serializer_class = PlaybookTakeawaySerializer
     filterset_class = TakeawayFilter
     search_fields = [
@@ -23,3 +23,14 @@ class PlaybookVideoTakeawaysListView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return self.request.playbook.takeaways.all()
+
+
+class PlaybookVideoTakeawaysRetrieveUpdateDestroyView(
+    generics.RetrieveUpdateDestroyAPIView
+):
+    serializer_class = PlaybookTakeawaySerializer
+
+    def get_queryset(self):
+        return self.request.playbook.project.playbooks.prefetch_related(
+            "takeaways"
+        ).all()
