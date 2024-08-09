@@ -1,48 +1,26 @@
 from api.serializers.takeaway import TakeawaySerializer
 from api.models.takeaway import Takeaway
+from api.models.playbook import PlayBookTakeaway
 from rest_framework import serializers
-from api.models.takeaway import Takeaway
 
 
 class PlaybookTakeawaySerializer(TakeawaySerializer):
-    takeaway_ids = serializers.PrimaryKeyRelatedField(
-        source="takeaways",
-        queryset=Takeaway.objects.none(),
-        many=True,
-        required=False,
-        write_only=True,
-    )
+    order = serializers.IntegerField(required=False)
+    takeaway_id = serializers.CharField(required=False)
+    type_id = None
 
     class Meta:
         model = Takeaway
-        fields = TakeawaySerializer.Meta.fields + ["takeaway_ids"]
-        read_only_fields = list(
-            set(TakeawaySerializer.Meta.fields)
-            - {
-                "takeaway_ids",
-            }
-        )
+        fields = TakeawaySerializer.Meta.fields + ["order", "takeaway_id"]
+        read_only_fields = list(set(TakeawaySerializer.Meta.fields))
 
-    def get_project(self):
-        """
-        Helper method to retrieve the project from the context.
-        """
+    def validate(self, attrs):
+        if PlayBookTakeaway.objects.filter(takeaway_id=attrs["takeaway_id"]).exists():
+            raise serializers.ValidationError("Takeaway already exists in playbook")
+        return super().validate(attrs)
+
+    def create(self, validated_data):
         request = self.context.get("request")
-        if hasattr(request, "project"):
-            return request.project
-        if hasattr(request, "playbook"):
-            return request.playbook.project
-        raise serializers.ValidationError(
-            "Project information is missing in the request context."
+        return PlayBookTakeaway.objects.create(
+            playbook=request.playbook, takeaway_id=validated_data["takeaway_id"]
         )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        request = self.context.get("request")
-        self.fields["takeaway_ids"].child_relation.queryset = Takeaway.objects.filter(
-            note__in=request.playbook.project.notes.all()
-        )
-
-    def update(self, takeaway, validated_data):
-        print(validated_data)
-        return super().update(takeaway, validated_data)

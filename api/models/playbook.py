@@ -1,11 +1,13 @@
 from django.db import models
 from shortuuid.django_fields import ShortUUIDField
 
-from api.models.takeaway import Takeaway
 from api.models.user import User
 from api.models.note import Note
-from api.models.workspace import Workspace
 from api.models.project import Project
+from api.models.takeaway import Takeaway
+from api.models.workspace import Workspace
+
+from ordered_model.models import OrderedModel
 
 
 class PlayBook(models.Model):
@@ -36,10 +38,21 @@ class PlayBook(models.Model):
         null=True, help_text="Image size measured in bytes."
     )
     notes = models.ManyToManyField(Note, related_name="playbooks")
-    takeaways = models.ManyToManyField(Takeaway, related_name="playbooks")
+    takeaways = models.ManyToManyField(
+        Takeaway, related_name="playbooks", through="PlayBookTakeaway"
+    )
 
     class Meta:
         unique_together = ("title", "project")
 
     def __str__(self):
         return self.title
+
+
+class PlayBookTakeaway(OrderedModel):
+    playbook = models.ForeignKey(PlayBook, on_delete=models.CASCADE)
+    takeaway = models.ForeignKey(Takeaway, on_delete=models.CASCADE)
+    
+    class Meta:
+        ordering = ['order']
+        unique_together = ('playbook', 'takeaway')

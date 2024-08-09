@@ -3,7 +3,7 @@ from api.filters.takeaway import TakeawayFilter
 from api.serializers.playbook_takeaway import PlaybookTakeawaySerializer
 
 
-class PlaybookVideoTakeawaysListView(generics.ListAPIView):
+class PlaybookVideoTakeawaysListView(generics.ListCreateAPIView):
     serializer_class = PlaybookTakeawaySerializer
     filterset_class = TakeawayFilter
     search_fields = [
