@@ -92,11 +92,13 @@ class TestTakeawayGenerator(APITestCase):
                             "topic": "'Answer 1.1 topic'",
                             "insight": "'Answer 1.1 title'",
                             "significance": "'Answer 1.1 significance'",
+                            "quote": "This is a sample text only.",
                         },
                         {
                             "topic": "'Answer 1.2 topic'",
                             "insight": "'Answer 1.2 title'",
                             "significance": "'Answer 1.2 significance'",
+                            "quote": "This is a sample text in the second block.",
                         },
                     ]
                 }
@@ -108,6 +110,7 @@ class TestTakeawayGenerator(APITestCase):
                             "topic": "'Answer 2 topic'",
                             "insight": "'Answer 2 title'",
                             "significance": "'Answer 2 significance'",
+                            "quote": "This is a sample text in the second block.",
                         },
                     ]
                 }
@@ -118,19 +121,29 @@ class TestTakeawayGenerator(APITestCase):
         self.assertEqual(
             mocked_invoke.call_args_list[0].args[0],
             {
-                "source": "This is a sample text only.\n\nThis is a sample text in the second block.\n\n",
+                "TRANSCRIPT": (
+                    "This is a sample text only.\n\n"
+                    "This is a sample text in the second block.\n\n"
+                ),
+                "EXTRACTION_NAME": "Takeaway-type-1",
+                "EXTRACTION_DEFINITION": "",
             },
         )
         self.assertEqual(
             mocked_invoke.call_args_list[1].args[0],
             {
-                "source": "This is a sample text only.\n\nThis is a sample text in the second block.\n\n",
+                "TRANSCRIPT": (
+                    "This is a sample text only.\n\n"
+                    "This is a sample text in the second block.\n\n"
+                ),
+                "EXTRACTION_NAME": "Takeaway-type-2",
+                "EXTRACTION_DEFINITION": "",
             },
         )
         takeaway_titles = [takeaway.title for takeaway in self.note.takeaways.all()]
         expected_takeaway_titles = [
-            "'Answer 1.1 topic' - 'Answer 1.1 title': 'Answer 1.1 significance'",
-            "'Answer 1.2 topic' - 'Answer 1.2 title': 'Answer 1.2 significance'",
-            "'Answer 2 topic' - 'Answer 2 title': 'Answer 2 significance'",
+            "Topic: 'Answer 1.1 topic' - 'Answer 1.1 title': 'Answer 1.1 significance'",
+            "Topic: 'Answer 1.2 topic' - 'Answer 1.2 title': 'Answer 1.2 significance'",
+            "Topic: 'Answer 2 topic' - 'Answer 2 title': 'Answer 2 significance'",
         ]
         self.assertCountEqual(takeaway_titles, expected_takeaway_titles)

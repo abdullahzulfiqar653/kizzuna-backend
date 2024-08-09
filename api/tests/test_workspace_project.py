@@ -3,6 +3,7 @@ import logging
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from api.models.feature import Feature
 from api.models.note_type import default_note_types
 from api.models.project import Project
 from api.models.takeaway_type import default_takeaway_types
@@ -55,23 +56,31 @@ class TestWorkspaceProjectListCreateView(APITestCase):
         expected_data = [
             {
                 "id": str(self.project.id),
-                "name": self.project.name,
+                "name": "project",
                 "description": "",
                 "workspace": {
                     "id": str(self.workspace.id),
-                    "name": self.workspace.name,
+                    "name": "workspace",
                     "is_owner": False,
-                    "usage_type": "",
                     "industry": "",
                     "company_size": "",
+                    "subscription_type": "",
+                    "subscription_name": None,
+                    "subscription_end_at": None,
+                    "subscription_is_free_trial": None,
                 },
-                "objective": "",
                 "language": "en",
+                "objective": "",
             }
         ]
         self.assertEqual(response.data, expected_data)
 
     def test_editor_create_workspace_project(self):
+        # Increase the number of projects limit
+        feature = Feature.objects.get(code=Feature.Code.NUMBER_OF_PROJECTS)
+        feature.default = 2
+        feature.save()
+
         self.client.force_authenticate(self.editor)
         response = self.client.post(
             f"/api/workspaces/{self.workspace.id}/projects/",

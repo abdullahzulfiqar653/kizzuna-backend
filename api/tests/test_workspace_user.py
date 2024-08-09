@@ -3,6 +3,7 @@ import logging
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from api.models.feature import Feature
 from api.models.user import User
 from api.models.workspace import Workspace
 from api.models.workspace_user import WorkspaceUser
@@ -76,6 +77,11 @@ class TestWorkspaceUserListUpdateView(APITestCase):
         self.assertCountEqual(response.json(), expected_data)
 
     def test_owner_update_viewer_role(self):
+        # Increase the number of editors allowed in the workspace
+        feature = Feature.objects.get(code=Feature.Code.NUMBER_OF_EDITORS)
+        feature.default = 3
+        feature.save()
+
         url = f"/api/workspaces/{self.workspace.id}/users/"
         self.client.force_authenticate(self.owner)
         data = {"username": self.viewer.username, "role": "Editor"}

@@ -1,6 +1,6 @@
+import logging
 from unittest.mock import MagicMock, patch
 
-from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -13,6 +13,11 @@ from api.models.workspace import Workspace
 
 class GoogleDriveOAuthTests(APITestCase):
     def setUp(self):
+        """Reduce the log level to avoid errors like 'not found'"""
+        logger = logging.getLogger("django.request")
+        self.previous_level = logger.getEffectiveLevel()
+        logger.setLevel(logging.ERROR)
+
         self.user = User.objects.create_user(username="testuser", password="testpass")
         self.client.force_authenticate(user=self.user)
 
@@ -26,15 +31,15 @@ class GoogleDriveOAuthTests(APITestCase):
         self.project.users.add(self.user)
 
         self.project_id = self.project.id
-        self.oauth_start_url = reverse(
-            "googledrive-oauth-url", kwargs={"project_id": self.project_id}
+        self.oauth_start_url = (
+            f"/api/projects/{self.project_id}/integrations/google_drive/oauth-url/"
         )
-        self.oauth_callback_url = reverse(
-            "googledrive-oauth-redirect", kwargs={"project_id": self.project_id}
+        self.oauth_callback_url = (
+            f"/api/projects/{self.project_id}/integrations/google_drive/oauth-redirect/"
         )
 
     @patch(
-        "api.models.integrations.googledrive.googledrive_oauth_state.GoogleDriveOAuthState.save",
+        "api.models.integrations.googledrive.oauth_state.GoogleDriveOAuthState.save",
         MagicMock(),
     )
     def test_oauth_start_creates_state(self):
@@ -60,7 +65,7 @@ class GoogleDriveOAuthTests(APITestCase):
         response = self.client.post(
             self.oauth_callback_url, {"code": "12345", "state": valid_state.state}
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertFalse(
             GoogleDriveOAuthState.objects.filter(state="valid_state123").exists()
         )

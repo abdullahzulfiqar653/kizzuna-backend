@@ -291,6 +291,7 @@ class TestProjectNoteListCreateView(APITestCase):
     def test_user_create_report_with_google_drive_file(self, mock_get):
         google_drive_user = GoogleDriveCredential.objects.create(
             user=self.user,
+            project=self.project,
             access_token="valid_access_token",
             refresh_token="valid_refresh_token",
             token_type="Bearer",
@@ -342,7 +343,6 @@ class TestProjectNoteListCreateView(APITestCase):
         # Verify note is created with Google Drive file
         response_json = response.json()
         note = Note.objects.get(id=response_json["id"])
-        print(f"Note saved: code={note.code}, file_type={note.file_type}")
         self.assertEqual(note.title, "GoogleDriveFile.pdf")
         self.assertEqual(note.file.read(), b"File content from Google Drive")
         self.assertEqual(note.file_type, "pdf")
