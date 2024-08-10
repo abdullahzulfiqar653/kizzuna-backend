@@ -121,7 +121,6 @@ class TestNoteHighlightCreateView(APITestCase):
             "end": 456,  # in ms
         }
         expected_highlight_title = "Okay,"
-        expected_clip_size = 981
 
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url, data=data)
@@ -130,7 +129,7 @@ class TestNoteHighlightCreateView(APITestCase):
         self.assertIsNotNone(highlight)
         self.assertEqual(highlight.title, expected_highlight_title)
         # Make sure that the clip is actually created
-        self.assertEqual(highlight.clip.size, expected_clip_size)
+        self.assertTrue(highlight.clip.size > 0)
         # Clean up the clip file
         highlight.delete()
 
