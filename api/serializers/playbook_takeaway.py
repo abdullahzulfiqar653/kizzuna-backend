@@ -28,8 +28,7 @@ class PlaybookTakeawaySerializer(TakeawaySerializer):
 
     def validate(self, attrs):
         request = self.context.get("request")
-
-        if request.method == "POST":
+        if self.instance is None:
             if request.playbook.takeaways.filter(pk=attrs["takeaway_id"]).exists():
                 raise serializers.ValidationError("Takeaway already exists in playbook")
 
