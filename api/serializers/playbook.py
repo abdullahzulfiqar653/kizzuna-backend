@@ -22,6 +22,10 @@ class PlayBookSerializer(serializers.ModelSerializer):
             "report_ids",
             "description",
         ]
+        read_only_fields = [
+            "clip",
+            "thumbnail",
+        ]
 
     def get_project(self):
         """
