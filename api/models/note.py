@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django_celery_results.models import TaskResult
 from shortuuid.django_fields import ShortUUIDField
 
 from api.models.highlight import Highlight
@@ -79,7 +80,9 @@ class Note(models.Model):
     file_type = models.CharField(max_length=4, choices=FileType.choices, null=True)
     file_size = models.IntegerField(null=True, help_text="File size measured in bytes.")
     google_drive_file_timestamp = models.DateTimeField(null=True)
-    is_analyzing = models.BooleanField(default=False)
+    task = models.ForeignKey(
+        TaskResult, on_delete=models.SET_NULL, related_name="notes", null=True
+    )
     is_auto_tagged = models.BooleanField(default=False)
     content = models.JSONField(default=blank_content)
     transcript = models.JSONField(default=blank_transcript)
@@ -97,6 +100,10 @@ class Note(models.Model):
     @property
     def highlights(self):
         return Highlight.objects.filter(note=self)
+
+    @property
+    def is_analyzing(self):
+        return self.task and self.task.status not in {"SUCCESS", "FAILURE"}
 
     def save(self, *args, **kwargs):
         if self.file and self.file.name:
