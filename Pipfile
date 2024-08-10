@@ -53,6 +53,7 @@ langchain-community = "==0.2.7"
 ffmpeg-python = "*"
 assemblyai = "*"
 jinja2 = "==3.1.4"
+pillow = "*"
 
 [dev-packages]
 ipykernel = "*"
