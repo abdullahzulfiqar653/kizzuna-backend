@@ -168,7 +168,7 @@ def generate_takeaways(
     ]
 
     # Embed note content
-    if note.content:
+    if note.media_type in {Note.MediaType.TEXT, Note.MediaType.UNKNOWN}:
         lexical = LexicalProcessor(note.content["root"])
         sentences = [
             sentence.strip()
