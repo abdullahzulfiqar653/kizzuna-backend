@@ -63,12 +63,3 @@ class PlaybookTakeawaySerializer(TakeawaySerializer):
         request.playbook.clip = merge_media_files(urls)
         request.playbook.save()
         return super().update(request.playbook, validated_data)
-
-
-# USE S3:
-# 6GGpQZFLtv6q
-# 6yeHhpcVQGfd
-
-# USE LOCAL:
-# GZkgMTwstH9b
-# 7TwpAQ3U5uq6
