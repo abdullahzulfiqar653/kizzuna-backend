@@ -47,7 +47,6 @@ class Note(models.Model):
         AUDIO = "audio"
         VIDEO = "video"
         TEXT = "text"
-        UNKNOWN = "unknown"
 
     class Sentiment(models.TextChoices):
         POSITIVE = "Positive"
@@ -131,12 +130,13 @@ class Note(models.Model):
         }
 
         # Return the media type based on the file type
-        return to_media_type.get(self.file_type, Note.MediaType.UNKNOWN)
+        # Default to text for web and youtube links
+        return to_media_type.get(self.file_type, Note.MediaType.TEXT)
 
     def get_markdown(self):
         if self.media_type in {Note.MediaType.AUDIO, Note.MediaType.VIDEO}:
             assembly = AssemblyProcessor(self.transcript)
             return assembly.to_markdown()
-        else:  # Note.MediaType.TEXT or Note.MediaType.UNKNOWN
+        else:  # Note.MediaType.TEXT
             lexical = LexicalProcessor(self.content["root"])
             return lexical.to_markdown()

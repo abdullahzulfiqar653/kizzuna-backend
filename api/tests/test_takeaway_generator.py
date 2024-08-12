@@ -1,7 +1,10 @@
+import io
+import json
 import logging
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+from django.core.files.base import ContentFile
 from rest_framework.test import APITestCase
 
 from api.ai.generators.takeaway_generator import generate_takeaways
@@ -76,7 +79,7 @@ class TestTakeawayGenerator(APITestCase):
         return super().setUp()
 
     @patch("langchain_core.runnables.base.RunnableSequence.invoke")
-    def test_generate_takeaways_with_questions(self, mocked_invoke: MagicMock):
+    def test_generate_takeaways_for_content(self, mocked_invoke: MagicMock):
         class MockedTakeawaysSchema:
             def __init__(self, result):
                 self.result = result
@@ -147,3 +150,64 @@ class TestTakeawayGenerator(APITestCase):
             "Topic: 'Answer 2 topic' - 'Answer 2 title': 'Answer 2 significance'",
         ]
         self.assertCountEqual(takeaway_titles, expected_takeaway_titles)
+
+    @patch("langchain_core.runnables.base.RunnableSequence.invoke")
+    def test_generate_takeaways_for_transcript(self, mocked_invoke: MagicMock):
+        with open("api/tests/files/sample-transcript.json", "r") as fp:
+            transcript = json.load(fp)
+
+        with open("api/tests/files/sample-audio.mp3", "rb") as fp:
+            file = ContentFile(io.BytesIO(fp.read()).read(), "test.mp3")
+        note = Note.objects.create(
+            title="Sample note",
+            project=self.project,
+            author=self.user,
+            file=file,
+            file_type="mp3",
+            transcript=transcript,
+        )
+
+        class MockedTakeawaysSchema:
+            def __init__(self, result):
+                self.result = result
+
+            def dict(self):
+                return self.result
+
+        mocked_invoke.side_effect = [
+            MockedTakeawaysSchema(
+                {
+                    "takeaways": [
+                        {
+                            "topic": "'Answer 1.1 topic'",
+                            "insight": "'Answer 1.1 title'",
+                            "significance": "'Answer 1.1 significance'",
+                            "quote": "Okay, so the first one is more like the program management.",
+                        },
+                        {
+                            "topic": "'Answer 1.2 topic'",
+                            "insight": "'Answer 1.2 title'",
+                            "significance": "'Answer 1.2 significance'",
+                            "quote": "Okay, so the first one is more like the program management.",
+                        },
+                    ]
+                }
+            ),
+        ]
+        generate_takeaways(note, self.project.takeaway_types.all()[:1], self.user)
+        takeaways = note.takeaways.all()
+        takeaway_titles = [takeaway.title for takeaway in takeaways]
+        expected_takeaway_titles = [
+            "Topic: 'Answer 1.1 topic' - 'Answer 1.1 title': 'Answer 1.1 significance'",
+            "Topic: 'Answer 1.2 topic' - 'Answer 1.2 title': 'Answer 1.2 significance'",
+        ]
+        self.assertCountEqual(takeaway_titles, expected_takeaway_titles)
+        # Make sure that the clips are actually created
+        for takeaway in takeaways:
+            self.assertTrue(takeaway.highlight.clip.size > 0)
+            self.assertEqual(
+                takeaway.highlight.quote,
+                "Okay, so the first one is more like the program management.",
+            )
+        # Clean up
+        note.delete()

@@ -89,24 +89,21 @@ class TestNoteTagGenerateView(APITestCase):
         generate_tags(self.note, self.project.takeaway_types.all(), self.user)
 
         mocked_invoke.assert_called_once()
-        self.assertDictEqual(
-            mocked_invoke.call_args[0][0],
-            {
-                "takeaways": json.dumps(
-                    {
-                        "takeaways": [
-                            {
-                                "id": self.takeaway1.id,
-                                "message": self.takeaway1.title,
-                            },
-                            {
-                                "id": self.takeaway2.id,
-                                "message": self.takeaway2.title,
-                            },
-                        ]
-                    }
-                )
-            },
+        invoked_data = json.loads(mocked_invoke.call_args[0][0]["takeaways"])[
+            "takeaways"
+        ]
+        self.assertCountEqual(
+            invoked_data,
+            [
+                {
+                    "id": self.takeaway1.id,
+                    "message": self.takeaway1.title,
+                },
+                {
+                    "id": self.takeaway2.id,
+                    "message": self.takeaway2.title,
+                },
+            ],
         )
 
         self.takeaway1.refresh_from_db()

@@ -1,6 +1,3 @@
-from typing import Any, Dict
-
-
 def blank_transcript():
     return {
         "id": "",
@@ -11,10 +8,10 @@ def blank_transcript():
 
 
 class AssemblyProcessor:
-    def __init__(self, json: Dict[str, Any]):
+    def __init__(self, json: dict):
         self.json = json
 
-    def to_transcript(self) -> Dict[str, Any]:
+    def to_transcript(self) -> dict:
         return {
             "id": self.json["id"],
             "utterances": self.json["utterances"],
@@ -31,7 +28,7 @@ class AssemblyProcessor:
         ]
         return " ".join(result)
 
-    def highlight(self, text: str, id: str):
+    def highlight(self, text: str, id: str) -> tuple[bool, int | None, int | None]:
         if text == "":
             return False
 
@@ -68,13 +65,17 @@ class AssemblyProcessor:
                             break
         if subtext:
             # Couldn't match the entire text
-            return False
+            return False, None, None
 
         for i, j in indices:
-            self.json["utterances"][i]["words"][j].setdefault(
-                "highlight_ids", []
-            ).append(id)
-        return True
+            (
+                self.json["utterances"][i]["words"][j]
+                .setdefault("highlight_ids", [])
+                .append(id)
+            )
+        start = self.json["utterances"][indices[0][0]]["words"][indices[0][1]]["start"]
+        end = self.json["utterances"][indices[-1][0]]["words"][indices[-1][1]]["end"]
+        return True, start, end
 
     def update_transcript_highlights(self, start, end, highlight_id):
         capturing = False

@@ -227,7 +227,7 @@ class TestProjectNoteListCreateView(APITestCase):
             ],
         }
         with (
-            open("api/tests/files/sample-3s.mp3", "rb") as file,
+            open("api/tests/files/sample-audio.mp3", "rb") as file,
             tempfile.NamedTemporaryFile("r+", suffix=".json") as data_file,
         ):
             json.dump(data, data_file)

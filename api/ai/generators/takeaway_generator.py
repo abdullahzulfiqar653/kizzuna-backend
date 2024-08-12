@@ -19,6 +19,7 @@ from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.user import User
+from api.utils import media
 from api.utils.assembly import AssemblyProcessor
 from api.utils.lexical import LexicalProcessor
 
@@ -168,7 +169,7 @@ def generate_takeaways(
     ]
 
     # Embed note content
-    if note.media_type in {Note.MediaType.TEXT, Note.MediaType.UNKNOWN}:
+    if note.media_type == Note.MediaType.TEXT:
         lexical = LexicalProcessor(note.content["root"])
         sentences = [
             sentence.strip()
@@ -224,13 +225,29 @@ def generate_takeaways(
             type=generated_takeaway["takeaway_type"],
         )
 
+        # Highlighting the text and creating the clip
+        start = end = clip = thumbnail = None
         highlight_str = sentences[index]
-        if note.media_type == "text":
+        if note.media_type == Note.MediaType.TEXT:
             lexical.highlight(highlight_str, takeaway.id)
-        else:
+        else:  # audio or video
             assembly = AssemblyProcessor(note.transcript)
-            assembly.highlight(highlight_str, takeaway.id)
-        highlight = Highlight(takeaway_ptr_id=takeaway.id, quote=highlight_str)
+            success, start, end = assembly.highlight(highlight_str, takeaway.id)
+            if success:
+                clip = media.cut_media_file(note.file, start, end)
+                if note.media_type == Note.MediaType.VIDEO:
+                    thumbnail = media.create_thumbnail(note.file, start)
+
+        highlight = Highlight(
+            takeaway_ptr_id=takeaway.id,
+            quote=highlight_str,
+            start=start,
+            end=end,
+            clip=clip,
+            clip_size=clip.size if clip else 0,
+            thumbnail=thumbnail,
+            thumbnail_size=thumbnail.size if thumbnail else 0,
+        )
 
         takeaways_to_create.append(takeaway)
         highlights_to_create.append(highlight)

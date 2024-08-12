@@ -1,0 +1,70 @@
+{
+    "id": "",
+    "utterances": [
+        {
+            "end": 3710,
+            "text": "Okay, so the first one is more like the program management.",
+            "start": 240,
+            "speaker": "A",
+            "words": [
+                {
+                    "end": 456,
+                    "text": "Okay,",
+                    "start": 240
+                },
+                {
+                    "end": 600,
+                    "text": "so",
+                    "start": 456
+                },
+                {
+                    "end": 742,
+                    "text": "the",
+                    "start": 606
+                },
+                {
+                    "end": 926,
+                    "text": "first",
+                    "start": 766
+                },
+                {
+                    "end": 1102,
+                    "text": "one",
+                    "start": 958
+                },
+                {
+                    "end": 1238,
+                    "text": "is",
+                    "start": 1126
+                },
+                {
+                    "end": 1406,
+                    "text": "more",
+                    "start": 1254
+                },
+                {
+                    "end": 2010,
+                    "text": "like",
+                    "start": 1438
+                },
+                {
+                    "end": 3246,
+                    "text": "the",
+                    "start": 2910
+                },
+                {
+                    "end": 3542,
+                    "text": "program",
+                    "start": 3278
+                },
+                {
+                    "end": 3710,
+                    "text": "management.",
+                    "start": 3606
+                }
+            ]
+        }
+    ],
+    "audio_duration": 0,
+    "language_code": "en_us"
+}
