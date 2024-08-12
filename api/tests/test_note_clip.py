@@ -1,4 +1,5 @@
 import io
+import json
 import logging
 
 from django.core.files.base import ContentFile
@@ -13,7 +14,7 @@ from api.models.user import User
 from api.models.workspace import Workspace
 
 
-class TestNoteHighlightCreateView(APITestCase):
+class TestNoteClipCreateView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -29,76 +30,10 @@ class TestNoteHighlightCreateView(APITestCase):
         self.project = Project.objects.create(name="project", workspace=workspace)
         self.project.users.add(self.user)
 
-        mock_transcript = {
-            "id": "",
-            "utterances": [
-                {
-                    "end": 3710,
-                    "text": "Okay, so the first one is more like the program management.",
-                    "start": 240,
-                    "words": [
-                        {
-                            "end": 456,
-                            "text": "Okay,",
-                            "start": 240,
-                        },
-                        {
-                            "end": 600,
-                            "text": "so",
-                            "start": 456,
-                        },
-                        {
-                            "end": 742,
-                            "text": "the",
-                            "start": 606,
-                        },
-                        {
-                            "end": 926,
-                            "text": "first",
-                            "start": 766,
-                        },
-                        {
-                            "end": 1102,
-                            "text": "one",
-                            "start": 958,
-                        },
-                        {
-                            "end": 1238,
-                            "text": "is",
-                            "start": 1126,
-                        },
-                        {
-                            "end": 1406,
-                            "text": "more",
-                            "start": 1254,
-                        },
-                        {
-                            "end": 2010,
-                            "text": "like",
-                            "start": 1438,
-                        },
-                        {
-                            "end": 3246,
-                            "text": "the",
-                            "start": 2910,
-                        },
-                        {
-                            "end": 3542,
-                            "text": "program",
-                            "start": 3278,
-                        },
-                        {
-                            "end": 3710,
-                            "text": "management.",
-                            "start": 3606,
-                        },
-                    ],
-                }
-            ],
-            "audio_duration": 0,
-            "language_code": "en_us",
-        }
-        with open("api/tests/files/sample-highlight.mp3", "rb") as file:
+        with open("api/tests/files/sample-transcript.json", "r") as file:
+            transcript = json.load(file)
+
+        with open("api/tests/files/sample-audio.mp3", "rb") as file:
             file_content = ContentFile(io.BytesIO(file.read()).read(), "test.mp3")
             self.note = Note.objects.create(
                 title="Sample note",
@@ -106,7 +41,7 @@ class TestNoteHighlightCreateView(APITestCase):
                 author=self.user,
                 file=file_content,
                 file_size=1073739824,  # 1.99GB
-                transcript=mock_transcript,  # Mock transcript
+                transcript=transcript,  # Mock transcript
             )
         self.note.workspace = workspace
         self.note.save()

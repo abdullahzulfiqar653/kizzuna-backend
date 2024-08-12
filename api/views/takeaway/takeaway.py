@@ -3,9 +3,9 @@ from rest_framework.response import Response
 
 from api.models.note import Note
 from api.models.takeaway import Takeaway
-from api.utils.lexical import LexicalProcessor
-from api.utils.assembly import AssemblyProcessor
 from api.serializers.takeaway import TakeawaySerializer
+from api.utils.assembly import AssemblyProcessor
+from api.utils.lexical import LexicalProcessor
 
 
 class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -20,7 +20,7 @@ class TakeawayRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
         if hasattr(takeaway, "highlight"):
             # This takeaway is a highlight.
             # Need to remove the highlight from note.content
-            if note.media_type in ("audio", "video"):
+            if note.media_type in {Note.MediaType.AUDIO, Note.MediaType.VIDEO}:
                 assembly = AssemblyProcessor(note.transcript)
                 updated_transcript = assembly.remove_transcript_highlight(
                     takeaway.highlight.start,
