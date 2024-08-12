@@ -1,62 +1,43 @@
 import os
-import io
 import ffmpeg
-import tempfile
 import secrets
+import tempfile
+
 from pathlib import Path
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.db.models.fields.files import FieldFile
 
 
-def create_thumbnail(file, thumbnail_path, time):
-    ffmpeg.input(file, ss=time).output(thumbnail_path, vframes=1).run(
-        overwrite_output=True, quiet=True
-    )
-    with open(thumbnail_path, "rb") as f:
-        thumbnail_content = io.BytesIO(f.read()).read()
-        thumbnail_size = os.path.getsize(thumbnail_path)
-    thumbnail_name = f"thumbnail_{secrets.token_hex(5)}.jpg"
-    return thumbnail_content, thumbnail_name, thumbnail_size
-
-
-def cut_media_file(file, start_time, end_time):
-    media_type = file.name.split(".")[-1]
-    temp_fd, temp_file_name = tempfile.mkstemp(suffix=f".{media_type}")
-    os.close(temp_fd)
-
+def create_thumbnail(file: FieldFile, time: float) -> ContentFile:
     file_url = file.url if settings.USE_S3 else file.path
-    # Use ffmpeg to cut the media file from start_time to end_time
-    # - `output(processed_file_path, vcodec="copy", acodec="copy")` saves
-    #   the segment to a new file, copying the original video and audio without re-encoding.
-    # - `run(overwrite_output=True, quiet=True)` allow overwriting  and suppressing extra output.
-    ffmpeg.input(file_url, ss=start_time, to=end_time).output(temp_file_name).run(
-        overwrite_output=True, quiet=True
+    out, err = (
+        ffmpeg.input(file_url, ss=time)
+        .output("pipe:1", vframes=1, format="image2")
+        .run(overwrite_output=True, quiet=True)
     )
-    with open(temp_file_name, "rb") as f:
-        clip_content = io.BytesIO(f.read()).read()
-        file_size = os.path.getsize(temp_file_name)
+    thumbnail_name = f"thumbnail_{secrets.token_hex(5)}.jpg"
+    return ContentFile(out, name=thumbnail_name)
 
-    thumbnail_size = 0
-    thumbnail_name = None
-    thumbnail_content = None
-    if media_type in ("mp4", "mov", "avi", "mkv"):
-        temp_thumbnail_path = tempfile.mktemp(suffix=".jpg")
-        thumbnail_content, thumbnail_name, thumbnail_size = create_thumbnail(
-            temp_file_name, temp_thumbnail_path, (end_time - start_time) / 2
+
+def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> ContentFile:
+    media_type = file.name.split(".")[-1]
+    file_url = file.url if settings.USE_S3 else file.path
+
+    with tempfile.NamedTemporaryFile(suffix=f".{media_type}") as temp_file:
+        # For input, we use file_url because ffmpeg can stream from URL
+        # For output, we use temp_file because for video cutting ffmpeg expect it to be seekable
+        (
+            ffmpeg.input(file_url, ss=start_time, to=end_time)
+            .output(temp_file.name, codec="copy")
+            .overwrite_output()
+            .run(quiet=True)
         )
-        os.remove(temp_thumbnail_path)
-    os.remove(temp_file_name)
+        temp_file.seek(0)
+        file_name = f"clip_{start_time}_{end_time}_{secrets.token_hex(3)}.{media_type}"
+        clip = ContentFile(temp_file.read(), name=file_name)
 
-    file_name = f"clip_{start_time}_{end_time}_{secrets.token_hex(3)}.{media_type}"
-    return (
-        clip_content,
-        file_name,
-        file_size,
-        thumbnail_content,
-        thumbnail_name,
-        thumbnail_size,
-    )
-
+    return clip
 
 def merge_media_files(files):
     with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:

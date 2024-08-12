@@ -1,17 +1,17 @@
-from django.db import models
 from django.core.exceptions import ValidationError
+from django.db import models
+from django_celery_results.models import TaskResult
 from shortuuid.django_fields import ShortUUIDField
 
-from api.models.user import User
-from api.models.keyword import Keyword
-from api.models.project import Project
-from api.models.note_type import NoteType
-from api.models.workspace import Workspace
 from api.models.highlight import Highlight
+from api.models.keyword import Keyword
+from api.models.note_type import NoteType
 from api.models.organization import Organization
-
+from api.models.project import Project
+from api.models.user import User
+from api.models.workspace import Workspace
+from api.utils.assembly import AssemblyProcessor, blank_transcript
 from api.utils.lexical import LexicalProcessor, blank_content
-from api.utils.assembly import blank_transcript, AssemblyProcessor
 
 
 def validate_file_size(value):
@@ -42,6 +42,12 @@ class Note(models.Model):
         TXT = "txt"
         WAV = "wav"
         M4A = "m4a"
+
+    class MediaType(models.TextChoices):
+        AUDIO = "audio"
+        VIDEO = "video"
+        TEXT = "text"
+        UNKNOWN = "unknown"
 
     class Sentiment(models.TextChoices):
         POSITIVE = "Positive"
@@ -74,7 +80,9 @@ class Note(models.Model):
     file_type = models.CharField(max_length=4, choices=FileType.choices, null=True)
     file_size = models.IntegerField(null=True, help_text="File size measured in bytes.")
     google_drive_file_timestamp = models.DateTimeField(null=True)
-    is_analyzing = models.BooleanField(default=False)
+    task = models.ForeignKey(
+        TaskResult, on_delete=models.SET_NULL, related_name="notes", null=True
+    )
     is_auto_tagged = models.BooleanField(default=False)
     content = models.JSONField(default=blank_content)
     transcript = models.JSONField(default=blank_transcript)
@@ -93,6 +101,10 @@ class Note(models.Model):
     def highlights(self):
         return Highlight.objects.filter(note=self)
 
+    @property
+    def is_analyzing(self):
+        return self.task and self.task.status not in {"SUCCESS", "FAILURE"}
+
     def save(self, *args, **kwargs):
         if self.file and self.file.name:
             self.file_type = self.file.name.split(".")[-1].lower()
@@ -102,29 +114,29 @@ class Note(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def media_type(self):
+    def media_type(self) -> MediaType:
         # Mapping of file types to media types
         to_media_type = {
-            "flac": "audio",
-            "mp3": "audio",
-            "mp4": "video",
-            "mpga": "audio",
-            "m4a": "audio",
-            "ogg": "audio",
-            "wav": "audio",
-            "webm": "video",
-            "docx": "text",
-            "pdf": "text",
-            "txt": "text",
+            "flac": Note.MediaType.AUDIO,
+            "mp3": Note.MediaType.AUDIO,
+            "mp4": Note.MediaType.VIDEO,
+            "mpga": Note.MediaType.AUDIO,
+            "m4a": Note.MediaType.AUDIO,
+            "ogg": Note.MediaType.AUDIO,
+            "wav": Note.MediaType.AUDIO,
+            "webm": Note.MediaType.VIDEO,
+            "docx": Note.MediaType.TEXT,
+            "pdf": Note.MediaType.TEXT,
+            "txt": Note.MediaType.TEXT,
         }
 
         # Return the media type based on the file type
-        return to_media_type.get(self.file_type, "unknown")
+        return to_media_type.get(self.file_type, Note.MediaType.UNKNOWN)
 
-    def get_content_markdown(self):
-        lexical = LexicalProcessor(self.content["root"])
-        return lexical.to_markdown()
-
-    def get_transcript_markdown(self):
-        assembly = AssemblyProcessor(self.transcript)
-        return assembly.to_markdown()
+    def get_markdown(self):
+        if self.media_type in {Note.MediaType.AUDIO, Note.MediaType.VIDEO}:
+            assembly = AssemblyProcessor(self.transcript)
+            return assembly.to_markdown()
+        else:  # Note.MediaType.TEXT or Note.MediaType.UNKNOWN
+            lexical = LexicalProcessor(self.content["root"])
+            return lexical.to_markdown()

@@ -36,11 +36,11 @@ from api.views.integrations.slack.oauth_redirect import SlackOauthRedirectCreate
 from api.views.integrations.slack.oauth_url import SlackOauthUrlRetrieveView
 from api.views.integrations.slack.to_frontend import SlackToFrontendRedirectView
 from api.views.note.note import NoteRetrieveUpdateDeleteView
+from api.views.note.note_clip import NoteClipCreateView
 from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
 )
-from api.views.note.note_highlight import NoteHighlightCreateView
 from api.views.note.note_message import NoteMessageListCreateView
 from api.views.note.note_property import NotePropertyListView, NotePropertyUpdateView
 from api.views.note.note_tag import NoteTagListView
@@ -170,8 +170,8 @@ urlpatterns = [
         name="note-message-list-create",
     ),
     path(
-        "reports/<str:report_id>/highlight/",
-        NoteHighlightCreateView.as_view(),
+        "reports/<str:report_id>/clips/",
+        NoteClipCreateView.as_view(),
         name="note-highlight-create",
     ),
     # =====================================================

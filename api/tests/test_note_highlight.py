@@ -1,21 +1,25 @@
 import io
-from decimal import Decimal
+import logging
+
+from django.core.files.base import ContentFile
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.core.files.base import ContentFile
 
-from api.models.user import User
-from api.models.note import Note
 from api.models.feature import Feature
-from api.models.project import Project
-from api.models.workspace import Workspace
 from api.models.highlight import Highlight
-from api.models.usage.transciption import TranscriptionUsage
+from api.models.note import Note
+from api.models.project import Project
+from api.models.user import User
+from api.models.workspace import Workspace
 
 
 class TestNoteHighlightCreateView(APITestCase):
     def setUp(self) -> None:
-        """Setup test environment"""
+        """Reduce the log level to avoid errors like 'not found'"""
+        logger = logging.getLogger("django.request")
+        self.previous_level = logger.getEffectiveLevel()
+        logger.setLevel(logging.ERROR)
+
         self.user = User.objects.create_user(username="user", password="password")
         self.outsider = User.objects.create_user(
             username="outsider", password="password"
@@ -107,7 +111,7 @@ class TestNoteHighlightCreateView(APITestCase):
         self.note.workspace = workspace
         self.note.save()
         Feature.objects.filter(code=Feature.Code.STORAGE_GB_WORKSPACE).update(default=1)
-        self.url = f"/api/reports/{self.note.id}/highlight/"
+        self.url = f"/api/reports/{self.note.id}/clips/"
 
         return super().setUp()
 
@@ -116,16 +120,18 @@ class TestNoteHighlightCreateView(APITestCase):
             "start": 240,  # in ms
             "end": 456,  # in ms
         }
+        expected_highlight_title = "Okay,"
 
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         highlight = Highlight.objects.first()
         self.assertIsNotNone(highlight)
-        self.assertEqual(
-            highlight.title,
-            "Okay,",
-        )  # Text extracted from the transcript
+        self.assertEqual(highlight.title, expected_highlight_title)
+        # Make sure that the clip is actually created
+        self.assertTrue(highlight.clip.size > 0)
+        # Clean up the clip file
+        highlight.delete()
 
     def test_create_highlight_exceeds_duration(self):
         data = {
@@ -137,27 +143,6 @@ class TestNoteHighlightCreateView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertIn(
             "You cannot make a clip greater than 5 minutes.", response.data["detail"]
-        )
-
-    def test_create_highlight_exceeds_workspace_minutes_limit(self):
-        TranscriptionUsage.objects.create(
-            workspace=self.note.workspace,
-            project=self.note.project,
-            note=self.note,
-            created_by=self.user,
-            value=48000,  # Already used 800 minute
-            cost=Decimal("0.0001") * round(float(48000)),
-        )
-
-        data = {
-            "start": 240,  # in ms
-            "end": 3710,  # in ms
-        }
-        self.client.force_authenticate(self.user)
-        response = self.client.post(self.url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertIn(
-            "You have reached the audio transcription limit", response.data["detail"]
         )
 
     def test_create_highlight_exceeds_storage_limit(self):

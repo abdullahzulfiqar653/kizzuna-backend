@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 def blank_transcript():
@@ -30,6 +30,51 @@ class AssemblyProcessor:
             if word["start"] >= start and word["end"] <= end
         ]
         return " ".join(result)
+
+    def highlight(self, text: str, id: str):
+        if text == "":
+            return False
+
+        # This assumes that the `text`s of the `words` have been stripped
+        subtext = text.strip()
+        indices = []
+        capturing = False
+        break_outer_loop = False
+        for i, utterance in enumerate(self.json["utterances"]):
+            if break_outer_loop:
+                break
+            for j, word in enumerate(utterance["words"]):
+                if capturing:
+                    if subtext.startswith(word["text"]):
+                        # Continue capturing
+                        indices.append((i, j))
+                        subtext = subtext[len(word["text"]) :].strip()
+                        if not subtext:
+                            break_outer_loop = True
+                            break
+                    else:
+                        # Reset capturing
+                        capturing = False
+                        subtext = text.strip()
+                        indices = []
+                else:
+                    if subtext.startswith(word["text"]):
+                        # Start capturing
+                        capturing = True
+                        indices.append((i, j))
+                        subtext = subtext[len(word["text"]) :].strip()
+                        if not subtext:
+                            break_outer_loop = True
+                            break
+        if subtext:
+            # Couldn't match the entire text
+            return False
+
+        for i, j in indices:
+            self.json["utterances"][i]["words"][j].setdefault(
+                "highlight_ids", []
+            ).append(id)
+        return True
 
     def update_transcript_highlights(self, start, end, highlight_id):
         capturing = False

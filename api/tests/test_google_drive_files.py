@@ -1,6 +1,6 @@
+import logging
 from unittest.mock import MagicMock, patch
 
-from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -12,6 +12,11 @@ from api.models.workspace import Workspace
 
 class GoogleDriveFilesViewTests(APITestCase):
     def setUp(self):
+        """Reduce the log level to avoid errors like 'not found'"""
+        logger = logging.getLogger("django.request")
+        self.previous_level = logger.getEffectiveLevel()
+        logger.setLevel(logging.ERROR)
+
         self.user = User.objects.create_user(username="testuser", password="testpass")
         self.client.force_authenticate(user=self.user)
         self.workspace = Workspace.objects.create(
@@ -21,14 +26,15 @@ class GoogleDriveFilesViewTests(APITestCase):
             id="test_project", name="Test Project", workspace=self.workspace
         )
         self.project.users.add(self.user)
-        self.list_files_url = reverse(
-            "googledrive-files", kwargs={"project_id": self.project.id}
+        self.list_files_url = (
+            f"/api/projects/{self.project.id}/integrations/google_drive/files/"
         )
 
     @patch("requests.get")
     def test_list_files_success(self, mock_get):
         GoogleDriveCredential.objects.create(
             user=self.user,
+            project=self.project,
             access_token="valid_access_token",
             refresh_token="valid_refresh_token",
             token_type="Bearer",
@@ -54,6 +60,7 @@ class GoogleDriveFilesViewTests(APITestCase):
     def test_list_files_token_expired(self, mock_post, mock_get):
         GoogleDriveCredential.objects.create(
             user=self.user,
+            project=self.project,
             access_token="expired_access_token",
             refresh_token="valid_refresh_token",
             token_type="Bearer",
@@ -91,6 +98,7 @@ class GoogleDriveFilesViewTests(APITestCase):
     def test_list_files_failed_to_retrieve_files(self, mock_post, mock_get):
         GoogleDriveCredential.objects.create(
             user=self.user,
+            project=self.project,
             access_token="valid_access_token",
             refresh_token="valid_refresh_token",
             token_type="Bearer",
@@ -115,6 +123,7 @@ class GoogleDriveFilesViewTests(APITestCase):
     def test_refresh_access_token_failure(self, mock_post):
         gdrive_user = GoogleDriveCredential.objects.create(
             user=self.user,
+            project=self.project,
             access_token="expired_access_token",
             refresh_token="valid_refresh_token",
             token_type="Bearer",

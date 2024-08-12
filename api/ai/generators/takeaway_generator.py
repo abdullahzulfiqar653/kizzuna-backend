@@ -19,6 +19,7 @@ from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.user import User
+from api.utils.assembly import AssemblyProcessor
 from api.utils.lexical import LexicalProcessor
 
 
@@ -130,7 +131,7 @@ def generate_takeaways(
     )
 
     bot = User.objects.get(username="bot@raijin.ai")
-    doc = Document(page_content=note.get_content_markdown())
+    doc = Document(page_content=note.get_markdown())
     docs = text_splitter.split_documents([doc])
 
     with token_tracker(note.project, note, "generate-takeaways", created_by):
@@ -167,13 +168,22 @@ def generate_takeaways(
     ]
 
     # Embed note content
-    lexical = LexicalProcessor(note.content["root"])
-    sentences = [
-        sentence.strip()
-        for paragraph in lexical.to_text().split("\n")
-        for sentence in sent_tokenize(paragraph)
-        if sentence.strip()  # Check if there is some text after stripping
-    ]
+    if note.media_type in {Note.MediaType.TEXT, Note.MediaType.UNKNOWN}:
+        lexical = LexicalProcessor(note.content["root"])
+        sentences = [
+            sentence.strip()
+            for paragraph in lexical.to_text().split("\n")
+            for sentence in sent_tokenize(paragraph)
+            if sentence.strip()  # Check if there is some text after stripping
+        ]
+    else:  # audio or video
+        transcript = note.transcript
+        words = [
+            word["text"]
+            for utterance in transcript["utterances"]
+            for word in utterance["words"]
+        ]
+        sentences = sent_tokenize(" ".join(words))
     bi_sentences = [
         f"{sentence1} {sentence2}"
         for sentence1, sentence2 in zip(sentences[:-1], sentences[1:])
@@ -215,7 +225,11 @@ def generate_takeaways(
         )
 
         highlight_str = sentences[index]
-        lexical.highlight(highlight_str, takeaway.id)
+        if note.media_type == "text":
+            lexical.highlight(highlight_str, takeaway.id)
+        else:
+            assembly = AssemblyProcessor(note.transcript)
+            assembly.highlight(highlight_str, takeaway.id)
         highlight = Highlight(takeaway_ptr_id=takeaway.id, quote=highlight_str)
 
         takeaways_to_create.append(takeaway)
