@@ -3,7 +3,9 @@ import io
 import ffmpeg
 import tempfile
 import secrets
+from pathlib import Path
 from django.conf import settings
+from django.core.files.base import ContentFile
 
 
 def create_thumbnail(file, thumbnail_path, time):
@@ -54,3 +56,31 @@ def cut_media_file(file, start_time, end_time):
         thumbnail_name,
         thumbnail_size,
     )
+
+
+def merge_media_files(files):
+    with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
+        temp_file_path = temp_file.name
+        if settings.USE_S3:
+            (
+                ffmpeg.input(
+                    "pipe:",
+                    format="concat",
+                    safe=0,
+                    protocol_whitelist="file,http,https,tcp,tls,pipe",
+                )
+                .output(temp_file_path, c="copy")
+                .overwrite_output()
+                .run(input=files.encode())
+            )
+        else:
+            list_file = "concat.txt"
+            with open(list_file, "w") as f:
+                f.writelines(files)
+            ffmpeg.input(list_file, format="concat", safe=0).output(
+                temp_file_path, c="copy"
+            ).overwrite_output().run()
+            os.remove(list_file)
+        temp_file.seek(0)
+        file = ContentFile(temp_file.read(), Path(temp_file_path).name)
+    return file

@@ -2,10 +2,13 @@ from api.serializers.takeaway import TakeawaySerializer
 from api.models.takeaway import Takeaway
 from api.models.playbook import PlayBookTakeaway
 from rest_framework import serializers, exceptions
+from django.conf import settings
+from api.utils.media import merge_media_files
 
 
 class PlaybookTakeawaySerializer(TakeawaySerializer):
     order = serializers.IntegerField(required=False)
+    clip = serializers.SerializerMethodField()
     takeaway_id = serializers.CharField(required=False)
     type_id = None
 
@@ -13,6 +16,10 @@ class PlaybookTakeawaySerializer(TakeawaySerializer):
         model = Takeaway
         fields = TakeawaySerializer.Meta.fields + ["order", "takeaway_id"]
         read_only_fields = list(set(TakeawaySerializer.Meta.fields))
+
+    def get_clip(self, obj):
+        playbook = self.context.get("request").playbook
+        return playbook.clip.url
 
     def validate_takeaway_id(self, takeaway_id):
         request = self.context.get("request")
@@ -45,4 +52,23 @@ class PlaybookTakeawaySerializer(TakeawaySerializer):
         PlayBookTakeaway.objects.get(playbook=request.playbook, takeaway=takeaway).to(
             validated_data["order"]
         )
+        playbook_takeaways = PlayBookTakeaway.objects.filter(
+            takeaway__in=request.playbook.takeaways.all()
+        ).order_by("-order")
+
+        urls = "\n".join(
+            f"file '{pt.takeaway.highlight.clip.url if settings.USE_S3 else pt.takeaway.highlight.clip.path}'"
+            for pt in playbook_takeaways
+        )
+        request.playbook.clip = merge_media_files(urls)
+        request.playbook.save()
         return super().update(request.playbook, validated_data)
+
+
+# USE S3:
+# 6GGpQZFLtv6q
+# 6yeHhpcVQGfd
+
+# USE LOCAL:
+# GZkgMTwstH9b
+# 7TwpAQ3U5uq6
