@@ -15,3 +15,5 @@ from .test_project_takeaway_type import *
 from .test_takeaway import *
 from .test_takeaway_tag import *
 from .test_workspace import *
+from .test_project_playbook import *
+from .test_playbook import *
