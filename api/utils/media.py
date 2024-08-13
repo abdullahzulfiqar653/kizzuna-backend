@@ -39,9 +39,13 @@ def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> Conte
 
     return clip
 
+
 def merge_media_files(files):
     with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
         temp_file_path = temp_file.name
+        highlight_urls = "\n".join(
+            f"file '{file.url if settings.USE_S3 else file.path}'" for file in files
+        )
         if settings.USE_S3:
             (
                 ffmpeg.input(
@@ -52,12 +56,12 @@ def merge_media_files(files):
                 )
                 .output(temp_file_path, c="copy")
                 .overwrite_output()
-                .run(input=files.encode())
+                .run(input=highlight_urls.encode())
             )
         else:
             list_file = "concat.txt"
             with open(list_file, "w") as f:
-                f.writelines(files)
+                f.writelines(highlight_urls)
             ffmpeg.input(list_file, format="concat", safe=0).output(
                 temp_file_path, c="copy"
             ).overwrite_output().run()

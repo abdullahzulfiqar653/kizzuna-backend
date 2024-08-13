@@ -1,4 +1,3 @@
-from django.conf import settings
 from rest_framework import serializers, exceptions
 
 from api.utils import media
@@ -8,14 +7,13 @@ from api.serializers.takeaway import TakeawaySerializer
 
 
 def create_playbook_clip_and_thumbnail(playbook):
-    playbook_takeaways = PlayBookTakeaway.objects.filter(
-        takeaway__in=playbook.takeaways.all()
-    ).order_by("-order")
-    urls = "\n".join(
-        f"file '{pt.takeaway.highlight.clip.url if settings.USE_S3 else pt.takeaway.highlight.clip.path}'"
-        for pt in playbook_takeaways
-    )
-    clip = media.merge_media_files(urls)
+    files = [
+        pt.takeaway.highlight.clip
+        for pt in PlayBookTakeaway.objects.filter(
+            takeaway__in=playbook.takeaways.all()
+        ).order_by("-order")
+    ]
+    clip = media.merge_media_files(files)
     playbook.clip = clip
     playbook.save()
     playbook.thumbnail = media.create_thumbnail(playbook.clip, 1)
