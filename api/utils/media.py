@@ -41,31 +41,29 @@ def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> Conte
 
 
 def merge_media_files(files):
-    with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_file:
         temp_file_path = temp_file.name
+
         highlight_urls = "\n".join(
             f"file '{file.url if settings.USE_S3 else file.path}'" for file in files
         )
-        if settings.USE_S3:
-            (
-                ffmpeg.input(
-                    "pipe:",
-                    format="concat",
-                    safe=0,
-                    protocol_whitelist="file,http,https,tcp,tls,pipe",
-                )
-                .output(temp_file_path, c="copy")
-                .overwrite_output()
-                .run(input=highlight_urls.encode())
-            )
-        else:
-            list_file = "concat.txt"
-            with open(list_file, "w") as f:
-                f.writelines(highlight_urls)
-            ffmpeg.input(list_file, format="concat", safe=0).output(
-                temp_file_path, c="copy"
-            ).overwrite_output().run()
-            os.remove(list_file)
-        temp_file.seek(0)
-        file = ContentFile(temp_file.read(), Path(temp_file_path).name)
+        input_source = "pipe:" if settings.USE_S3 else "concat.txt"
+        input = highlight_urls.encode() if settings.USE_S3 else None
+        if not settings.USE_S3:
+            with open(input_source, "w") as f:
+                f.write(highlight_urls)
+
+        try:
+            ffmpeg.input(
+                input_source,
+                format="concat",
+                safe=0,
+                protocol_whitelist="file,http,https,tcp,tls,pipe",
+            ).output(temp_file_path, c="copy").overwrite_output().run(input=input)
+        finally:
+            if not settings.USE_S3:
+                os.remove(input_source)
+
+        with open(temp_file_path, "rb") as f:
+            file = ContentFile(f.read(), Path(temp_file_path).name)
     return file
