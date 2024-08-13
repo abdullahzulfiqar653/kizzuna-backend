@@ -27,6 +27,12 @@ class PlayBookSerializer(serializers.ModelSerializer):
             "thumbnail",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        project = self.get_project()
+        if project:
+            self.fields["report_ids"].child_relation.queryset = project.notes.all()
+
     def get_project(self):
         """
         Helper method to retrieve the project from the context.
@@ -37,11 +43,6 @@ class PlayBookSerializer(serializers.ModelSerializer):
         if hasattr(request, "playbook"):
             return request.playbook.project
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        project = self.get_project()
-        if project:
-            self.fields["report_ids"].child_relation.queryset = project.notes.all()
 
     def validate_title(self, title):
         project = self.get_project()
