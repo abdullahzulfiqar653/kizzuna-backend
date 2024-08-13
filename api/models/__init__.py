@@ -32,6 +32,7 @@ from api.models.user_saved_takeaway import UserSavedTakeaway
 from api.models.workspace import Workspace
 from api.models.workspace_user import WorkspaceUser
 from api.models.playbook import PlayBook
+from api.models.playbook_takeaway import PlayBookTakeaway
 
 __all__ = [
     "Takeaway",
@@ -68,4 +69,5 @@ __all__ = [
     "StripeProduct",
     "StripeSubscription",
     "PlayBook",
+    "PlayBookTakeaway",
 ]

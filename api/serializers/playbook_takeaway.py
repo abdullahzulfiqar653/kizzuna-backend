@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 
 from api.utils import media
 from api.models.takeaway import Takeaway
-from api.models.playbook import PlayBookTakeaway
+from api.models.playbook_takeaway import PlayBookTakeaway
 from api.serializers.takeaway import TakeawaySerializer
 
 

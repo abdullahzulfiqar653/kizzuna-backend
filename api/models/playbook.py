@@ -7,8 +7,6 @@ from api.models.project import Project
 from api.models.takeaway import Takeaway
 from api.models.workspace import Workspace
 
-from ordered_model.models import OrderedModel
-
 
 class PlayBook(models.Model):
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
@@ -47,12 +45,3 @@ class PlayBook(models.Model):
 
     def __str__(self):
         return self.title
-
-
-class PlayBookTakeaway(OrderedModel):
-    playbook = models.ForeignKey(PlayBook, on_delete=models.CASCADE)
-    takeaway = models.ForeignKey(Takeaway, on_delete=models.CASCADE)
-    
-    class Meta:
-        ordering = ['order']
-        unique_together = ('playbook', 'takeaway')
