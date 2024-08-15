@@ -20,15 +20,17 @@ class PlayBookTakeaway(OrderedModel):
     def create_playbook_clip_and_thumbnail(self):
         files = [
             pt.takeaway.highlight.clip
-            for pt in PlayBookTakeaway.objects.filter(
-                takeaway__in=self.playbook.takeaways.all()
-            ).order_by("-order")
+            for pt in self.playbook.playbook_takeaways.all().order_by("-order")
         ]
-        clip = media.merge_media_files(files)
-        self.playbook.clip = clip
-        self.playbook.save()
-        self.playbook.thumbnail = media.create_thumbnail(self.playbook.clip, 1)
-        self.playbook.save()
+        if files:
+            clip = media.merge_media_files(files)
+            self.playbook.clip = clip
+            self.playbook.save()
+            self.playbook.thumbnail = media.create_thumbnail(self.playbook.clip, 1)
+            self.playbook.save()
+        else:
+            self.playbook.clip = None
+            self.playbook.save()
 
     def update_playbook_takeaway_times(self):
         playbook_takeaways = self.playbook.playbook_takeaways.all().order_by("-order")
