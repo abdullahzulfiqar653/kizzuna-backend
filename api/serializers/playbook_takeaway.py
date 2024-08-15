@@ -1,41 +1,12 @@
 from rest_framework import serializers
 from ordered_model.serializers import OrderedModelSerializer
-from api.utils import media
+
 from api.models.takeaway import Takeaway
 from api.models.playbook_takeaway import PlayBookTakeaway
-from api.serializers.playbook import PlayBookSerializer
 from api.models.playbook_takeaway import PlayBookTakeaway
+
+from api.serializers.playbook import PlayBookSerializer
 from api.serializers.takeaway import TakeawaySerializer
-
-
-def create_playbook_clip_and_thumbnail(playbook):
-    files = [
-        pt.takeaway.highlight.clip
-        for pt in PlayBookTakeaway.objects.filter(
-            takeaway__in=playbook.takeaways.all()
-        ).order_by("-order")
-    ]
-    clip = media.merge_media_files(files)
-    playbook.clip = clip
-    playbook.save()
-    playbook.thumbnail = media.create_thumbnail(playbook.clip, 1)
-    playbook.save()
-
-
-def update_playbook_takeaway_times(playbook):
-    playbook_takeaways = playbook.playbook_takeaways.all().order_by("order")
-    start_time = 0
-    updated_playbook_takeaways = []
-
-    for pt in playbook_takeaways:
-        highlight = pt.takeaway.highlight
-        if highlight.start is not None and highlight.end is not None:
-            duration = highlight.end - highlight.start
-            pt.start = start_time
-            pt.end = start_time + duration
-            start_time = pt.end
-            updated_playbook_takeaways.append(pt)
-    return updated_playbook_takeaways
 
 
 class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerializer):
@@ -80,7 +51,7 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
 
     def update(self, instance, validated_data):
         playbook_takeaway = super().update(instance, validated_data)
-        
+
         playbook_takeaway.create_playbook_clip_and_thumbnail()
         playbook_takeaway.update_playbook_takeaway_times()
 

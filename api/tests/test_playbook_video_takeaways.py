@@ -11,6 +11,7 @@ from api.models.project import Project
 from api.models.note import Note
 from django.core.files.base import ContentFile
 from rest_framework import status
+from django.urls import reverse
 from api.models.playbook_takeaway import PlayBookTakeaway
 
 
@@ -67,7 +68,10 @@ class TestPlaybookVideoTakeawaysListCreateView(APITestCase):
         )
 
         self.url = f"/api/playbooks/{self.playbook.id}/video/takeaways/"
-        print(self.url)
+        self.url_update_delete = lambda takeaway_id: reverse(
+            "playbook-video-takeaways-update-destroy",
+            kwargs={"playbook_id": self.playbook.id, "takeaway_id": takeaway_id},
+        )
         return super().setUp()
 
     def test_list_playbook_takeaways(self):
@@ -113,3 +117,55 @@ class TestPlaybookVideoTakeawaysListCreateView(APITestCase):
             error_messages,
             f"Expected error message '{expected_error_message}' for takeaway_id.",
         )
+
+    def test_update_playbook_takeaway(self):
+        data = {"order": 3}
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(
+            self.url_update_delete(self.takeaway_1.id), data=data, format="json"
+        )
+        updated_takeaway = PlayBookTakeaway.objects.get(id=response.data["id"])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["order"], 3)
+        self.assertEqual(updated_takeaway.order, 3)
+
+    def test_update_playbook_takeaway_unauthenticated(self):
+        data = {"order": 4}
+        response = self.client.patch(
+            self.url_update_delete(self.takeaway_1.id), data=data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_playbook_takeaway(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.url_update_delete(self.takeaway_1.id))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(
+            PlayBookTakeaway.objects.filter(id=self.playbook_takeaway.id).exists()
+        )
+
+    def test_delete_playbook_takeaway_unauthenticated(self):
+        response = self.client.delete(self.url_update_delete(self.takeaway_2.id))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_playbook_takeaway_not_found(self):
+        data = {"order": 5}
+        self.client.force_authenticate(self.user)
+        response = self.client.patch(
+            self.url_update_delete(9999), data=data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_playbook_takeaway_not_associated(self):
+        another_playbook = PlayBook.objects.create(
+            title="Another Playbook",
+            created_by=self.user,
+            project=self.project,
+            workspace=self.workspace,
+        )
+        another_takeaway = PlayBookTakeaway.objects.create(
+            playbook=another_playbook, takeaway=self.takeaway_2, order=1
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.delete(self.url_update_delete(another_takeaway.takeaway.id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
