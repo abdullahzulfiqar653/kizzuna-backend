@@ -40,8 +40,5 @@ class PlayBook(models.Model):
         Takeaway, related_name="playbooks", through="PlayBookTakeaway"
     )
 
-    class Meta:
-        unique_together = ("title", "project")
-
     def __str__(self):
         return self.title

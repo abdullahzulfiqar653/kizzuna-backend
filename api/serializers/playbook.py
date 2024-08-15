@@ -43,17 +43,6 @@ class PlayBookSerializer(serializers.ModelSerializer):
         if hasattr(request, "playbook"):
             return request.playbook.project
 
-
-    def validate_title(self, title):
-        project = self.get_project()
-        if self.instance and self.instance.title == title:
-            return title  # Title hasn't changed, no need for validation
-        if PlayBook.objects.filter(title=title, project=project).exists():
-            raise serializers.ValidationError(
-                "A PlayBook with this title in the current project already exists."
-            )
-        return title
-
     def create(self, validated_data):
         request = self.context.get("request")
         validated_data["created_by"] = request.user
@@ -63,7 +52,8 @@ class PlayBookSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         notes_data = validated_data.pop("notes", None)
-        notes_to_add = set(notes_data) - set(instance.notes.all())
-        instance.notes.add(*notes_to_add)
+        if notes_data:
+            notes_to_add = set(notes_data) - set(instance.notes.all())
+            instance.notes.add(*notes_to_add)
 
         return super().update(instance, validated_data)
