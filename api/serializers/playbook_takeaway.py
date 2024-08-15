@@ -36,7 +36,7 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        playbook = self.context.get("request").playbook
+        playbook = getattr(self.context.get("request"), "playbook", None)
         if playbook:
             self.fields["takeaway_id"].queryset = Takeaway.objects.filter(
                 note__in=playbook.notes.all()
