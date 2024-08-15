@@ -46,7 +46,9 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
         request = self.context.get("request")
         if self.instance is None:
             if request.playbook.takeaways.filter(pk=attrs["takeaway"].pk).exists():
-                raise serializers.ValidationError("Takeaway already exists in playbook")
+                raise serializers.ValidationError(
+                    {"takeaway_id": "Takeaway already exists in playbook"}
+                )
         return super().validate(attrs)
 
     def create(self, validated_data):
