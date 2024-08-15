@@ -17,3 +17,8 @@ class PlaybookVideoTakeawaysUpdateDestroyView(
 
     def get_queryset(self):
         return self.request.playbook.playbook_takeaways.all()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        instance.update_playbook_takeaway_times()
+        instance.create_playbook_clip_and_thumbnail()
