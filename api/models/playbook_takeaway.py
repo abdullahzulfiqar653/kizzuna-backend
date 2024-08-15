@@ -13,5 +13,5 @@ class PlayBookTakeaway(OrderedModel):
     end = models.PositiveIntegerField(null=True)
 
     class Meta:
-        ordering = ["order"]
+        ordering = ["-order"]
         unique_together = ("playbook", "takeaway")
