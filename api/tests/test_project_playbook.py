@@ -65,16 +65,19 @@ class TestProjectPlayBookListCreateView(APITestCase):
             description="Existing playbook description",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace
+            workspace=self.project.workspace,
         )
         data = {
             "title": "Existing Playbook",
-            "description": "This should raise an error",
+            "description": "This should not raise error",
         }
         self.client.force_authenticate(self.user)
-        response = self.client.post(self.url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("A PlayBook with this title in the current project already exists.", response.data["title"])
+        response = self.client.post(self.url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        playbook = PlayBook.objects.last()
+        self.assertIsNotNone(playbook)
+        self.assertEqual(playbook.title, data["title"])
+        self.assertEqual(data["description"], response.data["description"])
 
     def test_list_playbooks_success(self):
         PlayBook.objects.create(
@@ -82,14 +85,14 @@ class TestProjectPlayBookListCreateView(APITestCase):
             description="Description of the first playbook",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace
+            workspace=self.project.workspace,
         )
         PlayBook.objects.create(
             title="Second Playbook",
             description="Description of the second playbook",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace
+            workspace=self.project.workspace,
         )
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)
