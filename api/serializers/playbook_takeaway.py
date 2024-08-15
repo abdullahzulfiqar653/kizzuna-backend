@@ -22,6 +22,22 @@ def create_playbook_clip_and_thumbnail(playbook):
     playbook.save()
 
 
+def update_playbook_takeaway_times(playbook):
+    playbook_takeaways = playbook.playbook_takeaways.all().order_by("order")
+    start_time = 0
+    updated_playbook_takeaways = []
+
+    for pt in playbook_takeaways:
+        highlight = pt.takeaway.highlight
+        if highlight.start is not None and highlight.end is not None:
+            duration = highlight.end - highlight.start
+            pt.start = start_time
+            pt.end = start_time + duration
+            start_time = pt.end
+            updated_playbook_takeaways.append(pt)
+    return updated_playbook_takeaways
+
+
 class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerializer):
     takeaway = TakeawaySerializer(read_only=True)
     playbook = PlayBookSerializer(read_only=True)
@@ -32,7 +48,8 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
 
     class Meta:
         model = PlayBookTakeaway
-        fields = ["takeaway_id", "order", "takeaway", "playbook"]
+        fields = ["id", "takeaway_id", "order", "takeaway", "playbook", "start", "end"]
+        read_only_fields = ["start", "end"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,13 +69,17 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
         return super().validate(attrs)
 
     def create(self, validated_data):
-        request = self.context.get("request")
-        validated_data["playbook"] = request.playbook
+        playbook = getattr(self.context.get("request"), "playbook")
+        validated_data["playbook"] = playbook
         playbook_takeaway = super().create(validated_data)
-        create_playbook_clip_and_thumbnail(request.playbook)
+        create_playbook_clip_and_thumbnail(playbook)
+        playbook_takeaways = update_playbook_takeaway_times(playbook)
+        PlayBookTakeaway.objects.bulk_update(playbook_takeaways, ["start", "end"])
         return playbook_takeaway
 
     def update(self, instance, validated_data):
         playbook_takeaway = super().update(instance, validated_data)
         create_playbook_clip_and_thumbnail(playbook_takeaway.playbook)
+        playbook_takeaways = update_playbook_takeaway_times(playbook_takeaway.playbook)
+        PlayBookTakeaway.objects.bulk_update(playbook_takeaways, ["start", "end"])
         return playbook_takeaway
