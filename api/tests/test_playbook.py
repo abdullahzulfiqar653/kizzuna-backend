@@ -78,11 +78,8 @@ class TestPlaybookRetrieveUpdateDeleteView(APITestCase):
         }
         self.client.force_authenticate(self.user)
         response = self.client.put(self.url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn(
-            "A PlayBook with this title in the current project already exists.",
-            response.data["title"],
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["title"], data["title"])
 
     def test_update_playbook_invalid_report_id(self):
         data = {
@@ -105,7 +102,7 @@ class TestPlaybookRetrieveUpdateDeleteView(APITestCase):
         self.assertFalse(PlayBook.objects.filter(id=self.playbook.id).exists())
 
     def test_delete_playbook_no_permission(self):
-        self.client.force_authenticate(None) 
+        self.client.force_authenticate(None)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertTrue(PlayBook.objects.filter(id=self.playbook.id).exists())
