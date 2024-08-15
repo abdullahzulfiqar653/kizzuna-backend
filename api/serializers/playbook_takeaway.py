@@ -51,8 +51,12 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
 
     def create(self, validated_data):
         request = self.context.get("request")
-        playbook_takeaway = PlayBookTakeaway.objects.create(
-            playbook=request.playbook, takeaway=validated_data["takeaway"]
-        )
+        validated_data["playbook"] = request.playbook
+        playbook_takeaway = super().create(validated_data)
         create_playbook_clip_and_thumbnail(request.playbook)
+        return playbook_takeaway
+
+    def update(self, instance, validated_data):
+        playbook_takeaway = super().update(instance, validated_data)
+        create_playbook_clip_and_thumbnail(playbook_takeaway.playbook)
         return playbook_takeaway
