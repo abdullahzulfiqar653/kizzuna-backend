@@ -5,7 +5,7 @@ from api.serializers.playbook import PlayBookSerializer
 class ProjectPlayBookListCreateView(generics.ListCreateAPIView):
     serializer_class = PlayBookSerializer
     ordering = ["-created_at"]
-    search_fields = ["name", "description"]
+    search_fields = ["title", "description"]
 
     def get_queryset(self):
         return self.request.project.playbooks.prefetch_related("takeaways").all()
