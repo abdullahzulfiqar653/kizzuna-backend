@@ -37,6 +37,12 @@ def users_in_scope(request):
             created_takeaways__note__assets__blocks=block_id
         ).distinct()
 
+    playbook_id = kwargs.get("playbook_id")
+    if playbook_id is not None:
+        return User.objects.filter(
+            created_takeaways__note__project__playbooks=playbook_id
+        ).distinct()
+
     return User.objects.none()
 
 
@@ -63,6 +69,10 @@ def tags_in_scope(request):
     block_id = kwargs.get("block_id")
     if block_id is not None:
         return Tag.objects.filter(takeaways__note__project__assets__blocks=block_id)
+
+    playbook_id = kwargs.get("playbook_id")
+    if playbook_id is not None:
+        return Tag.objects.filter(takeaways__note__project__playbooks=playbook_id)
 
     return Tag.objects.none()
 
@@ -123,6 +133,12 @@ def takeaway_types_in_scope(request):
     if block_id is not None:
         return TakeawayType.objects.filter(
             takeaways__note__project__assets__blocks=block_id
+        )
+
+    playbook_id = kwargs.get("playbook_id")
+    if playbook_id is not None:
+        return TakeawayType.objects.filter(
+            takeaways__note__project__playbooks=playbook_id
         )
 
     return TakeawayType.objects.none()

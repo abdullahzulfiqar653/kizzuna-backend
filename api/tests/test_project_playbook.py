@@ -2,13 +2,13 @@ import logging
 from rest_framework import status
 from rest_framework.test import APITestCase
 from api.models.note import Note
-from api.models.playbook import PlayBook
+from api.models.playbook import Playbook
 from api.models.project import Project
 from api.models.user import User
 from api.models.workspace import Workspace
 
 
-class TestProjectPlayBookListCreateView(APITestCase):
+class TestProjectPlaybookListCreateView(APITestCase):
     def setUp(self) -> None:
         """Reduce the log level to avoid errors like 'not found'"""
         logger = logging.getLogger("django.request")
@@ -43,7 +43,7 @@ class TestProjectPlayBookListCreateView(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        playbook = PlayBook.objects.first()
+        playbook = Playbook.objects.first()
         self.assertIsNotNone(playbook)
         self.assertEqual(playbook.title, data["title"])
         self.assertEqual(playbook.description, data["description"])
@@ -60,12 +60,11 @@ class TestProjectPlayBookListCreateView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_playbook_title_exists(self):
-        PlayBook.objects.create(
+        Playbook.objects.create(
             title="Existing Playbook",
             description="Existing playbook description",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace,
         )
         data = {
             "title": "Existing Playbook",
@@ -74,25 +73,23 @@ class TestProjectPlayBookListCreateView(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        playbook = PlayBook.objects.last()
+        playbook = Playbook.objects.last()
         self.assertIsNotNone(playbook)
         self.assertEqual(playbook.title, data["title"])
         self.assertEqual(data["description"], response.data["description"])
 
     def test_list_playbooks_success(self):
-        PlayBook.objects.create(
+        Playbook.objects.create(
             title="First Playbook",
             description="Description of the first playbook",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace,
         )
-        PlayBook.objects.create(
+        Playbook.objects.create(
             title="Second Playbook",
             description="Description of the second playbook",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace,
         )
         self.client.force_authenticate(self.user)
         response = self.client.get(self.url)

@@ -2,8 +2,7 @@ from rest_framework import serializers
 from ordered_model.serializers import OrderedModelSerializer
 
 from api.models.takeaway import Takeaway
-from api.models.playbook_takeaway import PlayBookTakeaway
-from api.models.playbook_takeaway import PlayBookTakeaway
+from api.models.playbook_takeaway import PlaybookTakeaway
 
 from api.serializers.playbook import PlayBookSerializer
 from api.serializers.takeaway import TakeawaySerializer
@@ -18,7 +17,7 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
     order = serializers.IntegerField(required=False)
 
     class Meta:
-        model = PlayBookTakeaway
+        model = PlaybookTakeaway
         fields = ["id", "takeaway_id", "order", "takeaway", "playbook", "start", "end"]
         read_only_fields = ["start", "end"]
 
@@ -39,20 +38,20 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
                 )
         return super().validate(attrs)
 
+    def perform_post_save_actions(self, playbook_takeaway: PlaybookTakeaway):
+        playbook_takeaway.playbook.create_playbook_clip_and_thumbnail()
+        playbook_takeaway.playbook.update_playbook_takeaway_times()
+
     def create(self, validated_data):
         playbook = getattr(self.context.get("request"), "playbook")
         validated_data["playbook"] = playbook
         playbook_takeaway = super().create(validated_data)
-
-        playbook_takeaway.create_playbook_clip_and_thumbnail()
-        playbook_takeaway.update_playbook_takeaway_times()
+        self.perform_post_save_actions(playbook_takeaway)
 
         return playbook_takeaway
 
     def update(self, instance, validated_data):
-        playbook_takeaway = super().update(instance, validated_data)
-
-        playbook_takeaway.create_playbook_clip_and_thumbnail()
-        playbook_takeaway.update_playbook_takeaway_times()
+        playbook_takeaway: PlayBookTakeaway = super().update(instance, validated_data)
+        self.perform_post_save_actions(playbook_takeaway)
 
         return playbook_takeaway

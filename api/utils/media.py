@@ -41,7 +41,7 @@ def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> Conte
 
 
 def merge_media_files(files):
-    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as temp_file:
+    with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
         temp_file_path = temp_file.name
 
         highlight_urls = "\n".join(
@@ -63,7 +63,6 @@ def merge_media_files(files):
         finally:
             if not settings.USE_S3:
                 os.remove(input_source)
-
-        with open(temp_file_path, "rb") as f:
-            file = ContentFile(f.read(), Path(temp_file_path).name)
+        temp_file.seek(0)
+        file = ContentFile(temp_file.read(), Path(temp_file_path).name)
     return file

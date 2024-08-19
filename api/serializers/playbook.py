@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from api.models.note import Note
-from api.models.playbook import PlayBook
+from api.models.playbook import Playbook
 
 
 class PlayBookSerializer(serializers.ModelSerializer):
@@ -13,17 +13,17 @@ class PlayBookSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = PlayBook
+        model = Playbook
         fields = [
             "id",
-            "clip",
+            "video",
             "title",
             "thumbnail",
             "report_ids",
             "description",
         ]
         read_only_fields = [
-            "clip",
+            "video",
             "thumbnail",
         ]
 
@@ -46,7 +46,6 @@ class PlayBookSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request")
         validated_data["created_by"] = request.user
-        validated_data["workspace"] = request.project.workspace
         validated_data["project"] = request.project
         return super().create(validated_data)
 

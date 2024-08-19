@@ -2,7 +2,7 @@ import logging
 from rest_framework import status
 from rest_framework.test import APITestCase
 from api.models.note import Note
-from api.models.playbook import PlayBook
+from api.models.playbook import Playbook
 from api.models.project import Project
 from api.models.user import User
 from api.models.workspace import Workspace
@@ -30,15 +30,21 @@ class TestPlaybookRetrieveUpdateDeleteView(APITestCase):
             author=self.user,
         )
 
-        self.playbook = PlayBook.objects.create(
+        self.playbook = Playbook.objects.create(
             title="Sample Playbook",
             description="Description of the sample playbook",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace,
         )
 
         self.url = f"/api/playbooks/{self.playbook.id}/"
+        self.another_workspace = Workspace.objects.create(
+            name="another_workspace", owned_by=self.outsider
+        )
+        self.another_project = Project.objects.create(
+            name="another_project", workspace=self.another_workspace
+        )
+        self.another_project.users.add(self.outsider)
 
         return super().setUp()
 
@@ -58,19 +64,18 @@ class TestPlaybookRetrieveUpdateDeleteView(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.put(self.url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        playbook = PlayBook.objects.get(id=self.playbook.id)
+        playbook = Playbook.objects.get(id=self.playbook.id)
         self.assertEqual(playbook.title, data["title"])
         self.assertEqual(playbook.description, data["description"])
         self.assertEqual(playbook.notes.count(), 1)
         self.assertEqual(playbook.notes.first(), self.note)
 
     def test_update_playbook_title_exists(self):
-        PlayBook.objects.create(
+        Playbook.objects.create(
             title="Existing Playbook Title",
             description="Description of an existing playbook",
             project=self.project,
             created_by=self.user,
-            workspace=self.project.workspace,
         )
         data = {
             "title": "Existing Playbook Title",
@@ -99,10 +104,15 @@ class TestPlaybookRetrieveUpdateDeleteView(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(PlayBook.objects.filter(id=self.playbook.id).exists())
+        self.assertFalse(Playbook.objects.filter(id=self.playbook.id).exists())
 
     def test_delete_playbook_no_permission(self):
         self.client.force_authenticate(None)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertTrue(PlayBook.objects.filter(id=self.playbook.id).exists())
+        self.assertTrue(Playbook.objects.filter(id=self.playbook.id).exists())
+
+    def test_playbook_access_denied_to_user_from_another_project(self):
+        self.client.force_authenticate(self.outsider)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

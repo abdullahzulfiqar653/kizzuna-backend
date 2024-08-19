@@ -17,3 +17,5 @@ from .test_takeaway_tag import *
 from .test_workspace import *
 from .test_project_playbook import *
 from .test_playbook import *
+from .test_playbook_video_takeaways_detail import *
+from .test_playbook_video_takeaways import *
