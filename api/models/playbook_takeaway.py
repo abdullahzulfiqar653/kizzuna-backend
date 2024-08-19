@@ -14,13 +14,13 @@ class PlayBookTakeaway(OrderedModel):
     end = models.PositiveIntegerField(null=True)
 
     class Meta:
-        ordering = ["-order"]
+        ordering = ["order"]
         unique_together = ("playbook", "takeaway")
 
     def create_playbook_clip_and_thumbnail(self):
         files = [
             pt.takeaway.highlight.clip
-            for pt in self.playbook.playbook_takeaways.all().order_by("-order")
+            for pt in self.playbook.playbook_takeaways.all().order_by("order")
         ]
         if files:
             clip = media.merge_media_files(files)
@@ -33,7 +33,7 @@ class PlayBookTakeaway(OrderedModel):
             self.playbook.save()
 
     def update_playbook_takeaway_times(self):
-        playbook_takeaways = self.playbook.playbook_takeaways.all().order_by("-order")
+        playbook_takeaways = self.playbook.playbook_takeaways.all().order_by("order")
         start_time = 0
         updated_playbook_takeaways = []
 
