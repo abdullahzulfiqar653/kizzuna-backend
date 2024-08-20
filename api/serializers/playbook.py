@@ -4,7 +4,7 @@ from api.models.note import Note
 from api.models.playbook import Playbook
 
 
-class PlayBookSerializer(serializers.ModelSerializer):
+class PlaybookSerializer(serializers.ModelSerializer):
     report_ids = serializers.PrimaryKeyRelatedField(
         source="notes",
         queryset=Note.objects.none(),

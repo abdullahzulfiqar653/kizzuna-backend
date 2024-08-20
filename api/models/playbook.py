@@ -1,6 +1,5 @@
 from django.db import models
 from shortuuid.django_fields import ShortUUIDField
-
 from pydub.utils import mediainfo
 from api.utils import media
 from api.models.user import User
@@ -22,13 +21,13 @@ class Playbook(models.Model):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="playbooks"
     )
+    thumbnail = models.ImageField(upload_to="playbook/thumbnails/", null=True)
     video = models.FileField(
-        upload_to="playbook/videos",
+        upload_to="playbook/videos/",
         null=True,
         max_length=255,
     )
-    thumbnail = models.ImageField(upload_to="playbook/thumbnails/", null=True)
-    clip_size = models.PositiveIntegerField(
+    video_size = models.PositiveIntegerField(
         null=True, help_text="File size measured in bytes."
     )
     thumbnail_size = models.PositiveIntegerField(
@@ -36,7 +35,7 @@ class Playbook(models.Model):
     )
     notes = models.ManyToManyField(Note, related_name="playbooks")
     takeaways = models.ManyToManyField(
-        Takeaway, related_name="playbooks", through="PlayBookTakeaway"
+        Takeaway, related_name="playbooks", through="PlaybookTakeaway"
     )
 
     def __str__(self):
@@ -48,8 +47,8 @@ class Playbook(models.Model):
             for pt in self.playbook_takeaways.all().order_by("order")
         ]
         if files:
-            clip = media.merge_media_files(files)
-            self.video = clip
+            video = media.merge_media_files(files)
+            self.video = video
             self.save()
             path = self.video.url if settings.USE_S3 else self.video.path
             audio_info = mediainfo(path)

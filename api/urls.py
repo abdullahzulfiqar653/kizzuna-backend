@@ -68,7 +68,7 @@ from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
-from api.views.project.project_playbook import ProjectPlayBookListCreateView
+from api.views.project.project_playbook import ProjectPlaybookListCreateView
 from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
 from api.views.playbook.playbook_takeaways import (
     PlaybookTakeawaysListView,
@@ -302,7 +302,7 @@ urlpatterns = [
     ),
     path(
         "projects/<str:project_id>/playbooks/",
-        ProjectPlayBookListCreateView.as_view(),
+        ProjectPlaybookListCreateView.as_view(),
         name="project-playbook-list-create",
     ),
     # =====================================================

@@ -4,13 +4,13 @@ from ordered_model.serializers import OrderedModelSerializer
 from api.models.takeaway import Takeaway
 from api.models.playbook_takeaway import PlaybookTakeaway
 
-from api.serializers.playbook import PlayBookSerializer
+from api.serializers.playbook import PlaybookSerializer
 from api.serializers.takeaway import TakeawaySerializer
 
 
 class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerializer):
     takeaway = TakeawaySerializer(read_only=True)
-    playbook = PlayBookSerializer(read_only=True)
+    playbook = PlaybookSerializer(read_only=True)
     takeaway_id = serializers.PrimaryKeyRelatedField(
         source="takeaway", queryset=Takeaway.objects.none(), write_only=True
     )

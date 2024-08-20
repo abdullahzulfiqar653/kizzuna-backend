@@ -1,9 +1,9 @@
 from rest_framework import generics
-from api.serializers.playbook import PlayBookSerializer
+from api.serializers.playbook import PlaybookSerializer
 
 
-class ProjectPlayBookListCreateView(generics.ListCreateAPIView):
-    serializer_class = PlayBookSerializer
+class ProjectPlaybookListCreateView(generics.ListCreateAPIView):
+    serializer_class = PlaybookSerializer
     ordering = ["-created_at"]
     search_fields = ["title", "description"]
 
