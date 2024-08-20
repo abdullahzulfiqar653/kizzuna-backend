@@ -11,7 +11,8 @@ class PlaybookTakeaway(OrderedModel):
     takeaway = models.ForeignKey(Takeaway, on_delete=models.CASCADE)
     start = models.PositiveIntegerField(null=True)
     end = models.PositiveIntegerField(null=True)
+    order_with_respect_to = "playbook"
 
     class Meta:
+        ordering = ["order"]
         unique_together = ("playbook", "takeaway")
-        order_with_respect_to = "playbook"
