@@ -51,7 +51,6 @@ class PlaybookTakeawaySerializer(OrderedModelSerializer, serializers.ModelSerial
         return playbook_takeaway
 
     def update(self, instance, validated_data):
-        playbook_takeaway: PlayBookTakeaway = super().update(instance, validated_data)
+        playbook_takeaway = super().update(instance, validated_data)
         self.perform_post_save_actions(playbook_takeaway)
-
         return playbook_takeaway
