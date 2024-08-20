@@ -221,7 +221,8 @@ class NoteUpdateSerializer(NoteSerializer):
         organizations = validated_data.pop("organizations", None)
         note = super().update(note, validated_data)
 
-        note = self.extract_highlights_from_content_state(note)
+        if note.media_type is Note.MediaType.TEXT:
+            note = self.extract_highlights_from_content_state(note)
 
         if organizations is not None:
             organizations_to_add = []
