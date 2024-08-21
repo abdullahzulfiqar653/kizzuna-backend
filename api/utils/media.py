@@ -1,7 +1,9 @@
+import os
+import ffmpeg
 import secrets
 import tempfile
 
-import ffmpeg
+from pathlib import Path
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile
@@ -36,3 +38,31 @@ def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> Conte
         clip = ContentFile(temp_file.read(), name=file_name)
 
     return clip
+
+
+def merge_media_files(files):
+    with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
+        temp_file_path = temp_file.name
+
+        highlight_urls = "\n".join(
+            f"file '{file.url if settings.USE_S3 else file.path}'" for file in files
+        )
+        input_source = "pipe:" if settings.USE_S3 else "concat.txt"
+        input = highlight_urls.encode() if settings.USE_S3 else None
+        if not settings.USE_S3:
+            with open(input_source, "w") as f:
+                f.write(highlight_urls)
+
+        try:
+            ffmpeg.input(
+                input_source,
+                format="concat",
+                safe=0,
+                protocol_whitelist="file,http,https,tcp,tls,pipe",
+            ).output(temp_file_path, c="copy").overwrite_output().run(input=input)
+        finally:
+            if not settings.USE_S3:
+                os.remove(input_source)
+        temp_file.seek(0)
+        file = ContentFile(temp_file.read(), Path(temp_file_path).name)
+    return file
