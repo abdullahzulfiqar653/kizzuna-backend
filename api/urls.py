@@ -68,6 +68,15 @@ from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
+from api.views.project.project_playbook import ProjectPlaybookListCreateView
+from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
+from api.views.playbook.playbook_takeaways import (
+    PlaybookTakeawaysListView,
+)
+from api.views.playbook.playbook_video_takeaways import (
+    PlaybookVideoTakeawaysListCreateView,
+    PlaybookVideoTakeawaysUpdateDestroyView,
+)
 from api.views.property.option import PropertyOptionListCreateView
 from api.views.property.property import (
     PropertyDuplicateAPIView,
@@ -291,6 +300,11 @@ urlpatterns = [
         GoogleDriveListFilesView.as_view(),
         name="project-googledrive-files",
     ),
+    path(
+        "projects/<str:project_id>/playbooks/",
+        ProjectPlaybookListCreateView.as_view(),
+        name="project-playbook-list-create",
+    ),
     # =====================================================
     # Workspace
     # =====================================================
@@ -483,6 +497,29 @@ urlpatterns = [
         "demo/takeaways/",
         DemoGenerateTakeawaysCreateView.as_view(),
         name="demo-generate-takeaway-create",
+    ),
+    # =====================================================
+    # Playbooks
+    # =====================================================
+    path(
+        "playbooks/<str:pk>/",
+        PlaybookRetrieveUpdateDeleteView.as_view(),
+        name="playbook-update-retrieve-delete",
+    ),
+    path(
+        "playbooks/<str:playbook_id>/takeaways/",
+        PlaybookTakeawaysListView.as_view(),
+        name="playbook-takeaways-list",
+    ),
+    path(
+        "playbooks/<str:playbook_id>/video/takeaways/",
+        PlaybookVideoTakeawaysListCreateView.as_view(),
+        name="playbook-video-takeaways-list-create",
+    ),
+    path(
+        "playbooks/<str:playbook_id>/video/takeaways/<str:takeaway_id>/",
+        PlaybookVideoTakeawaysUpdateDestroyView.as_view(),
+        name="playbook-video-takeaways-update-destroy",
     ),
     # =====================================================
     # Auth

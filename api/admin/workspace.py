@@ -2,6 +2,20 @@ from django.contrib import admin
 
 from api.models.workspace import Workspace
 from api.stripe import stripe
+from api.models import (
+    Highlight,
+    Takeaway,
+    Playbook,
+    Note,
+    Project,
+)
+
+admin.site.register(Highlight)
+
+admin.site.register(Takeaway)
+admin.site.register(Playbook)
+admin.site.register(Note)
+admin.site.register(Project)
 
 
 @admin.register(Workspace)
