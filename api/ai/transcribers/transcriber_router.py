@@ -1,3 +1,4 @@
+from django.core.files import File
 from .base_transcriber import BaseTranscriber
 from .docx_transcriber import docx_transcriber
 from .pdfium_transcriber import pdfium_transcriber
@@ -22,9 +23,9 @@ class TranscriberRouter(BaseTranscriber):
             for filetype in transcriber.supported_filetypes
         }
 
-    def transcribe(self, filepath: str, filetype: str, language: str) -> str:
+    def transcribe(self, file: File, filetype: str, language: str) -> str:
         self.check_filetype(filetype)
         for transcriber in self.transcribers:
             if filetype in transcriber.supported_filetypes:
                 self.transcriber_used = transcriber
-                return transcriber.transcribe(filepath, filetype, language)
+                return transcriber.transcribe(file, filetype, language)

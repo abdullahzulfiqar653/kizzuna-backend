@@ -1,5 +1,4 @@
 import os
-import tempfile
 from decimal import Decimal
 from time import time
 from urllib.parse import urlparse
@@ -35,29 +34,23 @@ class NewNoteAnalyzer:
             self.transcribe_local_file(note, created_by)
 
     def transcribe_s3_file(self, note, created_by):
-        with tempfile.NamedTemporaryFile(suffix=f".{note.file_type}") as temp:
-            temp.write(note.file.read())
-            temp.seek(0)
-            filepath = temp.name
-            filetype = os.path.splitext(urlparse(note.file.url).path)[1].strip(".")
-            language = note.project.language
-            transcript = self.transcriber_router.transcribe(
-                filepath, filetype, language
-            )
-
-            if transcript is not None:
-                if self.transcriber_router.transcriber_used is assemblyai_transcriber:
-                    note.transcript = transcript.to_transcript()
-                else:
-                    note.content = transcript.to_lexical()
-                note.save()
-            self.track_audio_filesize(note, filepath, created_by)
+        filetype = os.path.splitext(urlparse(note.file.url).path)[1].strip(".")
+        language = note.project.language
+        filepath = note.file.url
+        transcript = self.transcriber_router.transcribe(note.file, filetype, language)
+        if transcript is not None:
+            if self.transcriber_router.transcriber_used is assemblyai_transcriber:
+                note.transcript = transcript.to_transcript()
+            else:
+                note.content = transcript.to_lexical()
+            note.save()
+        self.track_audio_filesize(note, filepath, created_by)
 
     def transcribe_local_file(self, note, created_by):
         filepath = note.file.path
         filetype = note.file_type
         language = note.project.language
-        transcript = self.transcriber_router.transcribe(filepath, filetype, language)
+        transcript = self.transcriber_router.transcribe(note.file, filetype, language)
         if transcript is not None:
             if self.transcriber_router.transcriber_used is assemblyai_transcriber:
                 note.transcript = transcript.to_transcript()
