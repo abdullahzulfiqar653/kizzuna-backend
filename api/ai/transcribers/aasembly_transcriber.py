@@ -1,6 +1,7 @@
 import time
 import assemblyai as aai
 from django.conf import settings
+from django.core.files import File
 from api.utils.assembly import AssemblyProcessor
 from .base_transcriber import BaseTranscriber
 
@@ -25,15 +26,13 @@ class AssemblyAITranscriber(BaseTranscriber):
         "webm",
     ]
 
-    def transcribe(self, filepath, filetype, language):
+    def transcribe(self, file: File, filetype: str, language: str):
+        filepath = file.url if settings.USE_S3 else file.path
+        config = aai.TranscriptionConfig(speaker_labels=True)
         self.check_filetype(filetype)
-        with open(filepath, "rb") as audio_file:
-            config = aai.TranscriptionConfig(
-                speaker_labels=True,
-            )
-            start_time = time.time()
-            transcript = aai.Transcriber().transcribe(audio_file, config)
-            end_time = time.time()
+        start_time = time.time()
+        transcript = aai.Transcriber().transcribe(filepath, config)
+        end_time = time.time()
         print(f"Transcript duration: {end_time - start_time}")
         return AssemblyProcessor(transcript.json_response)
 

@@ -15,9 +15,9 @@ from api.utils.lexical import LexicalProcessor, blank_content
 
 
 def validate_file_size(value):
-    max_size = 30 * 1024 * 1024  # 30 MB
+    max_size = 1 * 1024 * 1024 * 1024  # 1 GB
     if value.size > max_size:
-        raise ValidationError("File size cannot exceed 20 MB.")
+        raise ValidationError("File size cannot exceed 1 GB.")
 
 
 def validate_file_type(value):
