@@ -1,12 +1,10 @@
 from django.db import models
 from shortuuid.django_fields import ShortUUIDField
-from pydub.utils import mediainfo
 from api.utils import media
 from api.models.user import User
 from api.models.note import Note
 from api.models.project import Project
 from api.models.takeaway import Takeaway
-from cradarai import settings
 
 
 class Playbook(models.Model):
@@ -42,18 +40,12 @@ class Playbook(models.Model):
         return self.title
 
     def create_playbook_clip_and_thumbnail(self):
-        files = [
-            pt.takeaway.highlight.clip
-            for pt in self.playbook_takeaways.all().order_by("order")
-        ]
+        playbook_takeaways = self.playbook_takeaways.all().order_by("order")
+        files = [pt.takeaway.highlight.clip for pt in playbook_takeaways]
         if files:
             video = media.merge_media_files(files)
             self.video = video
-            self.save()
-            path = self.video.url if settings.USE_S3 else self.video.path
-            audio_info = mediainfo(path)
-            duration_in_seconds = float(audio_info.get("duration"))
-            self.thumbnail = media.create_thumbnail(self.video, duration_in_seconds / 2)
+            self.thumbnail = media.create_thumbnail(files[0], 0)
             self.save()
         else:
             self.video = None

@@ -59,7 +59,12 @@ def merge_media_files(files):
                 format="concat",
                 safe=0,
                 protocol_whitelist="file,http,https,tcp,tls,pipe",
-            ).output(temp_file_path, c="copy").overwrite_output().run(input=input)
+            ).output(
+                temp_file_path,
+                c="copy",
+            ).overwrite_output().run(
+                quiet=True, input=input
+            )
         finally:
             if not settings.USE_S3:
                 os.remove(input_source)
