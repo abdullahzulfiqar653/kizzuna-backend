@@ -1,13 +1,11 @@
 # note/serializers.py
 import logging
-import tempfile
 
-import ffmpeg
 import requests
 from django.core.files.base import ContentFile
 from django.db.models import Count
 from rest_framework import exceptions, serializers
-
+from api.utils import media
 from api.ai.embedder import embedder
 from api.mixpanel import mixpanel
 from api.models.highlight import Highlight
@@ -181,16 +179,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
         # Convert mp4 file with movflags faststart for streaming
         if file and file.name and file.name.split(".")[-1].lower() == "mp4":
-            with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
-                output_file = temp_file.name
-                (
-                    ffmpeg.input("pipe:0")
-                    .output(output_file, movflags="faststart", codec="copy")
-                    .overwrite_output()
-                    .run(input=file.read(), quiet=True)
-                )
-                temp_file.seek(0)
-                validated_data["file"] = ContentFile(temp_file.read(), name=file.name)
+            validated_data["file"] = media.process_mp4_for_streaming(file)
 
         note = Note.objects.create(**validated_data)
         self.add_organizations(note, organizations)

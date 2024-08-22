@@ -71,3 +71,17 @@ def merge_media_files(files):
         temp_file.seek(0)
         file = ContentFile(temp_file.read(), Path(temp_file_path).name)
     return file
+
+
+def process_mp4_for_streaming(file):
+    with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
+        output_file = temp_file.name
+        (
+            ffmpeg.input("pipe:0")
+            .output(output_file, movflags="faststart", codec="copy")
+            .overwrite_output()
+            .run(input=file.read(), quiet=True)
+        )
+        temp_file.seek(0)
+        file = ContentFile(temp_file.read(), name=file.name)
+    return file
