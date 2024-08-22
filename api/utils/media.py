@@ -1,9 +1,8 @@
 import os
-import ffmpeg
 import secrets
 import tempfile
 
-from pathlib import Path
+import ffmpeg
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile
@@ -29,7 +28,7 @@ def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> Conte
         # For output, we use temp_file because for video cutting ffmpeg expect it to be seekable
         (
             ffmpeg.input(file_url, ss=start_time, to=end_time)
-            .output(temp_file.name, codec="copy")
+            .output(temp_file.name, codec="copy", movflags="faststart")
             .overwrite_output()
             .run(quiet=True)
         )
@@ -42,34 +41,26 @@ def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> Conte
 
 def merge_media_files(files):
     with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
-        temp_file_path = temp_file.name
+        if settings.USE_S3:
+            highlight_urls = "\n".join(f"file '{file.url}'" for file in files)
+        else:
+            # For local files, we need to use file: prefix
+            # Ref: https://askubuntu.com/a/1368547
+            highlight_urls = "\n".join(f"file file:'{file.path}'" for file in files)
 
-        highlight_urls = "\n".join(
-            f"file '{file.url if settings.USE_S3 else file.path}'" for file in files
-        )
-        input_source = "pipe:" if settings.USE_S3 else "concat.txt"
-        input = highlight_urls.encode() if settings.USE_S3 else None
-        if not settings.USE_S3:
-            with open(input_source, "w") as f:
-                f.write(highlight_urls)
-
-        try:
+        (
             ffmpeg.input(
-                input_source,
+                "pipe:",
                 format="concat",
                 safe=0,
                 protocol_whitelist="file,http,https,tcp,tls,pipe",
-            ).output(
-                temp_file_path,
-                c="copy",
-            ).overwrite_output().run(
-                quiet=True, input=input
             )
-        finally:
-            if not settings.USE_S3:
-                os.remove(input_source)
+            .output(temp_file.name, c="copy", movflags="+faststart")
+            .overwrite_output()
+            .run(input=highlight_urls.encode(), quiet=True)
+        )
         temp_file.seek(0)
-        file = ContentFile(temp_file.read(), Path(temp_file_path).name)
+        file = ContentFile(temp_file.read(), os.path.basename(temp_file.name))
     return file
 
 
