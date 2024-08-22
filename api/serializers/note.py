@@ -212,6 +212,8 @@ class NoteUpdateSerializer(NoteSerializer):
 
         if note.media_type is Note.MediaType.TEXT:
             note = self.extract_highlights_from_content_state(note)
+        else:
+            self.update_highlights(note)
 
         if organizations is not None:
             organizations_to_add = []
@@ -288,6 +290,27 @@ class NoteUpdateSerializer(NoteSerializer):
         # to the newly created highlight in the content state.
         note.save()
         return note
+
+    def update_highlights(self, note):
+        highlights_to_update = {}
+
+        for utterance in note.transcript.get("utterances", []):
+            for word in utterance.get("words", []):
+                for highlight_id in word.get("highlight_ids", []):
+                    highlights_to_update.setdefault(highlight_id, []).append(
+                        word["text"]
+                    )
+
+        highlight_ids = list(highlights_to_update.keys())
+        highlights = {
+            highlight.takeaway_ptr_id: highlight
+            for highlight in Highlight.objects.filter(takeaway_ptr_id__in=highlight_ids)
+        }
+
+        for highlight_id, words in highlights_to_update.items():
+            highlight = highlights[highlight_id]
+            highlight.quote = " ".join(words)
+        Highlight.objects.bulk_update(highlights.values(), ["quote", "title", "vector"])
 
 
 class ProjectNoteSerializer(NoteSerializer):
