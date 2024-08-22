@@ -234,9 +234,9 @@ def generate_takeaways(
             assembly = AssemblyProcessor(note.transcript)
             success, start, end = assembly.highlight(highlight_str, takeaway.id)
             if success:
-                clip = media.cut_media_file(note.file, start, end)
+                clip = media.cut_media_file(note.file, start / 1000, end / 1000)
                 if note.media_type == Note.MediaType.VIDEO:
-                    thumbnail = media.create_thumbnail(note.file, start)
+                    thumbnail = media.create_thumbnail(note.file, start / 1000)
 
         highlight = Highlight(
             takeaway_ptr_id=takeaway.id,
