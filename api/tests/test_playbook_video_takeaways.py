@@ -1,17 +1,20 @@
 import io
 import logging
+
 import numpy as np
+from django.conf import settings
+from django.core.files.base import ContentFile
+from pydub.utils import mediainfo
+from rest_framework import status
 from rest_framework.test import APITestCase
-from api.models.playbook import Playbook
+
 from api.models.highlight import Highlight
+from api.models.note import Note
+from api.models.playbook import Playbook
+from api.models.playbook_takeaway import PlaybookTakeaway
+from api.models.project import Project
 from api.models.user import User
 from api.models.workspace import Workspace
-from api.models.project import Project
-from api.models.note import Note
-from django.core.files.base import ContentFile
-from rest_framework import status
-from api.models.playbook_takeaway import PlaybookTakeaway
-from pydub.utils import mediainfo
 
 
 class TestPlaybookVideoTakeawaysListCreateView(APITestCase):
@@ -80,7 +83,12 @@ class TestPlaybookVideoTakeawaysListCreateView(APITestCase):
         self.assertEqual(playbook_takeaway.order, 2)
 
         # Check that the duration is correct
-        audio_info = mediainfo(playbook_takeaway.takeaway.highlight.clip.path)
+        path = (
+            playbook_takeaway.takeaway.highlight.clip.url
+            if settings.USE_S3
+            else playbook_takeaway.takeaway.highlight.clip.path
+        )
+        audio_info = mediainfo(path)
         duration_in_seconds = float(audio_info.get("duration"))
         expected_duration = 0.677
         self.assertAlmostEqual(duration_in_seconds, expected_duration, places=2)
@@ -90,7 +98,7 @@ class TestPlaybookVideoTakeawaysListCreateView(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.post(self.url, data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)

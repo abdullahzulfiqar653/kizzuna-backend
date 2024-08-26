@@ -5,7 +5,7 @@ import requests
 from django.core.files.base import ContentFile
 from django.db.models import Count
 from rest_framework import exceptions, serializers
-from api.utils import media
+
 from api.ai.embedder import embedder
 from api.mixpanel import mixpanel
 from api.models.highlight import Highlight
@@ -18,6 +18,7 @@ from api.serializers.note_type import NoteTypeSerializer
 from api.serializers.organization import OrganizationSerializer
 from api.serializers.tag import KeywordSerializer
 from api.serializers.user import UserSerializer
+from api.utils import media
 from api.utils.lexical import LexicalProcessor
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ class NoteSerializer(serializers.ModelSerializer):
     summary = serializers.JSONField(required=False, default=[])
     organizations = OrganizationSerializer(many=True, required=False)
     google_drive_file_id = serializers.CharField(write_only=True, required=False)
+    is_analyzing = serializers.BooleanField(read_only=True)
     type = NoteTypeSerializer(read_only=True)
     type_id = serializers.PrimaryKeyRelatedField(
         source="type",

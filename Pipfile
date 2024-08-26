@@ -54,6 +54,7 @@ assemblyai = "*"
 jinja2 = "==3.1.4"
 grpcio = "==1.60.1" # Suppress grpcio warnings
 pillow = "==10.4.0" # For django model image field
+django-celery-beat = "==2.7.0"
 
 [dev-packages]
 ipykernel = "*"
