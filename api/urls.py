@@ -34,7 +34,6 @@ from api.views.integrations.slack.channel import SlackChannelsListView
 from api.views.integrations.slack.event import SlackEventsCreateView
 from api.views.integrations.slack.oauth_redirect import SlackOauthRedirectCreateView
 from api.views.integrations.slack.oauth_url import SlackOauthUrlRetrieveView
-from api.views.integrations.slack.to_frontend import SlackToFrontendRedirectView
 from api.views.note.note import NoteRetrieveUpdateDeleteView
 from api.views.note.note_clip import NoteClipCreateView
 from api.views.note.note_keyword import (
@@ -48,6 +47,12 @@ from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note.note_takeaway_type import NoteTakeawayTypeListCreateView
 from api.views.note_type import NoteTypeRetrieveUpdateDestroyView
 from api.views.option import OptionRetrieveUpdateDestroyView
+from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
+from api.views.playbook.playbook_takeaways import PlaybookTakeawaysListView
+from api.views.playbook.playbook_video_takeaways import (
+    PlaybookVideoTakeawaysListCreateView,
+    PlaybookVideoTakeawaysUpdateDestroyView,
+)
 from api.views.project.chart.note import ChartNoteCreateView
 from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
@@ -60,6 +65,7 @@ from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
 from api.views.project.project_note_type import ProjectNoteTypeListCreateView
 from api.views.project.project_organization import ProjectOrganizationListView
+from api.views.project.project_playbook import ProjectPlaybookListCreateView
 from api.views.project.project_property import ProjectPropertyListCreateView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_summary import ProjectSummaryRetrieveView
@@ -68,15 +74,6 @@ from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
-from api.views.project.project_playbook import ProjectPlaybookListCreateView
-from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
-from api.views.playbook.playbook_takeaways import (
-    PlaybookTakeawaysListView,
-)
-from api.views.playbook.playbook_video_takeaways import (
-    PlaybookVideoTakeawaysListCreateView,
-    PlaybookVideoTakeawaysUpdateDestroyView,
-)
 from api.views.property.option import PropertyOptionListCreateView
 from api.views.property.property import (
     PropertyDuplicateAPIView,
@@ -607,11 +604,6 @@ urlpatterns = [
         "integrations/slack/events/",
         SlackEventsCreateView.as_view(),
         name="slack_events",
-    ),
-    path(
-        "integrations/slack/to-frontend/",
-        SlackToFrontendRedirectView.as_view(),
-        name="slack_to_frontend",
     ),
     path(
         "integrations/slack/channels/",

@@ -20,11 +20,8 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 env = environ.Env()
 # reading .env file
-environ.Env.read_env(".env")
+environ.Env.read_env(".env", override=True)
 environ.Env.read_env(".env.example")
-os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
-os.environ["GOOGLE_API_KEY"] = env("GOOGLE_API_KEY")
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = env("GOOGLE_APPLICATION_CREDENTIALS")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

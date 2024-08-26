@@ -137,25 +137,22 @@ These steps ensure that your Stripe integration is properly configured and synce
    4. Select the corresponding workspace.
    5. Paste the manifest found in xxx.
 2. Go to the Basic Information page in the slack app, copy the client id, client secret and signing secret to the .env file.
-3. Start ngrok by running `ngrok http 8000`.
-4. Add ngrok domain (starting with the uuid, without the "https://") to .env `ALLOWED_HOSTS`.
-5. Go to the Event Subscriptions page in the slack app, update the request url to `https://{backend_domain}/api/integrations/slack/events/`, check that it is verified, and click Save Changes.
-6. Go to the OAuth & Permissions in slack dashboard and set the Redirect URLs to the value below. Then set the same value to the `SLACK_REDIRECT_URI` in .env:
-   1. For local testing set `SLACK_REDIRECT_URI=https://{backend_domain}/api/integrations/slack/to-frontend/`
-   2. For prod set `SLACK_REDIRECT_URI=https://{frontend_domain}/slack/redirect`
-7. Go to frontend page and click Add To Slack button on header. Will be navigated to Slack OAuth page.
-8. Click continue and proceed with authorization after reading permissions. Will be redirected to the redirect URL provided.
-   1. For local testing, this will redirect to `{backend_domain}/api/integrations/slack/to-frontend/` which will then redirect to `{frontend_domain}/slack/redirect`. We do this because ngrok only support one port.
-   2. For production, this will redirect to `{frontend_domain}/slack/redirect` directly.
-9. The frontend redirect page will call `{backend_domain}/api/integrations/slack/oauth-redirect/` after successful authorization. This will add `SlackUser`.
+3. Start vscode port forwarding by adding port 5173 and 8000 and set the visibility to public.
+4. Add the backend tunneling domain (without the "https://") to .env `ALLOWED_HOSTS`.
+5. Add the frontend tunneling domain to .env `CORS_ALLOWED_ORIGIN_REGEXES`.
+6. Go to the Event Subscriptions page in the slack app, update the request url to `https://{backend_domain}/api/integrations/slack/events/`, check that it is verified, and click Save Changes.
+7. Go to the OAuth & Permissions in slack dashboard and set the Redirect URLs to the `SLACK_REDIRECT_URI=https://{frontend_domain}/slack/redirect`. Then set the same value to the `SLACK_REDIRECT_URI` in .env.
+8. Go to frontend page and click Add To Slack button on header. Will be navigated to Slack OAuth page.
+9.  Click continue and proceed with authorization after reading permissions. Will be redirected to the redirect URL `{frontend_domain}/slack/redirect` provided. 
+10. The frontend redirect page will call `{backend_domain}/api/integrations/slack/oauth-redirect/` after successful authorization. This will add `SlackUser`.
 
-10. Back on Raijin, click Add Your Data.
-11. Click Slack Channel Autocomplete field to open dropdown of Slack channels. Check that channels correspond to channels in connected Slack Workspace.
-12. Select desired Slack channel. Knowledge Source will be created.
-13. Go to Slack and send test messages.
-14. Ensure that redis server is connected, ensure that celery worker and celery beat is running.
-15. If testing end-of-day buffer, wait till end of day at 23:59 to check that Knowledge Source has been updated with test messages.
-16. If testing functionality without waiting for buffer time, run:
+11. Back on Raijin, click Add Your Data.
+12. Click Slack Channel Autocomplete field to open dropdown of Slack channels. Check that channels correspond to channels in connected Slack Workspace.
+13. Select desired Slack channel. Knowledge Source will be created.
+14. Go to Slack and send test messages.
+15. Ensure that redis server is connected, ensure that celery worker and celery beat is running.
+16. If testing end-of-day buffer, wait till end of day at 23:59 to check that Knowledge Source has been updated with test messages.
+17. If testing functionality without waiting for buffer time, run:
 
 ```
 python manage.py shell

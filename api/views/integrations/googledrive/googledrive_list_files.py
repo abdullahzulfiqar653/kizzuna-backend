@@ -11,6 +11,7 @@ from api.serializers.integrations.googledrive.googledrive_files import (
 
 class GoogleDriveListFilesView(generics.ListAPIView):
     serializer_class = GoogleDriveFileSerializer
+    filter_backends = []
 
     def get_queryset(self):
         try:

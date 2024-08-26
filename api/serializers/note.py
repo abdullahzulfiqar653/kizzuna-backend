@@ -32,6 +32,7 @@ class NoteSerializer(serializers.ModelSerializer):
     summary = serializers.JSONField(required=False, default=[])
     organizations = OrganizationSerializer(many=True, required=False)
     google_drive_file_id = serializers.CharField(write_only=True, required=False)
+    is_analyzing = serializers.BooleanField(read_only=True)
     type = NoteTypeSerializer(read_only=True)
     type_id = serializers.PrimaryKeyRelatedField(
         source="type",

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,13 +8,16 @@ from rest_framework.views import APIView
 from api.models.stripe_price import StripePrice
 from api.models.stripe_product import StripeProduct
 from api.models.stripe_subscription import StripeSubscription
-
 from api.stripe import stripe
 
 
 class StripeWebhookView(APIView):
     permission_classes = (permissions.AllowAny,)
 
+    @extend_schema(
+        request=None,
+        responses={status.HTTP_200_OK: None, status.HTTP_400_BAD_REQUEST: None},
+    )
     def post(self, request):
         event = None
         payload = request.body

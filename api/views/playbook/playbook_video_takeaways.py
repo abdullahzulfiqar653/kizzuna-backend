@@ -1,10 +1,11 @@
 from rest_framework import generics
-from api.serializers.playbook_takeaway import PlaybookTakeawaySerializer
 
 from api.models.playbook_takeaway import PlaybookTakeaway
+from api.serializers.playbook_takeaway import PlaybookTakeawaySerializer
 
 
 class PlaybookVideoTakeawaysListCreateView(generics.ListCreateAPIView):
+    queryset = PlaybookTakeaway.objects.none()
     serializer_class = PlaybookTakeawaySerializer
     ordering = ["order"]
 
