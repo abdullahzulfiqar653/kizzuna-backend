@@ -12,6 +12,7 @@ from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
 )
+from api.views.task import TaskRetrieveUpdateDeleteView
 from api.views.block.block_theme import BlockThemeListCreateView
 from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
@@ -523,6 +524,14 @@ urlpatterns = [
         "playbooks/<str:playbook_id>/video/takeaways/<str:takeaway_id>/",
         PlaybookVideoTakeawaysUpdateDestroyView.as_view(),
         name="playbook-video-takeaways-update-destroy",
+    ),
+    # =====================================================
+    # Tasks
+    # =====================================================
+    path(
+        "tasks/<str:pk>/",
+        TaskRetrieveUpdateDeleteView.as_view(),
+        name="task-update-retrieve-delete",
     ),
     # =====================================================
     # Auth

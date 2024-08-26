@@ -11,7 +11,6 @@ class TaskSerializer(serializers.ModelSerializer):
     created_by = serializers.CharField(source="created_by.first_name", read_only=True)
     assigned_to = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.none(),
-        write_only=True,
         required=False,
         allow_null=True,
     )
@@ -42,15 +41,22 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        request = self.context["request"]
-        if hasattr(request, "note"):
-            project = request.note.project
-            task_types = project.task_types.all()
-            workspace_users = User.objects.filter(
+        project = self.get_project()
+        if project:
+            self.fields["type"].queryset = project.task_types.all()
+            self.fields["assigned_to"].queryset = User.objects.filter(
                 workspace_users__workspace=project.workspace
-            ).distinct()
-            self.fields["type"].queryset = task_types
-            self.fields["assigned_to"].queryset = workspace_users
+            )
+
+    def get_project(self):
+        """
+        Helper method to retrieve the project from the context.
+        """
+        request = self.context.get("request")
+        if hasattr(request, "note"):
+            return request.note.project
+        if hasattr(request, "task"):
+            return request.task.note.project
 
     def create(self, validated_data):
         validated_data["note"] = self.context["request"].note
