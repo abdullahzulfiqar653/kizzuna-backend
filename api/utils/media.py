@@ -41,23 +41,16 @@ def cut_media_file(file: FieldFile, start_time: float, end_time: float) -> Conte
 
 def merge_media_files(files):
     with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
-        if settings.USE_S3:
-            highlight_urls = "\n".join(f"file '{file.url}'" for file in files)
-        else:
-            # For local files, we need to use file: prefix
-            # Ref: https://askubuntu.com/a/1368547
-            highlight_urls = "\n".join(f"file file:'{file.path}'" for file in files)
-
+        input_files = [
+            ffmpeg.input(file.url) if settings.USE_S3 else ffmpeg.input(file.path)
+            for file in files
+            for stream in ("video", "audio")
+        ]
         (
-            ffmpeg.input(
-                "pipe:",
-                format="concat",
-                safe=0,
-                protocol_whitelist="file,http,https,tcp,tls,pipe",
-            )
-            .output(temp_file.name, c="copy", movflags="+faststart")
+            ffmpeg.concat(*input_files, v=1, a=1)
+            .output(temp_file.name, movflags="faststart")
             .overwrite_output()
-            .run(input=highlight_urls.encode(), quiet=True)
+            .run(quiet=True)
         )
         temp_file.seek(0)
         file = ContentFile(temp_file.read(), os.path.basename(temp_file.name))
@@ -65,14 +58,19 @@ def merge_media_files(files):
 
 
 def process_mp4_for_streaming(file):
-    with tempfile.NamedTemporaryFile(suffix=".mp4") as temp_file:
-        output_file = temp_file.name
+    with (
+        tempfile.NamedTemporaryFile(suffix=".mp4") as input,
+        tempfile.NamedTemporaryFile(suffix=".mp4") as output,
+    ):
+        # We need to write the input to file and reading it again,
+        # because ffmpeg expects a seekable file stream
+        input.write(file.read()),
         (
-            ffmpeg.input("pipe:0")
-            .output(output_file, movflags="faststart", codec="copy")
+            ffmpeg.input(input.name)
+            .output(output.name, movflags="faststart", codec="copy")
             .overwrite_output()
-            .run(input=file.read(), quiet=True)
+            .run(quiet=True)
         )
-        temp_file.seek(0)
-        file = ContentFile(temp_file.read(), name=file.name)
+        output.seek(0)
+        file = ContentFile(output.read(), name=file.name)
     return file
