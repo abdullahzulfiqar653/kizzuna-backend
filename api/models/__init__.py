@@ -33,6 +33,8 @@ from api.models.workspace import Workspace
 from api.models.workspace_user import WorkspaceUser
 from api.models.playbook import Playbook
 from api.models.playbook_takeaway import PlaybookTakeaway
+from api.models.task_type import TaskType
+from api.models.task import Task
 
 __all__ = [
     "Takeaway",
@@ -70,4 +72,6 @@ __all__ = [
     "StripeSubscription",
     "Playbook",
     "PlaybookTakeaway",
+    "TaskType",
+    "Task",
 ]
