@@ -1,6 +1,6 @@
 from rest_framework import generics
 
-from api.serializers.tasks import TaskSerializer
+from api.serializers.task import TaskSerializer
 
 
 class NoteTaskListCreateView(generics.ListCreateAPIView):

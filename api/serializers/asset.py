@@ -4,7 +4,7 @@ from api.mixpanel import mixpanel
 from api.models.asset import Asset
 from api.models.block import Block
 from api.models.note import Note
-from api.serializers.task import TaskResultSerializer
+from api.serializers.celery_task import CeleryTaskResultSerializer
 from api.serializers.user import UserSerializer
 from api.utils.lexical import LexicalProcessor
 
@@ -14,7 +14,7 @@ class AssetSerializer(serializers.ModelSerializer):
     report_ids = serializers.PrimaryKeyRelatedField(
         source="notes", queryset=Note.objects.none(), many=True, write_only=True
     )
-    task = TaskResultSerializer(read_only=True)
+    task = CeleryTaskResultSerializer(read_only=True)
 
     class Meta:
         model = Asset
