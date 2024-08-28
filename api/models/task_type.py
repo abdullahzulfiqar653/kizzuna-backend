@@ -3,17 +3,21 @@ from shortuuid.django_fields import ShortUUIDField
 
 
 default_task_types = [
-    {"name": "Bug Fix", "definition": "Fixing bugs or issues in the project."},
-    {"name": "Feature", "definition": "Developing new features for the project."},
     {
-        "name": "Improvement",
-        "definition": "Improving existing features or performance.",
+        "name": "Follow-Up Email",
+        "definition": "Sending a follow-up email to a client or stakeholder.",
     },
-    {"name": "Documentation", "definition": "Writing or updating documentation."},
-    {"name": "Code Review", "definition": "Reviewing code submitted by team members."},
     {
-        "name": "Testing",
-        "definition": "Testing the application for functionality or bugs.",
+        "name": "Schedule Appointment",
+        "definition": "Arranging and scheduling an appointment or meeting.",
+    },
+    {
+        "name": "Send Attachment",
+        "definition": "Sending relevant documents or files as an attachment.",
+    },
+    {
+        "name": "Miscellaneous",
+        "definition": "Handling any tasks that don't fit into specific categories.",
     },
 ]
 
