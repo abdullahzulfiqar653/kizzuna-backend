@@ -4,8 +4,6 @@ from api.models.task import Task
 from api.models.user import User
 from api.models.task_type import TaskType
 
-from api.ai.embedder import embedder
-
 
 class TaskSerializer(serializers.ModelSerializer):
     created_by = serializers.CharField(source="created_by.first_name", read_only=True)
@@ -60,7 +58,4 @@ class TaskSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["note"] = self.context["request"].note
         validated_data["created_by"] = self.context["request"].user
-        validated_data["vector"] = embedder.embed_documents([validated_data["title"]])[
-            0
-        ]
         return super().create(validated_data)
