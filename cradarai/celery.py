@@ -17,8 +17,12 @@ app.conf.beat_schedule = {
         "task": "api.tasks.summarize_projects",
         "schedule": crontab(minute=0, hour=0, day_of_week=1),
     },
+    "refresh-google-calendar-channel": {
+        "task": "api.tasks.refresh_google_calendar_channel",
+        "schedule": crontab(minute=0, hour=0),
+    },
     "process_slack_messages_daily": {
         "task": "api.tasks.process_slack_messages",
-        "schedule": crontab(hour=23, minute=59)
+        "schedule": crontab(hour=23, minute=59),
     },
 }

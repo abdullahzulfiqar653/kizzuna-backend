@@ -1,14 +1,16 @@
 import json
 import logging
+import secrets
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
 import numpy as np
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.models.integrations.googledrive.credential import GoogleDriveCredential
+from api.models.integrations.google.credential import GoogleCredential
 from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.note_type import NoteType
@@ -289,13 +291,15 @@ class TestProjectNoteListCreateView(APITestCase):
 
     @patch("requests.get")
     def test_user_create_report_with_google_drive_file(self, mock_get):
-        google_drive_user = GoogleDriveCredential.objects.create(
+        GoogleCredential.objects.create(
             user=self.user,
-            project=self.project,
-            access_token="valid_access_token",
-            refresh_token="valid_refresh_token",
-            token_type="Bearer",
-            expires_in=3600,
+            token=secrets.token_hex(32),
+            refresh_token=secrets.token_hex(32),
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=secrets.token_hex(32),
+            client_secret=secrets.token_hex(32),
+            scopes=["https://www.googleapis.com/auth/drive"],
+            expiry=timezone.now() - timezone.timedelta(hours=1),
         )
 
         # Mock the response for file metadata

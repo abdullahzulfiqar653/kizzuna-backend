@@ -239,7 +239,17 @@ Below is the sequence diagram illustrating the communication flow between the us
 
 # Google Drive Integration Documentation
 
-## Steps for local testing
+## Google integration and setting up url for webhook
+
+1. In vscode, open the `PORTS` tab beside the terminal
+2. Add a port forwarding to port 8000
+3. Copy the address 
+4. Add the address to the following env var in .env:
+   1. `ALLOWED_HOSTS=.localhost,127.0.0.1,[::1],xxxxxxxx-8000.asse.devtunnels.ms`
+   2. `CORS_ALLOWED_ORIGIN_REGEXES=http://localhost:5173,https://xxxxxxxx-5173.asse.devtunnels.ms`
+   3. `GOOGLE_CALENDAR_WEBHOOK_URL=https://xxxxxxxx-8000.asse.devtunnels.ms/api/integrations/google/calendar/webhook/`
+
+## Steps for local testing (To be updated)
 
 1. Setup for Google Console:
    - Go to Google Cloud web interface to access the API & Services page for Raijin: https://console.cloud.google.com/apis/credentials/oauthclient/

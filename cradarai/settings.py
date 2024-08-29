@@ -20,7 +20,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 env = environ.Env()
 # reading .env file
-environ.Env.read_env(".env", override=True)
+environ.Env.read_env(".env", overwrite=True)
 environ.Env.read_env(".env.example")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,11 +39,7 @@ ASSEMBLY_AI_API_KEY = env("ASSEMBLY_AI_API_KEY")
 DEBUG = env("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", cast=list)
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://\w+\.kizunna\.com/?$",
-    r"^https://\w+\.raijin\.ai/?$",
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGIN_REGEXES = env("CORS_ALLOWED_ORIGIN_REGEXES", cast=list)
 FRONTEND_URL = env("FRONTEND_URL")
 
 # Application definition
@@ -104,7 +100,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API description",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    "SCHEMA_PATH_PREFIX": "/api/",
+    "SCHEMA_PATH_PREFIX": r"^/api/(integrations/)?",
     "ENUM_NAME_OVERRIDES": {  # This is to suppress warnings related to enum
         "NoteSentiment": "api.models.note.Note.Sentiment",
     },
@@ -316,12 +312,23 @@ DEMO_PROJECT_ID = env("DEMO_PROJECT_ID", default=None)
 DEMO_USER_ID = env("DEMO_USER_ID", default=None)
 
 # Google drive integration credentials
-GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
+GOOGLE_CLIENT_SECRET_FILE = env("GOOGLE_CLIENT_SECRET_FILE")
 GOOGLE_REDIRECT_URI = env("GOOGLE_REDIRECT_URI")
-GOOGLE_SCOPES = env("GOOGLE_SCOPES")
+GOOGLE_SCOPES = [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/calendar.events",
+]
+GOOGLE_CALENDAR_WEBHOOK_URL = env("GOOGLE_CALENDAR_WEBHOOK_URL")
 
 MIXPANEL_TOKEN = env("MIXPANEL_TOKEN")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
 STRIPE_WEBHOOK_SECRET_KEY = env("STRIPE_WEBHOOK_SECRET_KEY")
+RECALLAI_API_KEY = env("RECALLAI_API_KEY")
+RECALLAI_ENV = env("RECALLAI_ENV")
+RECALLAI_WEBHOOK_SECRET = env("RECALLAI_WEBHOOK_SECRET")

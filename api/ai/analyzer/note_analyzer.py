@@ -7,6 +7,7 @@ from django.db.models import QuerySet
 from django.utils import translation
 from pydub.utils import mediainfo
 
+from api.ai.analyzer.utils.add_contacts import add_contacts
 from api.ai.downloaders.web_downloader import WebDownloader
 from api.ai.downloaders.youtube_downloader import YoutubeDownloader
 from api.ai.generators.metadata_generator import generate_metadata
@@ -19,6 +20,7 @@ from api.models.takeaway_type import TakeawayType
 from api.models.usage.transciption import TranscriptionUsage
 from api.models.user import User
 from api.storage_backends import PrivateMediaStorage
+from api.utils.assembly import AssemblyProcessor
 
 youtube_downloader = YoutubeDownloader()
 web_downloader = WebDownloader()
@@ -80,12 +82,21 @@ class NewNoteAnalyzer:
         note.content = content.to_lexical()
         note.save()
 
+    def map_speaker_names(self, note):
+        assembly = AssemblyProcessor(note.transcript)
+        assembly.map_to_recall_speakers(note.recall_bot.transcript)
+        note.transcript = assembly.to_transcript()
+        note.save()
+
     def analyze(self, note: Note, created_by: User):
         with translation.override(note.project.language):
             print("========> Start transcribing")
             start = time()
             if note.file:
                 self.transcribe(note, created_by)
+                if note.recall_bot:
+                    self.map_speaker_names(note)
+                    add_contacts(note, created_by)
             elif note.url:
                 self.download(note)
             end = time()

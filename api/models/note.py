@@ -3,7 +3,9 @@ from django.db import models
 from django_celery_results.models import TaskResult
 from shortuuid.django_fields import ShortUUIDField
 
+from api.models.contact import Contact
 from api.models.highlight import Highlight
+from api.models.integrations.recall.bot import RecallBot
 from api.models.keyword import Keyword
 from api.models.note_type import NoteType
 from api.models.organization import Organization
@@ -62,7 +64,6 @@ class Note(models.Model):
     workspace = models.ForeignKey(
         Workspace, on_delete=models.CASCADE, related_name="notes"
     )
-    organizations = models.ManyToManyField(Organization, related_name="notes")
     revenue = models.CharField(max_length=6, choices=Revenue.choices, null=True)
     description = models.TextField()
     type = models.ForeignKey(
@@ -92,6 +93,15 @@ class Note(models.Model):
     # Slack Integration
     slack_channel_id = models.CharField(max_length=25, null=True)
     slack_team_id = models.CharField(max_length=25, null=True)
+
+    # Recall Integration
+    recall_bot = models.OneToOneField(
+        RecallBot, on_delete=models.PROTECT, related_name="note", null=True
+    )
+
+    # CRM Integration
+    contacts = models.ManyToManyField(Contact, related_name="notes")
+    organizations = models.ManyToManyField(Organization, related_name="notes")
 
     def __str__(self):
         return self.title
