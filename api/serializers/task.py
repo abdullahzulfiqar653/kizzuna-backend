@@ -14,7 +14,6 @@ class TaskSerializer(serializers.ModelSerializer):
     )
     type = serializers.PrimaryKeyRelatedField(
         queryset=TaskType.objects.none(),
-        write_only=True,
         required=False,
         allow_null=True,
     )
