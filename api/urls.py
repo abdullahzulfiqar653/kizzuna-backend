@@ -72,6 +72,7 @@ from api.views.project.project_property import ProjectPropertyListCreateView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_summary import ProjectSummaryRetrieveView
 from api.views.project.project_tag import ProjectTagListView
+from api.views.project.project_task import ProjectTaskListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
 from api.views.project.project_user import ProjectUserListView
@@ -208,6 +209,11 @@ urlpatterns = [
         "projects/<str:project_id>/reports/",
         ProjectNoteListCreateView.as_view(),
         name="project-note-list-create",
+    ),
+    path(
+        "projects/<str:project_id>/tasks/",
+        ProjectTaskListView.as_view(),
+        name="project-task-list",
     ),
     path(
         "projects/<str:project_id>/takeaways/",

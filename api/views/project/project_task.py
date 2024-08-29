@@ -1,9 +1,9 @@
 from rest_framework import generics
-
+from api.models.task import Task
 from api.serializers.task import TaskSerializer
 
 
-class NoteTaskListCreateView(generics.ListCreateAPIView):
+class ProjectTaskListView(generics.ListAPIView):
     serializer_class = TaskSerializer
     ordering_fields = [
         "created_at",
@@ -21,4 +21,4 @@ class NoteTaskListCreateView(generics.ListCreateAPIView):
     ]
 
     def get_queryset(self):
-        return self.request.note.tasks.all()
+        return Task.objects.filter(note__project=self.request.project)
