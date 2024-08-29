@@ -27,6 +27,3 @@ class NotePropertySerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "number_value": {"normalize_output": True},
         }
-
-    def save(self, **kwargs):
-        return super().save(**kwargs)

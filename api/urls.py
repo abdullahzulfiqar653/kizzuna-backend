@@ -20,16 +20,18 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayDeleteView,
     InsightTakeawayListCreateView,
 )
+from api.views.integrations.google.auth.callback import GoogleAuthCallbackCreateView
+from api.views.integrations.google.auth.url import GoogleAuthUrlRetrieveView
+from api.views.integrations.google.calendar.event import GoogleCalendarEventListView
+from api.views.integrations.google.calendar.webhook import (
+    GoogleCalendarWebhookCreateView,
+)
 from api.views.integrations.googledrive.googledrive_list_files import (
     GoogleDriveListFilesView,
 )
-from api.views.integrations.googledrive.googledrive_oauth_redirect import (
-    GoogleDriveOauthRedirectView,
-)
-from api.views.integrations.googledrive.googledrive_oauth_url import (
-    GoogleDriveOauthUrlRetrieveView,
-)
 from api.views.integrations.mixpanel.event import MixpanelEventCreateView
+from api.views.integrations.recall.bot import RecallBotDeleteView
+from api.views.integrations.recall.webhook import RecallWebhookCreateView
 from api.views.integrations.slack.channel import SlackChannelsListView
 from api.views.integrations.slack.event import SlackEventsCreateView
 from api.views.integrations.slack.oauth_redirect import SlackOauthRedirectCreateView
@@ -67,6 +69,7 @@ from api.views.project.project_note_type import ProjectNoteTypeListCreateView
 from api.views.project.project_organization import ProjectOrganizationListView
 from api.views.project.project_playbook import ProjectPlaybookListCreateView
 from api.views.project.project_property import ProjectPropertyListCreateView
+from api.views.project.project_recall_bot import ProjectRecallBotCreateView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_summary import ProjectSummaryRetrieveView
 from api.views.project.project_tag import ProjectTagListView
@@ -284,18 +287,23 @@ urlpatterns = [
     ),
     path(
         "projects/<str:project_id>/integrations/google_drive/oauth-url/",
-        GoogleDriveOauthUrlRetrieveView.as_view(),
+        GoogleAuthUrlRetrieveView.as_view(),
         name="project-googledrive-oauth-url",
     ),
     path(
         "projects/<str:project_id>/integrations/google_drive/oauth-redirect/",
-        GoogleDriveOauthRedirectView.as_view(),
+        GoogleAuthCallbackCreateView.as_view(),
         name="project-googledrive-oauth-redirect",
     ),
     path(
         "projects/<str:project_id>/integrations/google_drive/files/",
         GoogleDriveListFilesView.as_view(),
         name="project-googledrive-files",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/recall/bot/",
+        ProjectRecallBotCreateView.as_view(),
+        name="project-recall-bot-create",
     ),
     path(
         "projects/<str:project_id>/playbooks/",
@@ -609,5 +617,31 @@ urlpatterns = [
         "integrations/slack/channels/",
         SlackChannelsListView.as_view(),
         name="list_channels",
+    ),
+    # =====================================================
+    # Google Integration
+    # =====================================================
+    path(
+        "integrations/google/calendar/events/",
+        GoogleCalendarEventListView.as_view(),
+        name="google-calendar-event-list",
+    ),
+    path(
+        "integrations/google/calendar/webhook/",
+        GoogleCalendarWebhookCreateView.as_view(),
+        name="google-calendar-webhook",
+    ),
+    # =====================================================
+    # Recall Integration
+    # =====================================================
+    path(
+        "integrations/recall/bot/<str:pk>/",
+        RecallBotDeleteView.as_view(),
+        name="recall-bot-delete",
+    ),
+    path(
+        "integrations/recall/webhook/",
+        RecallWebhookCreateView.as_view(),
+        name="recall-webhook",
     ),
 ]

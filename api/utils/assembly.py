@@ -1,3 +1,6 @@
+from collections import namedtuple
+
+
 def blank_transcript():
     return {
         "id": "",
@@ -100,6 +103,68 @@ class AssemblyProcessor:
                             word["highlight_ids"].remove(highlight_id)
                     if word["end"] == end:
                         return self.json
+
+    def map_to_recall_speakers(self, recall_transcript: dict) -> dict:
+        # Preprocess the recall transcript
+        recall_utterances = [
+            dict(
+                start=round(utterance["words"][0]["start_timestamp"] * 1000),
+                end=round(utterance["words"][-1]["end_timestamp"] * 1000),
+                speaker=utterance["speaker"],
+            )
+            for utterance in recall_transcript
+        ]
+
+        # Construct the timeline
+        Event = namedtuple("Event", ["time", "source", "action", "speaker"])
+        utterances = {
+            "assembly": self.json["utterances"],
+            "recall": recall_utterances,
+        }
+        timeline = [
+            Event(
+                time=utterance[action],
+                source=source,
+                action=action,
+                speaker=utterance["speaker"],
+            )
+            for source in ["assembly", "recall"]
+            for utterance in utterances[source]
+            for action in ["start", "end"]
+        ]
+        timeline.sort(key=lambda x: x.time)
+
+        # Find the overlaps between the assembly speakers and the recall speakers
+        speaker = {"assembly": None, "recall": None}
+        start_time = 0
+        overlaps = {}
+        # Calculate the overlaps between the assembly speakers and the recall speakers
+        for event in timeline:
+            match event.action:
+                case "start":
+                    speaker[event.source] = event.speaker
+                    if speaker["assembly"] and speaker["recall"]:
+                        start_time = event.time
+                case "end":
+                    if speaker["assembly"] and speaker["recall"]:
+                        overlaps.setdefault(speaker["assembly"], {}).setdefault(
+                            speaker["recall"], 0
+                        )
+                        overlaps[speaker["assembly"]][speaker["recall"]] += (
+                            event.time - start_time
+                        )
+                    speaker[event.source] = None
+
+        # Construct the mapping based on the overlaps
+        mapping = {
+            key: max(value.items(), key=lambda x: x[1])[0]
+            for key, value in overlaps.items()
+        }
+
+        # Map the speakers in the assembly transcript
+        for utterance in self.json["utterances"]:
+            utterance["speaker"] = mapping[utterance["speaker"]]
+        return self.json
 
     def to_markdown(self) -> str:
         return "\n".join(

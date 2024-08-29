@@ -9,6 +9,7 @@ from api.ai.analyzer.note_analyzer import ExistingNoteAnalyzer, NewNoteAnalyzer
 from api.ai.analyzer.project_summarizer import ProjectSummarizer
 from api.mixpanel import mixpanel
 from api.models.asset import Asset
+from api.models.integrations.google.calendar.channel import GoogleCalendarChannel
 from api.models.integrations.slack.slack_message_buffer import SlackMessageBuffer
 from api.models.note import Note
 from api.models.project import Project
@@ -24,6 +25,25 @@ def summarize_projects():
     bot = User.objects.get(username="bot@raijin.ai")
     project_summarizer = ProjectSummarizer()
     project_summarizer.summarize_all_projects(created_by=bot)
+
+
+@shared_task
+def sync_google_calendar_channel(channel_id):
+    print(f"syncing google calendar channel {channel_id}")
+    channel = GoogleCalendarChannel.objects.get(id=channel_id)
+    channel.sync()
+    print(f"synced google calendar channel {channel_id}")
+
+
+@shared_task
+def refresh_google_calendar_channel():
+    print("refreshing google calendar channel")
+    for channel in GoogleCalendarChannel.objects.all():
+        try:
+            channel.credential.refresh()
+            channel.refresh()
+        except Exception as e:
+            print(f"Failed to refresh google calendar channel {channel.id}: {str(e)}")
 
 
 @shared_task(bind=True, track_started=True)
