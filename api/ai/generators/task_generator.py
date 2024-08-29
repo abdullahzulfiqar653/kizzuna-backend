@@ -3,7 +3,6 @@ from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 
 from textwrap import dedent
 from pydantic.v1 import BaseModel
-from django.db.models import QuerySet
 from datetime import datetime, timedelta
 from langchain.schema.document import Document
 from api.ai.translator import google_translator
@@ -15,7 +14,7 @@ from langchain.output_parsers import PydanticOutputParser
 from api.models.note import Note
 from api.models.user import User
 from api.models.task import Task
-from api.models.task_type import TaskType, default_task_types
+from api.models.task_type import default_task_types
 
 
 def get_task_chain(task_types):
@@ -56,7 +55,7 @@ def get_task_chain(task_types):
                 a) Title: A concise title for the task.
                 b) Description: A detailed description of the task, capturing all relevant information.
                 c) Type: The task type from the provided list that best fits the task.
-                d) Priority: The priority of the task (Low, Med, High) based on the discussion.
+                d) Priority: The priority of the task (Low, Med, High) should strictly be one of these values (Med instead of Medium), based on the discussion.
                 e) Status: The status of the task (Todo, Done, Overdue) as of the end of the meeting.
                 f) Due Date: The due date for the task if mentioned or inferred.
                 g) Assigned To: The person responsible for the task, if mentioned.
@@ -137,13 +136,13 @@ def get_task_chain(task_types):
     return chain
 
 
-def generate_tasks(note: Note, task_types: QuerySet[TaskType], created_by: User):
+def generate_tasks(note: Note, created_by: User):
     text_splitter = TokenTextSplitter(
         model_name=config.model,
         chunk_size=config.chunk_size,
         chunk_overlap=config.chunk_overlap,
     )
-
+    task_types = note.project.task_types.all()
     bot = User.objects.get(username="bot@raijin.ai")
     doc = Document(page_content=note.get_markdown())
     docs = text_splitter.split_documents([doc])
