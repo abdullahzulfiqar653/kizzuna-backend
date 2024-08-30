@@ -1,18 +1,13 @@
 from rest_framework import serializers
 
 from api.models.task import Task
-from api.models.user import User
-from api.models.task_type import TaskType
 from api.serializers.user import UserSerializer
+from api.serializers.task_type import TaskTypeSerializer
 
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to = UserSerializer(required=False, context={"allow_email_write": True})
-    type = serializers.PrimaryKeyRelatedField(
-        queryset=TaskType.objects.none(),
-        required=False,
-        allow_null=True,
-    )
+    type = TaskTypeSerializer()
     created_by = serializers.CharField(source="created_by.first_name", read_only=True)
 
     class Meta:
@@ -31,15 +26,6 @@ class TaskSerializer(serializers.ModelSerializer):
             "description",
         ]
         read_only_fields = ["id", "created_at", "updated_at", "created_by"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        project = self.get_project()
-        if project:
-            self.fields["type"].queryset = project.task_types.all()
-            self.fields["assigned_to"].queryset = User.objects.filter(
-                workspace_users__workspace=project.workspace
-            )
 
     def get_project(self):
         """
@@ -60,6 +46,16 @@ class TaskSerializer(serializers.ModelSerializer):
                 f"Assignee User does not exist in project."
             )
         return user
+
+    def validate_type(self, value):
+        name = value.get("name")
+        project = self.get_project()
+        task_type = project.task_types.filter(name=name).first()
+        if not task_type:
+            raise serializers.ValidationError(
+                f"Task type does not exist in project."
+            )
+        return task_type
 
     def create(self, validated_data):
         validated_data["note"] = self.context["request"].note

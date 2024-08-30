@@ -25,7 +25,7 @@ default_task_types = [
 class TaskType(models.Model):
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
     name = models.CharField(max_length=255)
-    definition = models.CharField(max_length=255)
+    definition = models.CharField(max_length=255, null=True)
     project = models.ForeignKey(
         "api.Project", on_delete=models.CASCADE, related_name="task_types"
     )

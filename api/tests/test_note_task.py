@@ -18,9 +18,13 @@ class TestNoteTaskListCreateView(APITestCase):
         self.previous_level = logger.getEffectiveLevel()
         logger.setLevel(logging.ERROR)
 
-        self.user = User.objects.create_user(username="user", password="password")
+        self.user = User.objects.create_user(
+            email="test@example.com", username="test@example.com", password="password"
+        )
         self.assignee = User.objects.create_user(
-            email="assignee@gmail.com", username="assignee@gmail.com", password="password"
+            email="assignee@gmail.com",
+            username="assignee@gmail.com",
+            password="password",
         )
         self.bot = User.objects.get(username="bot@raijin.ai")
 
@@ -69,16 +73,15 @@ class TestNoteTaskListCreateView(APITestCase):
         """Test creating a task for a note."""
         data = {
             "title": "New Task",
-            "type": self.task_type.id,
+            "type": {"name": self.task_type.name},
             "status": Task.Status.TODO,
             "priority": Task.Priority.MED,
             "due_date": (now() + timedelta(days=3)).isoformat(),
             "assigned_to": {
-                "email": self.assignee.email,
+                "email": self.user.email,
             },
         }
         response = self.client.post(self.url, data=data)
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         task_id = response.json()["id"]
         task = Task.objects.get(id=task_id)
