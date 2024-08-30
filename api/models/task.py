@@ -26,7 +26,7 @@ class Task(models.Model):
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="created_tasks"
     )
-    due_date = models.DateField(null=True)
+    due_date = models.DateTimeField(null=True)
     priority = models.CharField(max_length=4, choices=Priority.choices, null=True)
     status = models.CharField(max_length=8, choices=Status.choices, default=Status.TODO)
     note = models.ForeignKey("api.Note", on_delete=models.CASCADE, related_name="tasks")

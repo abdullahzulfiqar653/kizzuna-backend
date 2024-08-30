@@ -55,6 +55,7 @@ class NoteSerializer(serializers.ModelSerializer):
             "title",
             "created_at",
             "organizations",
+            "is_approved",
             "content",
             "transcript",
             "revenue",
