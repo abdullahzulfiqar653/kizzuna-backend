@@ -13,7 +13,7 @@ fi
 
 if [ -z "$1" ] || [ "$1" == "django" ]; then
     python manage.py migrate
-    gunicorn cradarai.wsgi ${@:2}
+    exec gunicorn cradarai.wsgi:application --bind 0.0.0.0:8000
 elif [ "$1" == "celery-worker" ]; then
     celery -A cradarai worker -l info ${@:2}
 elif [ "$1" == "celery-beat" ]; then
