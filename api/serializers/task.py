@@ -53,9 +53,12 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def validate_assigned_to(self, value):
         email = value.get("email")
-        user = User.objects.filter(username=email).first()
+        project = self.get_project()
+        user = project.users.filter(username=email).first()
         if not email or not user:
-            raise serializers.ValidationError(f"Assignee User does not exist.")
+            raise serializers.ValidationError(
+                f"Assignee User does not exist in project."
+            )
         return user
 
     def create(self, validated_data):
