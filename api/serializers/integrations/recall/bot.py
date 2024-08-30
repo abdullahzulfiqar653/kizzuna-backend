@@ -37,6 +37,8 @@ class RecallBotSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if event.channel.credential.user != request.user:
             raise exceptions.NotFound("Event does not exist.")
+        if event.meeting_url is None:
+            raise serializers.ValidationError("Event does not have a meeting URL.")
         if request.user.recall_bots.filter(event=event).exists():
             raise serializers.ValidationError("Bot already exists for this event.")
         return event
@@ -69,6 +71,7 @@ class RecallBotSerializer(serializers.ModelSerializer):
         # Create Recall bot
         payload = recall.v1.bot.post(
             meeting_url=validated_data["meeting_url"],
+            bot_name=f"{request.user.first_name} Kizunna Notetaker",
             transcription_options=dict(provider="meeting_captions"),
             join_at=(
                 validated_data["join_at"].isoformat()
@@ -79,6 +82,7 @@ class RecallBotSerializer(serializers.ModelSerializer):
                 project_id=validated_data["project"].id,
                 created_by=request.user.username,
                 recall_env=settings.RECALLAI_ENV,
+                username=request.user.username,
             ),
         )
         validated_data["id"] = payload["id"]

@@ -166,7 +166,21 @@ class GoogleCalendarChannel(models.Model):
             unique_fields=unique_fields,
             update_fields=all_fields - unique_fields - {"id", "attendees"},
         )
-        self.events.filter(event_id__in=event_ids_to_delete).delete()
+
+        # If user delete an event that already has a bot that has recording,
+        # we will keep the bot and remove the event from the bot
+        events_to_delete = self.events.filter(event_id__in=event_ids_to_delete)
+        for event in events_to_delete:
+            bot = getattr(event, "recall_bot", None)
+            if bot is None:
+                continue
+            note = getattr(bot, "note", None)
+            if note is None:
+                continue
+            bot.event = None
+            bot.save()
+
+        events_to_delete.delete()
         self.sync_token = events.get("nextSyncToken")
         self.save()
 

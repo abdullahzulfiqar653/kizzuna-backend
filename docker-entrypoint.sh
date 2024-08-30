@@ -13,4 +13,12 @@ fi
 
 python manage.py migrate
 
-python manage.py runserver 0.0.0.0:8000
+if [ -z "$1" ] || [ "$1" == "django" ]; then
+    gunicorn cradarai.wsgi ${@:2}
+elif [ "$1" == "celery-worker" ]; then
+    celery -A cradarai worker -l info ${@:2}
+elif [ "$1" == "celery-beat" ]; then
+    celery -A cradarai beat -l info ${@:2}
+else
+    echo "Command not found"
+fi

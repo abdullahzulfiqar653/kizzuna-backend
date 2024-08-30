@@ -57,12 +57,12 @@ def post_delete_takeaway(sender, instance, **kwargs):
     cleanup_tags()
 
 
+@receiver(pre_delete, sender=Project)
+def pre_delete_project(sender, instance, **kwargs):
+    cleanup_recall_bots(instance)
+
+
 @receiver(post_migrate, sender=apps.get_app_config("api"))
 def load_data_from_fixture(sender, **kwargs):
     fixture_file = os.path.join("api", "fixtures", "features.json")
     call_command("loaddata", fixture_file, app_label="api")
-
-
-@receiver(pre_delete, sender=Project)
-def pre_delete_project(sender, instance, **kwargs):
-    cleanup_recall_bots(instance)
