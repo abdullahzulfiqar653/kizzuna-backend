@@ -42,7 +42,10 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: credentials/google-credentials.json
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          GOOGLE_CLIENT_SECRET_FILE: credentials/client_secret.json
+          GOOGLE_CLIENT_SECRET_JSON: ${{ secrets.GOOGLE_CLIENT_SECRET_JSON }}
           ALLOWED_HOSTS: "*"
           MASTER_DB_USERNAME: postgres
           MASTER_DB_PASSWORD: postgres
@@ -51,4 +54,8 @@ jobs:
           MASTER_DB_PORT: 5432
           MIXPANEL_TOKEN: ${{ secrets.MIXPANEL_TOKEN }}
         run: |
+          # To generate the content, do `cat google-credentials.json | base64`
+          mkdir -p credentials
+          echo $GOOGLE_APPLICATION_CREDENTIALS_JSON | base64 -d > $GOOGLE_APPLICATION_CREDENTIALS
+          echo $GOOGLE_CLIENT_SECRET_JSON | base64 -d > $GOOGLE_CLIENT_SECRET_FILE
           python manage.py test -v2

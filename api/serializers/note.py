@@ -9,7 +9,7 @@ from rest_framework import exceptions, serializers
 from api.ai.embedder import embedder
 from api.mixpanel import mixpanel
 from api.models.highlight import Highlight
-from api.models.integrations.googledrive.credential import GoogleDriveCredential
+from api.models.integrations.google.credential import GoogleCredential
 from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.note_type import NoteType
@@ -146,11 +146,11 @@ class NoteSerializer(serializers.ModelSerializer):
         if google_drive_file_id:
             user = self.context["request"].user
             try:
-                gdrive_user = GoogleDriveCredential.objects.get(user=user)
-            except GoogleDriveCredential.DoesNotExist:
+                gdrive_user = GoogleCredential.objects.get(user=user)
+            except GoogleCredential.DoesNotExist:
                 raise serializers.ValidationError("Google Drive account not connected")
 
-            headers = {"Authorization": f"Bearer {gdrive_user.access_token}"}
+            headers = {"Authorization": f"Bearer {gdrive_user.token}"}
 
             file_metadata_response = requests.get(
                 f"https://www.googleapis.com/drive/v3/files/{google_drive_file_id}?fields=name,mimeType,size,createdTime",

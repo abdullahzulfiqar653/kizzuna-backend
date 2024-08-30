@@ -1,8 +1,17 @@
 from api.models.asset import Asset
 from api.models.block import Block
+from api.models.contact import Contact
 from api.models.feature import Feature
 from api.models.highlight import Highlight
 from api.models.insight import Insight
+from api.models.integrations.google.calendar.attendee import GoogleCalendarAttendee
+from api.models.integrations.google.calendar.channel import GoogleCalendarChannel
+from api.models.integrations.google.calendar.event import GoogleCalendarEvent
+from api.models.integrations.google.calendar.event_attendee import (
+    GoogleCalendarEventAttendee,
+)
+from api.models.integrations.google.credential import GoogleCredential
+from api.models.integrations.recall.bot import RecallBot
 from api.models.integrations.slack.slack_message_buffer import SlackMessageBuffer
 from api.models.integrations.slack.slack_oauth_state import SlackOAuthState
 from api.models.integrations.slack.slack_user import SlackUser
@@ -15,6 +24,8 @@ from api.models.note_property_option import NotePropertyOption
 from api.models.note_type import NoteType
 from api.models.option import Option
 from api.models.organization import Organization
+from api.models.playbook import Playbook
+from api.models.playbook_takeaway import PlaybookTakeaway
 from api.models.product_feature import ProductFeature
 from api.models.project import Project
 from api.models.property import Property
@@ -74,4 +85,11 @@ __all__ = [
     "PlaybookTakeaway",
     "TaskType",
     "Task",
+    "GoogleCredential",
+    "GoogleCalendarChannel",
+    "GoogleCalendarEvent",
+    "GoogleCalendarAttendee",
+    "GoogleCalendarEventAttendee",
+    "RecallBot",
+    "Contact",
 ]
