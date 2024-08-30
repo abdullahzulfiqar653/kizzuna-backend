@@ -20,7 +20,7 @@ class TestNoteTaskListCreateView(APITestCase):
 
         self.user = User.objects.create_user(username="user", password="password")
         self.assignee = User.objects.create_user(
-            username="assignee", password="password"
+            email="assignee@gmail.com", username="assignee@gmail.com", password="password"
         )
         self.bot = User.objects.get(username="bot@raijin.ai")
 
@@ -72,10 +72,13 @@ class TestNoteTaskListCreateView(APITestCase):
             "type": self.task_type.id,
             "status": Task.Status.TODO,
             "priority": Task.Priority.MED,
-            "due_date": now().date() + timedelta(days=3),
-            "assigned_to": self.assignee.id,
+            "due_date": (now() + timedelta(days=3)).isoformat(),
+            "assigned_to": {
+                "email": self.assignee.email,
+            },
         }
         response = self.client.post(self.url, data=data)
+        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         task_id = response.json()["id"]
         task = Task.objects.get(id=task_id)
