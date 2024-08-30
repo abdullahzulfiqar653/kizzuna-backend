@@ -78,6 +78,8 @@ from api.views.project.project_tag import ProjectTagListView
 from api.views.project.project_task import ProjectTaskListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
+from api.views.project.project_task_type import ProjectTaskTypeListCreateView
+
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
 from api.views.property.option import PropertyOptionListCreateView
@@ -252,6 +254,11 @@ urlpatterns = [
         "projects/<str:project_id>/takeaway-types/",
         ProjectTakeawayTypeListCreateView.as_view(),
         name="project-takeaway-type-list",
+    ),
+    path(
+        "projects/<str:project_id>/task-types/",
+        ProjectTaskTypeListCreateView.as_view(),
+        name="project-task-type-list-create",
     ),
     path(
         "projects/<str:project_id>/insights/",
