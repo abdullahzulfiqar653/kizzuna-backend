@@ -164,6 +164,8 @@ class AssemblyProcessor:
         # Map the speakers in the assembly transcript
         for utterance in self.json["utterances"]:
             utterance["speaker"] = mapping[utterance["speaker"]]
+            for word in utterance["words"]:
+                word["speaker"] = utterance["speaker"]
         return self.json
 
     def to_markdown(self) -> str:

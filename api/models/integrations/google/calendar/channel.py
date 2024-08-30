@@ -227,7 +227,6 @@ class GoogleCalendarChannel(models.Model):
             )
             for event in events
             for attendee in event.raw.get("attendees", [])
-            if attendee.get("self") is not True
         ]
         GoogleCalendarEventAttendee.objects.bulk_create(
             event_attendees_to_create,
