@@ -11,14 +11,13 @@ if [ -n "$GOOGLE_CLIENT_SECRET_JSON" ]; then
     echo $GOOGLE_CLIENT_SECRET_JSON | base64 -d > $GOOGLE_CLIENT_SECRET_FILE
 fi
 
-python manage.py migrate
-
 if [ -z "$1" ] || [ "$1" == "django" ]; then
+    python manage.py migrate
     gunicorn cradarai.wsgi ${@:2}
 elif [ "$1" == "celery-worker" ]; then
     celery -A cradarai worker -l info ${@:2}
 elif [ "$1" == "celery-beat" ]; then
-    celery -A cradarai beat -l info ${@:2}
+    celery -A cradarai beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler ${@:2}
 else
     echo "Command not found"
 fi
