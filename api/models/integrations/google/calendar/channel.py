@@ -191,7 +191,7 @@ class GoogleCalendarChannel(models.Model):
 
         attendees_to_create = {
             attendee["email"]: GoogleCalendarAttendee(
-                name=attendee.get("displayName"),
+                name=attendee.get("displayName", ""),
                 email=attendee["email"],
                 channel=self,
             )
