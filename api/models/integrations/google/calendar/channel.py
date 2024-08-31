@@ -52,7 +52,7 @@ class GoogleCalendarChannel(models.Model):
 
     def refresh(self):
         creds = self.credential.to_credentials()
-        old_channel_id = self.channel_id
+        old_channel_id = self.channel_id.hex
         old_resource_id = self.resource_id
         calendar = build("calendar", "v3", credentials=creds)
         channel_payload = (
