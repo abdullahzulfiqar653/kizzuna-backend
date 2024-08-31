@@ -318,12 +318,14 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON = env(
 if GOOGLE_APPLICATION_CREDENTIALS_JSON and not os.path.exists(
     GOOGLE_APPLICATION_CREDENTIALS
 ):
+    os.makedirs(os.path.dirname(GOOGLE_APPLICATION_CREDENTIALS), exist_ok=True)
     with open(GOOGLE_APPLICATION_CREDENTIALS, "w") as f:
         json.dump(json.loads(GOOGLE_APPLICATION_CREDENTIALS_JSON), f)
 
 GOOGLE_CLIENT_SECRET_FILE = env("GOOGLE_CLIENT_SECRET_FILE")
 GOOGLE_CLIENT_SECRET_JSON = env("GOOGLE_CLIENT_SECRET_JSON", default=None)
 if GOOGLE_CLIENT_SECRET_JSON and not os.path.exists(GOOGLE_CLIENT_SECRET_FILE):
+    os.makedirs(os.path.dirname(GOOGLE_CLIENT_SECRET_FILE), exist_ok=True)
     with open(GOOGLE_CLIENT_SECRET_FILE, "w") as f:
         json.dump(json.loads(GOOGLE_CLIENT_SECRET_JSON), f)
 
