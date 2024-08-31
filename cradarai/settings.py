@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import json
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -26,14 +27,11 @@ environ.Env.read_env(".env.example")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
-ASSEMBLY_AI_API_KEY = env("ASSEMBLY_AI_API_KEY")
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", cast=bool)
@@ -311,6 +309,24 @@ SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI")
 DEMO_PROJECT_ID = env("DEMO_PROJECT_ID", default=None)
 DEMO_USER_ID = env("DEMO_USER_ID", default=None)
 
+
+# Load Google credential files from the environment variables
+GOOGLE_APPLICATION_CREDENTIALS = env("GOOGLE_APPLICATION_CREDENTIALS")
+GOOGLE_APPLICATION_CREDENTIALS_JSON = env(
+    "GOOGLE_APPLICATION_CREDENTIALS_JSON", default=None
+)
+if GOOGLE_APPLICATION_CREDENTIALS_JSON and not os.path.exists(
+    GOOGLE_APPLICATION_CREDENTIALS
+):
+    with open(GOOGLE_APPLICATION_CREDENTIALS, "w") as f:
+        json.dump(json.loads(GOOGLE_APPLICATION_CREDENTIALS_JSON), f)
+
+GOOGLE_CLIENT_SECRET_FILE = env("GOOGLE_CLIENT_SECRET_FILE")
+GOOGLE_CLIENT_SECRET_JSON = env("GOOGLE_CLIENT_SECRET_JSON", default=None)
+if GOOGLE_CLIENT_SECRET_JSON and not os.path.exists(GOOGLE_CLIENT_SECRET_FILE):
+    with open(GOOGLE_CLIENT_SECRET_FILE, "w") as f:
+        json.dump(json.loads(GOOGLE_CLIENT_SECRET_JSON), f)
+
 # Google drive integration credentials
 GOOGLE_CLIENT_SECRET_FILE = env("GOOGLE_CLIENT_SECRET_FILE")
 GOOGLE_REDIRECT_URI = env("GOOGLE_REDIRECT_URI")
@@ -325,6 +341,7 @@ GOOGLE_SCOPES = [
 ]
 GOOGLE_CALENDAR_WEBHOOK_URL = env("GOOGLE_CALENDAR_WEBHOOK_URL")
 
+ASSEMBLY_AI_API_KEY = env("ASSEMBLY_AI_API_KEY")
 MIXPANEL_TOKEN = env("MIXPANEL_TOKEN")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
