@@ -14,8 +14,18 @@ class TaskTypeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
+    def get_project(self):
+        """
+        Helper method to retrieve the project from the context.
+        """
+        request = self.context.get("request")
+        if hasattr(request, "project"):
+            return request.project
+        if hasattr(request, "tasktype"):
+            return request.tasktype.project
+
     def validate_name(self, name):
-        project = self.context["request"].project
+        project = self.get_project()
         if TaskType.objects.filter(name=name, project=project).exists():
             raise serializers.ValidationError(
                 f"A task type with name '{name}' already exists in this project."

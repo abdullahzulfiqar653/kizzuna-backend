@@ -7,7 +7,7 @@ from api.serializers.task_type import TaskTypeSerializer
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to = UserSerializer(required=False, context={"allow_email_write": True})
-    type = TaskTypeSerializer()
+    type = TaskTypeSerializer(read_only=True)
     created_by = serializers.CharField(source="created_by.first_name", read_only=True)
 
     class Meta:
@@ -52,10 +52,8 @@ class TaskSerializer(serializers.ModelSerializer):
         project = self.get_project()
         task_type = project.task_types.filter(name=name).first()
         if not task_type:
-            raise serializers.ValidationError(
-                f"Task type does not exist in project."
-            )
-        return task_type
+            raise serializers.ValidationError(f"Task type does not exist in project.")
+        return value
 
     def create(self, validated_data):
         validated_data["note"] = self.context["request"].note

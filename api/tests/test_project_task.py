@@ -1,7 +1,8 @@
 import logging
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.utils.timezone import now, timedelta
+from django.utils import timezone
+from django.utils.timezone import timedelta
 
 from api.models.task import Task
 from api.models.user import User
@@ -42,7 +43,7 @@ class TestProjectTaskListView(APITestCase):
             type=self.task_type,
             status=Task.Status.TODO,
             priority=Task.Priority.LOW,
-            due_date=now().date() + timedelta(days=1),
+            due_date=timezone.now() + timedelta(days=1),
         )
         self.task2 = Task.objects.create(
             title="Task 2",
@@ -51,7 +52,7 @@ class TestProjectTaskListView(APITestCase):
             type=self.task_type,
             status=Task.Status.DONE,
             priority=Task.Priority.HIGH,
-            due_date=now().date() + timedelta(days=2),
+            due_date=timezone.now() + timedelta(days=2),
         )
 
         self.url = f"/api/projects/{self.project.id}/tasks/"
