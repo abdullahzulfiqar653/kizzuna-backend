@@ -23,6 +23,10 @@ class GoogleCalendarEventListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return GoogleCalendarEvent.objects.filter(
-            channel__credential__user=self.request.user
-        ).select_related("recall_bot__project__workspace")
+        return (
+            GoogleCalendarEvent.objects.filter(
+                channel__credential__user=self.request.user
+            )
+            .select_related("recall_bot__project__workspace")
+            .prefetch_related("event_attendees__attendee")
+        )
