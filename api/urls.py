@@ -13,6 +13,7 @@ from api.views.block.block_takeaway import (
     BlockTakeawayListCreateView,
 )
 from api.views.task import TaskRetrieveUpdateDeleteView
+from api.views.task_type import TaskTypeRetrieveUpdateDestroyView
 from api.views.block.block_theme import BlockThemeListCreateView
 from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
@@ -553,6 +554,14 @@ urlpatterns = [
         "tasks/<str:pk>/",
         TaskRetrieveUpdateDeleteView.as_view(),
         name="task-update-retrieve-delete",
+    ),
+    # =====================================================
+    # Task types
+    # =====================================================
+    path(
+        "task-types/<str:pk>/",
+        TaskTypeRetrieveUpdateDestroyView.as_view(),
+        name="tasktype-update-retrieve-delete",
     ),
     # =====================================================
     # Auth

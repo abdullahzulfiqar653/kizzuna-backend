@@ -21,8 +21,8 @@ class TaskTypeSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if hasattr(request, "project"):
             return request.project
-        if hasattr(request, "tasktype"):
-            return request.tasktype.project
+        if hasattr(request, "task_type"):
+            return request.task_type.project
 
     def validate_name(self, name):
         project = self.get_project()

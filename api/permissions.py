@@ -77,6 +77,17 @@ class InProjectOrWorkspace(permissions.BasePermission):
                 project = request.takeaway_type.project
                 workspace = project.workspace
 
+            case str(s) if s.startswith("/api/task-types/"):
+                if not hasattr(request, "task_type"):
+                    TaskType = apps.get_model("api", "TaskType")
+                    task_type_id = view.kwargs.get("pk") or view.kwargs.get(
+                        "task_type_id"
+                    )
+                    queryset = TaskType.objects.select_related("project__workspace")
+                    request.task_type = get_instance(queryset, task_type_id)
+                project = request.task_type.project
+                workspace = project.workspace
+
             case str(s) if s.startswith("/api/insights/"):
                 if not hasattr(request, "insight"):
                     Insight = apps.get_model("api", "Insight")
