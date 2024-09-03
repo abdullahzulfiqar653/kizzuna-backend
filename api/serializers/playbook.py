@@ -31,7 +31,9 @@ class PlaybookSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         project = self.get_project()
         if project:
-            self.fields["report_ids"].child_relation.queryset = project.notes.all()
+            self.fields["report_ids"].child_relation.queryset = project.notes.filter(
+                is_shared=True
+            ).all()
 
     def get_project(self):
         """

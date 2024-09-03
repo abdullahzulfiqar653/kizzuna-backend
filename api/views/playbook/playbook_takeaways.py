@@ -1,6 +1,8 @@
+from django.db import models
 from rest_framework import generics
-from api.models.takeaway import Takeaway
+
 from api.filters.takeaway import TakeawayFilter
+from api.models.takeaway import Takeaway
 from api.serializers.takeaway import TakeawaySerializer
 
 
@@ -26,6 +28,9 @@ class PlaybookTakeawaysListView(generics.ListAPIView):
 
     def get_queryset(self):
         return TakeawaySerializer.optimize_query(
-            Takeaway.objects.filter(note__in=self.request.playbook.notes.all()),
+            Takeaway.objects.filter(note__in=self.request.playbook.notes.all()).filter(
+                models.Q(note__is_shared=True)
+                | models.Q(note__author=self.request.user)
+            ),
             self.request.user,
         )
