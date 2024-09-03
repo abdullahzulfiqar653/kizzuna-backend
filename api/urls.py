@@ -50,6 +50,7 @@ from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note.note_takeaway_type import NoteTakeawayTypeListCreateView
 from api.views.note.note_task import NoteTaskListCreateView
+from api.views.note.note_task_approval import NoteTaskApprovalCreateView
 from api.views.note_type import NoteTypeRetrieveUpdateDestroyView
 from api.views.option import OptionRetrieveUpdateDestroyView
 from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
@@ -184,6 +185,11 @@ urlpatterns = [
         "reports/<str:report_id>/tasks/",
         NoteTaskListCreateView.as_view(),
         name="note-task-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/tasks/approve/",
+        NoteTaskApprovalCreateView.as_view(),
+        name="note-task-approval-create",
     ),
     # =====================================================
     # Report Types
