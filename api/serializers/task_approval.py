@@ -4,7 +4,7 @@ from api.models.task import Task
 
 class TaskApprovalSerializer(serializers.Serializer):
     task_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Task.objects.none(),
+        queryset=Task.objects.all(),
         many=True,
         write_only=True,
         required=False,
