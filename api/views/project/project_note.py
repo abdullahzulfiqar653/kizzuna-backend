@@ -1,6 +1,7 @@
 import json
 
 from django.core.files.uploadedfile import UploadedFile
+from django.db import models
 from django.db.models import Count
 from django.http.request import QueryDict
 from pydub.utils import mediainfo
@@ -36,10 +37,14 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]
 
     def get_queryset(self):
-        return self.request.project.notes.prefetch_related(
-            "author", "organizations", "keywords"
-        ).annotate(
-            takeaway_count=Count("takeaways"),
+        return (
+            self.request.project.notes.filter(
+                models.Q(is_shared=True) | models.Q(author=self.request.user)
+            )
+            .prefetch_related("author", "organizations", "keywords")
+            .annotate(
+                takeaway_count=Count("takeaways"),
+            )
         )
 
     def to_dict(self, form_data):

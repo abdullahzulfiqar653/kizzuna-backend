@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import generics
 
 from api.filters.takeaway import TakeawayFilter
@@ -27,6 +28,9 @@ class ProjectTakeawayListView(generics.ListAPIView):
 
     def get_queryset(self):
         return TakeawaySerializer.optimize_query(
-            Takeaway.objects.filter(note__project=self.request.project),
+            Takeaway.objects.filter(note__project=self.request.project).filter(
+                models.Q(note__is_shared=True)
+                | models.Q(note__author=self.request.user)
+            ),
             self.request.user,
         )

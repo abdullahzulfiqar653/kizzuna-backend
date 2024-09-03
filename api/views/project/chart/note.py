@@ -13,7 +13,7 @@ class ChartNoteCreateView(generics.CreateAPIView):
     permission_classes = [IsWorkspaceMemberFullAccess]
 
     def get_queryset(self):
-        return self.request.project.notes.all()
+        return self.request.project.notes.filter(is_shared=True).all()
 
     def create(self, request, project_id):
         queryset = self.get_queryset()

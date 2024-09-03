@@ -103,6 +103,8 @@ class Note(models.Model):
     contacts = models.ManyToManyField(Contact, related_name="notes")
     organizations = models.ManyToManyField(Organization, related_name="notes")
 
+    is_shared = models.BooleanField(default=True)
+
     def __str__(self):
         return self.title
 

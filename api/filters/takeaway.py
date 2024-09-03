@@ -169,6 +169,7 @@ class TakeawayFilter(filters.FilterSet):
         queryset=note_types_in_scope,
     )
     created_at = filters.DateFromToRangeFilter(field_name="created_at")
+    report_is_shared = filters.BooleanFilter(field_name="note__is_shared")
 
     class Meta:
         model = Takeaway

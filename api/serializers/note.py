@@ -49,6 +49,7 @@ class NoteSerializer(serializers.ModelSerializer):
             "id",
             "takeaway_count",
             "author",
+            "is_shared",
             "is_analyzing",
             "is_auto_tagged",
             "keywords",
@@ -76,6 +77,7 @@ class NoteSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "author",
+            "is_shared",
             "is_analyzing",
             "is_auto_tagged",
             "file_type",

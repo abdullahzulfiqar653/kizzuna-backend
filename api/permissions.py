@@ -30,6 +30,11 @@ class InProjectOrWorkspace(permissions.BasePermission):
                     report_id = view.kwargs.get("pk") or view.kwargs.get("report_id")
                     queryset = Note.objects.select_related("project__workspace")
                     request.note = get_instance(queryset, report_id)
+                    if (
+                        not request.note.is_shared
+                        and request.note.author != request.user
+                    ):
+                        raise exceptions.NotFound
                 project = request.note.project
                 workspace = project.workspace
 

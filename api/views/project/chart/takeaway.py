@@ -13,7 +13,9 @@ class ChartTakeawayCreateView(generics.CreateAPIView):
     permission_classes = [IsWorkspaceMemberFullAccess]
 
     def get_queryset(self):
-        return Takeaway.objects.filter(note__project=self.request.project)
+        return Takeaway.objects.filter(
+            note__project=self.request.project, note__is_shared=True
+        )
 
     def create(self, request, project_id):
         queryset = self.get_queryset()

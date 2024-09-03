@@ -54,3 +54,4 @@ class NoteFilter(filters.FilterSet):
         queryset=keywords_in_project,
     )
     created_at = filters.DateFromToRangeFilter(field_name="created_at")
+    is_shared = filters.BooleanFilter(field_name="is_shared")
