@@ -119,15 +119,14 @@ class TestTaskRetrieveUpdateDeleteView(APITestCase):
             "Assignee User does not exist in project.", response.data["assigned_to"]
         )
 
-    # def test_validate_type(self):
-    #     data = {
-    #         "title": "Task with Invalid Type",
-    #         "type": {"name": "Nonexistent Task Type"},
-    #     }
-    #     response = self.client.patch(self.url, data)
-    #     print(response.data)
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertIn("Task type does not exist in project", response.data["type"])
+    def test_validate_type(self):
+        data = {
+            "title": "Task with Invalid Type",
+            "type": {"name": "Nonexistent Task Type"},
+        }
+        response = self.client.patch(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Task type does not exist in project.", response.data["type"])
 
     def test_unauthenticated_access(self):
         """Test that unauthenticated users cannot access the view."""
