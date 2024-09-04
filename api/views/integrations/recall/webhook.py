@@ -101,11 +101,12 @@ class RecallWebhookCreateView(generics.CreateAPIView):
                     file=video_content,
                     recall_bot=bot,
                 )
-                analyze_new_note.delay_on_commit(note.id, user.id)
 
                 transcript = recall.v1.bot(bot.id.hex).transcript.get()
                 bot.transcript = transcript
                 bot.meeting_participants = payload.get("meeting_participants")
                 bot.save()
+
+                analyze_new_note.delay_on_commit(note.id, user.id)
 
         return response.Response(status=200)
