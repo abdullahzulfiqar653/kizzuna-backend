@@ -176,6 +176,8 @@ class ChannelSynchronizer:
                 and event.start > timezone.now()
             ):
                 for project in projects:
+                    if project is None:
+                        continue
                     payload = recall.v1.bot.post(
                         meeting_url=event.meeting_url,
                         bot_name=f"{user.first_name} Kizunna Notetaker",
