@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
-from django.core.files.base import ContentFile
+from django.core.files.base import File
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import generics, permissions, response
@@ -78,21 +78,20 @@ class RecallWebhookCreateView(generics.CreateAPIView):
                     return response.Response(status=200)
 
                 res = requests.get(video_url, stream=True)
-                if res.status_code != 200:
-                    return response.Response(status=200)
+                res.raise_for_status()
 
                 # Get the file extension from the video_url
                 parsed_url = urlparse(video_url)
                 file_extension = os.path.splitext(parsed_url.path)[1]
 
                 # Save the streamed content to a file-like object
-                video_content = ContentFile(res.content)
                 if bot.event and bot.event.summary:
                     title = bot.event.summary
-                    video_content.name = f"{bot.event.summary}{file_extension}"
+                    file_name = f"{bot.event.summary}{file_extension}"
                 else:
                     title = f"Meeting recorded by Kizunna bot"
-                    video_content.name = f"meeting_video{file_extension}"
+                    file_name = f"meeting_video{file_extension}"
+                video_content = File(res.raw, name=file_name)
 
                 note = Note.objects.create(
                     project_id=project_id,
@@ -102,11 +101,12 @@ class RecallWebhookCreateView(generics.CreateAPIView):
                     file=video_content,
                     recall_bot=bot,
                 )
-                analyze_new_note.delay_on_commit(note.id, user.id)
 
                 transcript = recall.v1.bot(bot.id.hex).transcript.get()
                 bot.transcript = transcript
                 bot.meeting_participants = payload.get("meeting_participants")
                 bot.save()
+
+                analyze_new_note.delay_on_commit(note.id, user.id)
 
         return response.Response(status=200)

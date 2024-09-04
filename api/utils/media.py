@@ -4,7 +4,7 @@ import tempfile
 
 import ffmpeg
 from django.conf import settings
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
 from django.db.models.fields.files import FieldFile
 
 
@@ -57,11 +57,8 @@ def merge_media_files(files):
     return file
 
 
-def process_mp4_for_streaming(file):
-    with (
-        tempfile.NamedTemporaryFile(suffix=".mp4") as input,
-        tempfile.NamedTemporaryFile(suffix=".mp4") as output,
-    ):
+def process_mp4_for_streaming(file, output):
+    with tempfile.NamedTemporaryFile(suffix=".mp4") as input:
         # We need to write the input to file and reading it again,
         # because ffmpeg expects a seekable file stream
         input.write(file.read()),
@@ -72,5 +69,5 @@ def process_mp4_for_streaming(file):
             .run(quiet=True)
         )
         output.seek(0)
-        file = ContentFile(output.read(), name=file.name)
+        file = File(output, name=file.name)
     return file

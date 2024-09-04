@@ -78,6 +78,9 @@ class RecallBotSerializer(serializers.ModelSerializer):
                 if validated_data.get("join_at")
                 else None
             ),
+            automatic_leave=dict(
+                silence_detection=dict(timeout=300),
+            ),
             metadata=dict(
                 project_id=validated_data["project"].id,
                 created_by=request.user.username,
