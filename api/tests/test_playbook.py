@@ -1,6 +1,8 @@
 import logging
+
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from api.models.note import Note
 from api.models.playbook import Playbook
 from api.models.project import Project
@@ -69,6 +71,24 @@ class TestPlaybookRetrieveUpdateDeleteView(APITestCase):
         self.assertEqual(playbook.description, data["description"])
         self.assertEqual(playbook.notes.count(), 1)
         self.assertEqual(playbook.notes.first(), self.note)
+
+    def test_update_playbook_with_private_note(self):
+        """
+        Test that a private note cannot be added to a playbook
+        even if the user is the author
+        """
+        private_note = Note.objects.create(
+            title="Private note",
+            project=self.project,
+            author=self.user,
+            is_shared=False,
+        )
+        data = {
+            "report_ids": [private_note.id],
+        }
+        self.client.force_authenticate(self.user)
+        response = self.client.put(self.url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_playbook_title_exists(self):
         Playbook.objects.create(

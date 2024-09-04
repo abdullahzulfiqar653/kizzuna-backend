@@ -25,6 +25,9 @@ class TestPlaybookVideoTakeawaysListCreateView(APITestCase):
         logger.setLevel(logging.ERROR)
 
         self.user = User.objects.create_user(username="user", password="password")
+        self.outsider = User.objects.create_user(
+            username="outsider", password="password"
+        )
         self.workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=self.workspace)
@@ -92,6 +95,30 @@ class TestPlaybookVideoTakeawaysListCreateView(APITestCase):
         duration_in_seconds = float(audio_info.get("duration"))
         expected_duration = 0.677
         self.assertAlmostEqual(duration_in_seconds, expected_duration, places=2)
+
+    def test_create_playbook_takeaway_from_private_note(self):
+        """
+        Test that a user cannot add a takeaway from a private note to a playbook.
+        """
+        # Create a private note
+        private_note = Note.objects.create(
+            title="Private Note",
+            project=self.project,
+            author=self.outsider,
+            is_shared=False,
+        )
+        # Add the takeaway to the private note
+        takeaway = Highlight.objects.create(
+            quote="This is a takeaway from a private note.",
+            note=private_note,
+            clip=self.takeaway_1.clip,
+            created_by=self.outsider,
+            vector=np.random.rand(1536),
+        )
+        data = {"takeaway_id": takeaway.id, "order": 1}
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_playbook_takeaway_order(self):
         data = {"takeaway_id": self.takeaway_2.id, "order": 2}

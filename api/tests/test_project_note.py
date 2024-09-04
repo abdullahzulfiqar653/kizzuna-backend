@@ -120,6 +120,29 @@ class TestProjectNoteListCreateView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
 
+    def test_user_list_report_with_private_note(self):
+        """
+        Test that a private note is not returned in the list of reports
+        """
+        shared_note = Note.objects.create(
+            title="Shared note",
+            project=self.project,
+            author=self.outsider,
+            is_shared=True,
+        )
+        private_note = Note.objects.create(
+            title="Private note",
+            project=self.project,
+            author=self.outsider,
+            is_shared=False,
+        )
+        self.client.force_authenticate(self.user)
+        url = f"/api/projects/{self.project.id}/reports/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]["id"], shared_note.id)
+
     def test_user_create_report(self):
         data = {
             "title": "User can create report.",
