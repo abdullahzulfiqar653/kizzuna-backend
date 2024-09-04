@@ -1,8 +1,8 @@
+from django.db import models
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api import models
 from api.filters.takeaway import TakeawayFilter
 from api.models.takeaway import Takeaway
 from api.serializers.takeaway import SavedTakeawaysSerializer, TakeawaySerializer
