@@ -99,7 +99,7 @@ class TestTaskRetrieveUpdateDeleteView(APITestCase):
         self.project.users.add(user)
         data = {
             "title": "Task with Assignee",
-            "assigned_to": {"email": "newuser@example.com"},
+            "assignee": "newuser@example.com",
             "type": {"name": "Follow-Up Email"},
         }
         response = self.client.patch(self.url, data)
@@ -110,13 +110,13 @@ class TestTaskRetrieveUpdateDeleteView(APITestCase):
     def test_invalid_assigned_to(self):
         data = {
             "title": "Task with Invalid Assignee",
-            "assigned_to": {"email": "nonexistentuser@example.com"},
+            "assignee": "nonexistentuser@example.com",
             "type": {"name": "Follow-Up Email"},
         }
         response = self.client.patch(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn(
-            "Assignee User does not exist in project.", response.data["assigned_to"]
+            "Assignee User does not exist in project.", response.data["assignee"]
         )
 
     def test_validate_type(self):

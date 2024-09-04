@@ -6,7 +6,9 @@ from api.serializers.task_type import TaskTypeSerializer
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    assigned_to = UserSerializer(required=False, context={"allow_email_write": True})
+    assigned_to = UserSerializer(read_only=True)
+    assignee = serializers.CharField(write_only=True)
+
     type = TaskTypeSerializer(required=False)
     created_by = serializers.CharField(source="created_by.first_name", read_only=True)
 
@@ -17,6 +19,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "type",
             "title",
             "status",
+            "assignee",
             "due_date",
             "priority",
             "created_at",
@@ -37,11 +40,10 @@ class TaskSerializer(serializers.ModelSerializer):
         if hasattr(request, "task"):
             return request.task.note.project
 
-    def validate_assigned_to(self, value):
-        email = value.get("email")
+    def validate_assignee(self, value):
         project = self.get_project()
-        user = project.users.filter(username=email).first()
-        if not email or not user:
+        user = project.users.filter(username=value).first()
+        if not user:
             raise serializers.ValidationError(
                 f"Assignee User does not exist in project."
             )
@@ -58,4 +60,10 @@ class TaskSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["note"] = self.context["request"].note
         validated_data["created_by"] = self.context["request"].user
+        validated_data["assigned_to"] = validated_data.pop("assignee")
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        if "assignee" in validated_data:
+            validated_data["assigned_to"] = validated_data.pop("assignee")
+        return super().update(instance, validated_data)
