@@ -68,6 +68,11 @@ class InProjectOrWorkspace(permissions.BasePermission):
                         "note__project__workspace"
                     )
                     request.takeaway = get_instance(queryset, takeaway_id)
+                    if (
+                        not request.takeaway.note.is_shared
+                        and request.takeaway.note.author != request.user
+                    ):
+                        raise exceptions.NotFound
                 project = request.takeaway.note.project
                 workspace = project.workspace
 
