@@ -39,7 +39,7 @@ class TestNoteKeywordDestroyView(APITestCase):
         self.note.keywords.add(self.existing_keyword)
         return super().setUp()
 
-    def test_user_delete_insight_takeaways(self):
+    def test_user_delete_note_keyword(self):
         self.client.force_authenticate(self.user)
         keyword_id = self.existing_keyword.id
         url = f"/api/reports/{self.note.id}/keywords/{keyword_id}/"
@@ -47,14 +47,14 @@ class TestNoteKeywordDestroyView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(self.note.keywords.contains(self.existing_keyword))
 
-    def test_user_delete_nonexisting_insight_takeaways(self):
+    def test_user_delete_nonexisting_note_keyword(self):
         self.client.force_authenticate(self.user)
         non_existing_keyword_id = "nonexistenceid"
         url = f"/api/reports/{self.note.id}/keywords/{non_existing_keyword_id}/"
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_outsider_delete_insight_takeaways(self):
+    def test_outsider_delete_note_keyword(self):
         self.client.force_authenticate(self.outsider)
         keyword_id = self.existing_keyword.id
         url = f"/api/reports/{self.note.id}/keywords/{keyword_id}/"

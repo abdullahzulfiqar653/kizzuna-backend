@@ -177,7 +177,7 @@ class TestAssetRetrieveUpdateDeleteView(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_outsider_delete_insight(self):
+    def test_outsider_delete_asset(self):
         self.client.force_authenticate(self.outsider)
         url = f"/api/assets/{self.asset.id}/"
         response = self.client.delete(url)

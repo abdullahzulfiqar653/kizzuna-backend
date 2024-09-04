@@ -14,12 +14,6 @@ from api.views.block.block_takeaway import (
 )
 from api.views.block.block_theme import BlockThemeListCreateView
 from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
-from api.views.insight.insight import InsightRetrieveUpdateDeleteView
-from api.views.insight.insight_tag import InsightTagListView
-from api.views.insight.insight_takeaway import (
-    InsightTakeawayDeleteView,
-    InsightTakeawayListCreateView,
-)
 from api.views.integrations.google.auth.callback import GoogleAuthCallbackCreateView
 from api.views.integrations.google.auth.url import GoogleAuthUrlRetrieveView
 from api.views.integrations.google.calendar.event import GoogleCalendarEventListView
@@ -61,7 +55,6 @@ from api.views.project.project import ProjectRetrieveUpdateDeleteView
 from api.views.project.project_asset import ProjectAssetListCreateView
 from api.views.project.project_asset_analyze import ProjectAssetAnalyzeCreateView
 from api.views.project.project_dummy_note import ProjectDummyNoteCreateView
-from api.views.project.project_insight import ProjectInsightListCreateView
 from api.views.project.project_invitation import ProjectInvitationCreateView
 from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
@@ -241,11 +234,6 @@ urlpatterns = [
         name="project-takeaway-type-list",
     ),
     path(
-        "projects/<str:project_id>/insights/",
-        ProjectInsightListCreateView.as_view(),
-        name="project-insight-list-create",
-    ),
-    path(
         "projects/<str:project_id>/invitations/",
         ProjectInvitationCreateView.as_view(),
         name="project-invite",
@@ -363,29 +351,6 @@ urlpatterns = [
         "takeaway-types/<str:pk>/",
         TakeawayTypeRetrieveUpdateDestroyView.as_view(),
         name="takeaway-type-retrieve-update-destroy",
-    ),
-    # =====================================================
-    # Insight
-    # =====================================================
-    path(
-        "insights/<str:pk>/",
-        InsightRetrieveUpdateDeleteView.as_view(),
-        name="insight-retrieve-update-delete",
-    ),
-    path(
-        "insights/<str:insight_id>/takeaways/",
-        InsightTakeawayListCreateView.as_view(),
-        name="insight-takeaway-list-create",
-    ),
-    path(
-        "insights/<str:insight_id>/takeaways/delete/",
-        InsightTakeawayDeleteView.as_view(),
-        name="insight-takeaway-delete",
-    ),
-    path(
-        "insights/<str:insight_id>/tags/",
-        InsightTagListView.as_view(),
-        name="insight-tag-list",
     ),
     # =====================================================
     # Asset

@@ -3,7 +3,6 @@ from rest_framework import exceptions, serializers
 
 from api.ai.embedder import embedder
 from api.models.block import Block
-from api.models.insight import Insight
 from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
@@ -138,28 +137,6 @@ class TakeawayIDsSerializer(serializers.Serializer):
         return value
 
 
-class InsightTakeawaysSerializer(serializers.Serializer):
-    takeaways = TakeawayIDsSerializer(many=True)
-
-    def create(self, validated_data):
-        insight: Insight = self.context["insight"]
-        takeaway_ids = {takeaway["id"] for takeaway in validated_data["takeaways"]}
-        # Skip adding takeaways that are already in insight
-        takeaways_to_add = Takeaway.objects.filter(id__in=takeaway_ids).exclude(
-            insights=insight
-        )
-        insight.takeaways.add(*takeaways_to_add)
-        return {"takeaways": takeaways_to_add}
-
-    def delete(self):
-        insight: Insight = self.context["insight"]
-        takeaway_ids = {takeaway["id"] for takeaway in self.validated_data["takeaways"]}
-        # Only remove takeaways that are in insight
-        takeaways_to_remove = insight.takeaways.filter(id__in=takeaway_ids)
-        insight.takeaways.remove(*takeaways_to_remove)
-        self.instance = {"takeaways": takeaways_to_remove}
-
-
 class BlockTakeawaysSerializer(serializers.Serializer):
     takeaways = TakeawayIDsSerializer(many=True)
 
@@ -229,7 +206,7 @@ class SavedTakeawaysSerializer(serializers.Serializer):
     def delete(self):
         user: User = self.context["user"]
         takeaway_ids = {takeaway["id"] for takeaway in self.validated_data["takeaways"]}
-        # Only remove takeaways that are in insight
+        # Only remove takeaways that are in saved items
         takeaways_to_remove = user.saved_takeaways.filter(id__in=takeaway_ids)
         user.saved_takeaways.remove(*takeaways_to_remove)
         self.instance = {"takeaways": takeaways_to_remove}

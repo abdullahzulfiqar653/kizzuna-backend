@@ -4,7 +4,6 @@ import numpy as np
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.models.insight import Insight
 from api.models.note import Note
 from api.models.project import Project
 from api.models.tag import Tag
@@ -29,9 +28,6 @@ class TestTakeawayTagView(APITestCase):
         self.workspace = Workspace.objects.create(name="workspace", owned_by=self.user)
         self.workspace.members.add(self.user, through_defaults={"role": "Editor"})
         self.project = Project.objects.create(name="project", workspace=self.workspace)
-        self.insight = Insight.objects.create(
-            title="insight", project=self.project, created_by=self.user
-        )
         self.project.users.add(self.user)
 
         self.note = Note.objects.create(

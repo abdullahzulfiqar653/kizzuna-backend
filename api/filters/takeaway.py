@@ -10,7 +10,7 @@ from api.models.user import User
 
 
 def users_in_scope(request):
-    "Return the list of users in project or insight"
+    "Return the list of users in scope"
     kwargs = request.parser_context["kwargs"]
 
     project_id = kwargs.get("project_id")
@@ -22,10 +22,6 @@ def users_in_scope(request):
     report_id = kwargs.get("report_id")
     if report_id is not None:
         return User.objects.filter(created_takeaways__note=report_id).distinct()
-
-    insight_id = kwargs.get("insight_id")
-    if insight_id is not None:
-        return User.objects.filter(created_takeaways__insights=insight_id).distinct()
 
     asset_id = kwargs.get("asset_id")
     if asset_id is not None:
@@ -47,7 +43,7 @@ def users_in_scope(request):
 
 
 def tags_in_scope(request):
-    "Return the list of tags in project or insight"
+    "Return the list of tags in scope"
     kwargs = request.parser_context["kwargs"]
 
     project_id = kwargs.get("project_id")
@@ -57,10 +53,6 @@ def tags_in_scope(request):
     report_id = kwargs.get("report_id")
     if report_id is not None:
         return Tag.objects.filter(takeaways__note=report_id)
-
-    insight_id = kwargs.get("insight_id")
-    if insight_id is not None:
-        return Tag.objects.filter(takeaways__insights=insight_id)
 
     asset_id = kwargs.get("asset_id")
     if asset_id is not None:
@@ -78,16 +70,12 @@ def tags_in_scope(request):
 
 
 def notes_in_scope(request):
-    "Return the list of notes in project"
+    "Return the list of notes in scope"
     kwargs = request.parser_context["kwargs"]
 
     project_id = kwargs.get("project_id")
     if project_id is not None:
         return Note.objects.filter(project_id=project_id)
-
-    insight_id = kwargs.get("insight_id")
-    if insight_id is not None:
-        return Note.objects.filter(takeaways__insights=insight_id)
 
     asset_id = kwargs.get("asset_id")
     if asset_id is not None:
@@ -110,7 +98,7 @@ def note_types_in_scope(request):
 
 
 def takeaway_types_in_scope(request):
-    "Return the list of takeaway types in project"
+    "Return the list of takeaway types in scope"
     kwargs = request.parser_context["kwargs"]
 
     project_id = kwargs.get("project_id")
@@ -120,10 +108,6 @@ def takeaway_types_in_scope(request):
     report_id = kwargs.get("report_id")
     if report_id is not None:
         return TakeawayType.objects.filter(takeaways__note=report_id)
-
-    insight_id = kwargs.get("insight_id")
-    if insight_id is not None:
-        return TakeawayType.objects.filter(takeaways__insights=insight_id)
 
     asset_id = kwargs.get("asset_id")
     if asset_id is not None:

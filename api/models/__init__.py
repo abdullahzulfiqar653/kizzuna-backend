@@ -3,7 +3,6 @@ from api.models.block import Block
 from api.models.contact import Contact
 from api.models.feature import Feature
 from api.models.highlight import Highlight
-from api.models.insight import Insight
 from api.models.integrations.google.calendar.attendee import GoogleCalendarAttendee
 from api.models.integrations.google.calendar.channel import GoogleCalendarChannel
 from api.models.integrations.google.calendar.event import GoogleCalendarEvent
@@ -46,7 +45,6 @@ from api.models.workspace_user import WorkspaceUser
 __all__ = [
     "Takeaway",
     "Highlight",
-    "Insight",
     "Note",
     "Organization",
     "Project",
