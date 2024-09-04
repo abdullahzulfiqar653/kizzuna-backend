@@ -7,7 +7,6 @@ from django.db.models.signals import m2m_changed, post_delete, post_migrate, pre
 from django.dispatch import receiver
 
 from api.integrations.recall import recall
-from api.models.integrations.recall.bot import RecallBot
 from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.organization import Organization
@@ -61,11 +60,6 @@ def post_delete_takeaway(sender, instance, **kwargs):
 @receiver(pre_delete, sender=Project)
 def pre_delete_project(sender, instance, **kwargs):
     cleanup_recall_bots(instance)
-
-
-@receiver(pre_delete, sender=RecallBot)
-def pre_delete_recall_bot(sender, instance, **kwargs):
-    recall.v1.bot(instance.id.hex).delete()
 
 
 @receiver(post_migrate, sender=apps.get_app_config("api"))
