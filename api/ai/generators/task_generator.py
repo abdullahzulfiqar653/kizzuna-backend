@@ -2,8 +2,10 @@ from api.ai import config
 from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
 
 from textwrap import dedent
+from datetime import timedelta
 from pydantic.v1 import BaseModel
-from datetime import datetime, timedelta
+from django.utils import timezone
+
 from langchain.schema.document import Document
 from api.ai.translator import google_translator
 from langchain.prompts import ChatPromptTemplate
@@ -183,7 +185,7 @@ def generate_tasks(note: Note, created_by: User):
             type=task_type_mapping.get(task["type"]),
             priority=task["priority"],
             status=task["status"],
-            due_date=datetime.now() + timedelta(days=3),
+            due_date=timezone.now() + timedelta(days=3),
             # assigned_to=task["assigned_to"],
             created_by=bot,
             note=note,
