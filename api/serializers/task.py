@@ -7,7 +7,7 @@ from api.serializers.task_type import TaskTypeSerializer
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to = UserSerializer(required=False, context={"allow_email_write": True})
-    type = TaskTypeSerializer()
+    type = TaskTypeSerializer(required=False)
     created_by = serializers.CharField(source="created_by.first_name", read_only=True)
 
     class Meta:
