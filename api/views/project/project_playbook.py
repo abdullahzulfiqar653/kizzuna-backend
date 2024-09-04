@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Prefetch
 from rest_framework import generics
 
 from api.models.playbook import Playbook
@@ -14,7 +13,7 @@ class ProjectPlaybookListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return self.request.project.playbooks.prefetch_related(
-            Prefetch(
+            models.Prefetch(
                 "notes",
                 queryset=self.request.project.notes.filter(
                     models.Q(is_shared=True) | models.Q(author=self.request.user),
