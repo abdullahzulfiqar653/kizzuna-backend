@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import generics
 
 from api.filters.takeaway import TakeawayFilter
@@ -26,4 +27,6 @@ class AssetTakeawayListView(generics.ListAPIView):
     query_field = "vector"
 
     def get_queryset(self):
-        return Takeaway.objects.filter(note__assets=self.request.asset)
+        return Takeaway.objects.filter(note__assets=self.request.asset).filter(
+            models.Q(note__is_shared=True) | models.Q(note__author=self.request.user)
+        )

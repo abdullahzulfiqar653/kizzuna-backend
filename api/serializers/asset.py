@@ -35,11 +35,11 @@ class AssetSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if hasattr(request, "project"):
             self.fields["report_ids"].child_relation.queryset = (
-                request.project.notes.all()
+                request.project.notes.filter(is_shared=True).all()
             )
         elif hasattr(request, "asset"):
             self.fields["report_ids"].child_relation.queryset = (
-                request.asset.project.notes.all()
+                request.asset.project.notes.filter(is_shared=True).all()
             )
 
     def create(self, validated_data):
