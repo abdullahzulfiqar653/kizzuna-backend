@@ -2,6 +2,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api import models
 from api.filters.takeaway import TakeawayFilter
 from api.models.takeaway import Takeaway
 from api.serializers.takeaway import SavedTakeawaysSerializer, TakeawaySerializer
@@ -36,8 +37,11 @@ class SavedTakeawayListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         return TakeawaySerializer.optimize_query(
-            Takeaway.objects.filter(saved_by=self.request.user).filter(
-                note__project__users=self.request.user
+            Takeaway.objects.filter(saved_by=self.request.user)
+            .filter(note__project__users=self.request.user)
+            .filter(
+                models.Q(note__is_shared=True)
+                | models.Q(note__author=self.request.user)
             ),
             self.request.user,
         )
