@@ -19,6 +19,7 @@ class GoogleDriveFilesViewTests(APITestCase):
         logger = logging.getLogger("django.request")
         self.previous_level = logger.getEffectiveLevel()
         logger.setLevel(logging.ERROR)
+        logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.ERROR)
 
         self.user = User.objects.create_user(username="testuser", password="testpass")
         self.client.force_authenticate(user=self.user)
