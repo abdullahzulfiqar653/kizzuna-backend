@@ -1,5 +1,6 @@
 # note/serializers.py
 import logging
+import tempfile
 
 import requests
 from django.core.files.base import ContentFile
@@ -182,9 +183,11 @@ class NoteSerializer(serializers.ModelSerializer):
 
         # Convert mp4 file with movflags faststart for streaming
         if file and file.name and file.name.split(".")[-1].lower() == "mp4":
-            validated_data["file"] = media.process_mp4_for_streaming(file)
-
-        note = Note.objects.create(**validated_data)
+            with tempfile.NamedTemporaryFile(suffix=".mp4") as output:
+                validated_data["file"] = media.process_mp4_for_streaming(file, output)
+                note = Note.objects.create(**validated_data)
+        else:
+            note = Note.objects.create(**validated_data)
         self.add_organizations(note, organizations)
         self.add_keywords(note, keywords)
         mixpanel.track(

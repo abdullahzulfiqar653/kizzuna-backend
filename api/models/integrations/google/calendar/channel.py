@@ -52,7 +52,7 @@ class GoogleCalendarChannel(models.Model):
 
     def refresh(self):
         creds = self.credential.to_credentials()
-        old_channel_id = self.channel_id
+        old_channel_id = self.channel_id.hex
         old_resource_id = self.resource_id
         calendar = build("calendar", "v3", credentials=creds)
         channel_payload = (
@@ -166,7 +166,21 @@ class GoogleCalendarChannel(models.Model):
             unique_fields=unique_fields,
             update_fields=all_fields - unique_fields - {"id", "attendees"},
         )
-        self.events.filter(event_id__in=event_ids_to_delete).delete()
+
+        # If user delete an event that already has a bot that has recording,
+        # we will keep the bot and remove the event from the bot
+        events_to_delete = self.events.filter(event_id__in=event_ids_to_delete)
+        for event in events_to_delete:
+            bot = getattr(event, "recall_bot", None)
+            if bot is None:
+                continue
+            note = getattr(bot, "note", None)
+            if note is None:
+                continue
+            bot.event = None
+            bot.save()
+
+        events_to_delete.delete()
         self.sync_token = events.get("nextSyncToken")
         self.save()
 
@@ -177,13 +191,12 @@ class GoogleCalendarChannel(models.Model):
 
         attendees_to_create = {
             attendee["email"]: GoogleCalendarAttendee(
-                name=attendee.get("displayName"),
+                name=attendee.get("displayName", ""),
                 email=attendee["email"],
                 channel=self,
             )
             for event in events_to_create
             for attendee in event.raw.get("attendees", [])
-            if attendee.get("self") is not True
         }
         GoogleCalendarAttendee.objects.bulk_create(
             list(attendees_to_create.values()),
@@ -213,7 +226,6 @@ class GoogleCalendarChannel(models.Model):
             )
             for event in events
             for attendee in event.raw.get("attendees", [])
-            if attendee.get("self") is not True
         ]
         GoogleCalendarEventAttendee.objects.bulk_create(
             event_attendees_to_create,

@@ -145,5 +145,6 @@ def add_contacts(note, created_by):
     organizations = create_organizations(note, domains)
     participants = populate_participant_emails(participants, emails)
     contacts = create_contacts(note, created_by, attendees, participants, organizations)
+    note.organizations.set(organizations.values())
     note.contacts.set(contacts.values())
     create_attendee_contacts(attendees, contacts)

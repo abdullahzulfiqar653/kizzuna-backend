@@ -7,7 +7,7 @@ from api.models.integrations.google.calendar.channel import GoogleCalendarChanne
 
 class GoogleCalendarAttendee(models.Model):
     id = ShortUUIDField(length=12, max_length=12, primary_key=True, editable=False)
-    name = models.CharField(max_length=255, null=True)
+    name = models.CharField(max_length=255, blank=True)
     email = models.EmailField(max_length=255)
     channel = models.ForeignKey(
         GoogleCalendarChannel, on_delete=models.CASCADE, related_name="attendees"

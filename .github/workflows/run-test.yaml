@@ -58,4 +58,4 @@ jobs:
           mkdir -p credentials
           echo $GOOGLE_APPLICATION_CREDENTIALS_JSON | base64 -d > $GOOGLE_APPLICATION_CREDENTIALS
           echo $GOOGLE_CLIENT_SECRET_JSON | base64 -d > $GOOGLE_CLIENT_SECRET_FILE
-          python manage.py test -v2
+          python manage.py test --parallel 4 -v2
