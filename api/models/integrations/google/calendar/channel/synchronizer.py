@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 from googleapiclient.discovery import build
 
@@ -166,16 +167,39 @@ class ChannelSynchronizer:
         from api.models.integrations.recall.bot import RecallBot
 
         channel = self.channel
+        user = channel.credential.user
+        projects = [workspace.projects.first() for workspace in user.workspaces.all()]
         for event in newly_created_events:
-            if event.meeting_url is not None:
-                RecallBot.objects.create(
-                    event=event,
-                    project=channel.credential.project,
-                    meeting_url=event.meeting_url,
-                    meeting_platform=event.meeting_platform,
-                    join_at=event.start,
-                    created_by=channel.credential.project.created_by,
-                )
+            if (
+                event.meeting_url is not None
+                and event.recurring_event_id is None
+                and event.start > timezone.now()
+            ):
+                for project in projects:
+                    payload = recall.v1.bot.post(
+                        meeting_url=event.meeting_url,
+                        bot_name=f"{user.first_name} Kizunna Notetaker",
+                        transcription_options=dict(provider="meeting_captions"),
+                        join_at=event.start.isoformat(),
+                        automatic_leave=dict(
+                            silence_detection=dict(timeout=300),
+                        ),
+                        metadata=dict(
+                            project_id=project.id,
+                            created_by=user.username,
+                            recall_env=settings.RECALLAI_ENV,
+                            username=user.username,
+                        ),
+                    )
+                    RecallBot.objects.create(
+                        id=payload["id"],
+                        event=event,
+                        project=channel.credential.project,
+                        meeting_url=event.meeting_url,
+                        meeting_platform=event.meeting_platform,
+                        join_at=event.start,
+                        created_by=channel.credential.project.created_by,
+                    )
 
     def update_recall_bots(self, events_to_create):
         from api.models.integrations.recall.bot import RecallBot
