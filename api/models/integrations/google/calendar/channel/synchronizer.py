@@ -8,9 +8,21 @@ from api.models.integrations.google.calendar.event_attendee import (
 
 
 class ChannelSynchronizer:
-    def sync(channel):
+    def __init__(self, channel) -> None:
+        self.channel = channel
+
+    def condition_to_track(self, event_payload):
+        return (
+            event_payload.get("status") != "cancelled"
+            # We only track non all day events
+            and event_payload.get("start", {}).get("dateTime") is not None
+            and event_payload.get("end", {}).get("dateTime") is not None
+        )
+
+    def list_events(self):
         from api.models.integrations.google.calendar.event import GoogleCalendarEvent
 
+        channel = self.channel
         creds = channel.credential.to_credentials()
         calendar = build("calendar", "v3", credentials=creds)
         page_token = None
@@ -28,17 +40,11 @@ class ChannelSynchronizer:
                 )
                 .execute()
             )
-            condition_to_update = lambda event_payload: (
-                event_payload.get("status") != "cancelled"
-                # We only track non all day events
-                and event_payload.get("start", {}).get("dateTime") is not None
-                and event_payload.get("end", {}).get("dateTime") is not None
-            )
             events_to_create.extend(
                 [
                     GoogleCalendarEvent.from_event_payload(channel, event_payload)
                     for event_payload in events.get("items", [])
-                    if condition_to_update(event_payload) is True
+                    if self.condition_to_track(event_payload) is True
                 ]
             )
 
@@ -46,7 +52,7 @@ class ChannelSynchronizer:
             event_ids_to_delete |= {
                 event_payload["id"]
                 for event_payload in events.get("items", [])
-                if condition_to_update(event_payload) is False
+                if self.condition_to_track(event_payload) is False
             }
             # Delete master event when converting single event to recurring event
             event_ids_to_delete |= {
@@ -58,6 +64,15 @@ class ChannelSynchronizer:
             page_token = events.get("nextPageToken")
             if not page_token:
                 break
+
+        sync_token = events.get("nextSyncToken")
+        return events_to_create, event_ids_to_delete, sync_token
+
+    def sync_events(self):
+        from api.models.integrations.google.calendar.event import GoogleCalendarEvent
+
+        channel = self.channel
+        events_to_create, event_ids_to_delete, sync_token = self.list_events()
 
         all_fields = {
             field.name
@@ -84,14 +99,17 @@ class ChannelSynchronizer:
             bot.save()
 
         events_to_delete.delete()
-        channel.sync_token = events.get("nextSyncToken")
+        channel.sync_token = sync_token
         channel.save()
+        return events_to_create
 
-        # Add attendees
+    def add_attendees(self, events_to_create):
         from api.models.integrations.google.calendar.attendee import (
             GoogleCalendarAttendee,
         )
+        from api.models.integrations.google.calendar.event import GoogleCalendarEvent
 
+        channel = self.channel
         attendees_to_create = {
             attendee["email"]: GoogleCalendarAttendee(
                 name=attendee.get("displayName", ""),
@@ -138,9 +156,32 @@ class ChannelSynchronizer:
             unique_fields={"event", "attendee"},
         )
 
-        # Update meeting bot
+    def get_newly_created_events(self, events_to_create, time_before_sync):
+        from api.models.integrations.google.calendar.event import GoogleCalendarEvent
+
+        return GoogleCalendarEvent.objects.filter(
+            channel=self.channel, created_at__gt=time_before_sync
+        )
+
+    def create_recall_bots(self, newly_created_events):
         from api.models.integrations.recall.bot import RecallBot
 
+        channel = self.channel
+        for event in newly_created_events:
+            if event.meeting_url is not None:
+                RecallBot.objects.create(
+                    event=event,
+                    project=channel.credential.project,
+                    meeting_url=event.meeting_url,
+                    meeting_platform=event.meeting_platform,
+                    join_at=event.start,
+                    created_by=channel.credential.project.created_by,
+                )
+
+    def update_recall_bots(self, events_to_create):
+        from api.models.integrations.recall.bot import RecallBot
+
+        channel = self.channel
         event_ids = [event.id for event in events_to_create]
         recall_bots = RecallBot.objects.filter(
             event__channel=channel, event_id__in=event_ids
@@ -177,4 +218,14 @@ class ChannelSynchronizer:
             recall.v1.bot(recall_bot.id.hex).delete()
         recall_bots_to_delete.delete()
 
+    def sync(self):
+        channel = self.channel
+        time_before_sync = timezone.now()
+        events_to_create = self.sync_events()
+        self.add_attendees(events_to_create)
+        newly_created_events = self.get_newly_created_events(
+            events_to_create, time_before_sync
+        )
+        self.create_recall_bots(newly_created_events)
+        self.update_recall_bots(events_to_create, time_before_sync)
         return channel

@@ -102,7 +102,7 @@ class GoogleCalendarChannel(models.Model):
         )
 
     def sync(self):
-        return ChannelSynchronizer.sync(self)
+        return ChannelSynchronizer(self).sync()
 
     def flush(self):
         # This is just for testing purposes

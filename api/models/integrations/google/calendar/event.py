@@ -43,6 +43,8 @@ class GoogleCalendarEvent(models.Model):
         related_name="events",
         through="GoogleCalendarEventAttendee",
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("channel", "event_id")
