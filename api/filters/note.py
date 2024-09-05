@@ -54,3 +54,13 @@ class NoteFilter(filters.FilterSet):
         queryset=keywords_in_project,
     )
     created_at = filters.DateFromToRangeFilter(field_name="created_at")
+    is_meeting = filters.BooleanFilter(method="filter_is_meeting")
+
+    def filter_is_meeting(self, queryset, name, value):
+        match value:
+            case True:
+                return queryset.filter(recall_bot__isnull=False)
+            case False:
+                return queryset.filter(recall_bot__isnull=True)
+            case _:
+                return queryset

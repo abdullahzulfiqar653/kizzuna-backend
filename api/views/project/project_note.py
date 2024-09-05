@@ -36,10 +36,11 @@ class ProjectNoteListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]
 
     def get_queryset(self):
-        return self.request.project.notes.prefetch_related(
-            "author", "organizations", "keywords"
-        ).annotate(
-            takeaway_count=Count("takeaways"),
+        return (
+            self.request.project.notes.select_related("recall_bot", "type")
+            .prefetch_related("author", "organizations", "keywords")
+            .annotate(takeaway_count=Count("takeaways"))
+            .defer("content", "transcript")
         )
 
     def to_dict(self, form_data):

@@ -321,9 +321,15 @@ class NoteUpdateSerializer(NoteSerializer):
 class ProjectNoteSerializer(NoteSerializer):
     content = None
     highlights = None
+    transcript = None
+    summary = None
+    keywords = None
 
     class Meta(NoteSerializer.Meta):
-        fields = list(set(NoteSerializer.Meta.fields) - {"content", "highlights"})
+        fields = list(
+            set(NoteSerializer.Meta.fields)
+            - {"content", "highlights", "transcript", "summary", "keywords"}
+        )
 
 
 class ProjectSentimentSerializer(serializers.Serializer):
