@@ -650,7 +650,7 @@ urlpatterns = [
     path(
         "integrations/google/auth/",
         GoogleAuthRetrieveView.as_view(),
-        name="google-auth-url",
+        name="google-auth",
     ),
     path(
         "integrations/google/auth/callback/",
