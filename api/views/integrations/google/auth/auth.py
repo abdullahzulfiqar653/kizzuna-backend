@@ -4,7 +4,7 @@ from api.integrations.google import google_flow
 from api.serializers.integrations.google.auth.url import GoogleAuthUrlSerializer
 
 
-class GoogleAuthUrlRetrieveView(generics.RetrieveAPIView):
+class GoogleAuthRetrieveView(generics.RetrieveAPIView):
     serializer_class = GoogleAuthUrlSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -13,4 +13,4 @@ class GoogleAuthUrlRetrieveView(generics.RetrieveAPIView):
         authorization_url, state = google_flow.authorization_url(
             access_type="offline", prompt="consent", state=state
         )
-        return {"redirect_uri": authorization_url}
+        return {"authorization_url": authorization_url}

@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import requests
 from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import PasswordResetForm
@@ -71,54 +70,6 @@ class SignupSerializer(serializers.Serializer):
         create_mixpanel_user(user)
 
         return user
-
-
-class GoogleLoginSerializer(serializers.Serializer):
-    google_access_token = serializers.CharField(write_only=True)
-    access_token = serializers.CharField(read_only=True)
-    refresh_token = serializers.CharField(read_only=True)
-
-    def get_user_info(self, google_access_token):
-        google_response = requests.get(
-            "https://www.googleapis.com/oauth2/v3/userinfo",
-            headers={"Authorization": f"Bearer {google_access_token}"},
-        )
-        if google_response.status_code == 401:
-            raise exceptions.AuthenticationFailed(
-                "Failed to authenticate google access token."
-            )
-        user_info = google_response.json()
-        return user_info
-
-    def create(self, validated_data):
-        # Get user info from Google
-        google_access_token = validated_data.get("google_access_token")
-        user_info = self.get_user_info(google_access_token)
-
-        # Get or create user
-        user, created = User.objects.get_or_create(
-            username__iexact=user_info.get("email").lower(),
-            defaults={
-                "username": user_info.get("email").lower(),
-                "first_name": user_info.get("given_name"),
-                "last_name": user_info.get("family_name"),
-                "email": user_info.get("email"),
-            },
-        )
-        if created:
-            user.set_unusable_password()
-            user.save()
-            create_mixpanel_user(user)
-
-        # Generate access and refresh token
-        refresh = RefreshToken.for_user(user)
-        data = {
-            "access_token": str(refresh.access_token),
-            "refresh_token": str(refresh),
-        }
-
-        update_last_login(None, user)
-        return data
 
 
 class PasswordUpdateSerializer(serializers.Serializer):

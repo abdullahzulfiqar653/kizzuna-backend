@@ -12,8 +12,6 @@ from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
 )
-from api.views.task import TaskRetrieveUpdateDeleteView
-from api.views.task_type import TaskTypeRetrieveUpdateDestroyView
 from api.views.block.block_theme import BlockThemeListCreateView
 from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
@@ -22,8 +20,8 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayDeleteView,
     InsightTakeawayListCreateView,
 )
+from api.views.integrations.google.auth.auth import GoogleAuthRetrieveView
 from api.views.integrations.google.auth.callback import GoogleAuthCallbackCreateView
-from api.views.integrations.google.auth.url import GoogleAuthUrlRetrieveView
 from api.views.integrations.google.calendar.event import GoogleCalendarEventListView
 from api.views.integrations.google.calendar.webhook import (
     GoogleCalendarWebhookCreateView,
@@ -77,11 +75,10 @@ from api.views.project.project_recall_bot import ProjectRecallBotCreateView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_summary import ProjectSummaryRetrieveView
 from api.views.project.project_tag import ProjectTagListView
-from api.views.project.project_task import ProjectTaskListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
+from api.views.project.project_task import ProjectTaskListView
 from api.views.project.project_task_type import ProjectTaskTypeListCreateView
-
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
 from api.views.property.option import PropertyOptionListCreateView
@@ -100,6 +97,8 @@ from api.views.takeaway.takeaway_tag import (
     TakeawayTagDestroyView,
 )
 from api.views.takeaway_type import TakeawayTypeRetrieveUpdateDestroyView
+from api.views.task import TaskRetrieveUpdateDeleteView
+from api.views.task_type import TaskTypeRetrieveUpdateDestroyView
 from api.views.theme.theme import ThemeRetrieveUpdateDestroyView
 from api.views.theme.theme_takeaway import (
     ThemeTakeawayDeleteView,
@@ -118,7 +117,6 @@ from api.views.workspace.workspace_project import WorkspaceProjectListCreateView
 
 from .views.auth import (
     DoPasswordResetView,
-    GoogleLoginView,
     InvitationSignupCreateView,
     InvitationStatusRetrieveView,
     PasswordUpdateView,
@@ -311,16 +309,6 @@ urlpatterns = [
         "projects/<str:pk>/dummy-reports/",
         ProjectDummyNoteCreateView.as_view(),
         name="project-dummy-note-create",
-    ),
-    path(
-        "projects/<str:project_id>/integrations/google_drive/oauth-url/",
-        GoogleAuthUrlRetrieveView.as_view(),
-        name="project-googledrive-oauth-url",
-    ),
-    path(
-        "projects/<str:project_id>/integrations/google_drive/oauth-redirect/",
-        GoogleAuthCallbackCreateView.as_view(),
-        name="project-googledrive-oauth-redirect",
     ),
     path(
         "projects/<str:project_id>/integrations/google_drive/files/",
@@ -583,11 +571,6 @@ urlpatterns = [
         name="token_refresh",
     ),
     path(
-        "token/google/",
-        GoogleLoginView.as_view(),
-        name="google-token-obtain-pair",
-    ),
-    path(
         "signup/",
         SignupView.as_view(),
         name="signup-create",
@@ -664,6 +647,16 @@ urlpatterns = [
     # =====================================================
     # Google Integration
     # =====================================================
+    path(
+        "integrations/google/auth/",
+        GoogleAuthRetrieveView.as_view(),
+        name="google-auth-url",
+    ),
+    path(
+        "integrations/google/auth/callback/",
+        GoogleAuthCallbackCreateView.as_view(),
+        name="google-auth-callback",
+    ),
     path(
         "integrations/google/calendar/events/",
         GoogleCalendarEventListView.as_view(),
