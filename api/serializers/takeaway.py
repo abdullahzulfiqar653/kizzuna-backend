@@ -4,27 +4,14 @@ from rest_framework import exceptions, serializers
 from api.ai.embedder import embedder
 from api.models.block import Block
 from api.models.insight import Insight
-from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.theme import Theme
 from api.models.user import User
-from api.serializers.organization import OrganizationSerializer
+from api.serializers.note import BriefNoteSerializer
 from api.serializers.tag import TagSerializer
 from api.serializers.takeaway_type import TakeawayTypeSerializer
 from api.serializers.user import UserSerializer
-
-
-class BriefNoteSerializer(serializers.ModelSerializer):
-    organizations = OrganizationSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Note
-        fields = [
-            "id",
-            "title",
-            "organizations",
-        ]
 
 
 class TakeawaySerializer(serializers.ModelSerializer):

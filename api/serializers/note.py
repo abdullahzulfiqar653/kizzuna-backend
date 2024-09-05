@@ -336,3 +336,21 @@ class ProjectNoteSerializer(NoteSerializer):
 class ProjectSentimentSerializer(serializers.Serializer):
     name = serializers.ChoiceField(choices=Note.Sentiment.choices)
     report_count = serializers.IntegerField()
+
+
+class BriefNoteSerializer(serializers.ModelSerializer):
+    organizations = OrganizationSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Note
+        fields = [
+            "id",
+            "title",
+            "organizations",
+        ]
+
+
+class TitleOnlyNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ("id", "title")

@@ -1,21 +1,15 @@
 from rest_framework import serializers
 
-from api.models.note import Note
 from api.models.task import Task
+from api.serializers.note import TitleOnlyNoteSerializer
 from api.serializers.task_type import TaskTypeSerializer
 from api.serializers.user import UserSerializer
-
-
-class BriefNoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Note
-        fields = ("id", "title")
 
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to = UserSerializer(read_only=True)
     assignee = serializers.CharField(write_only=True, allow_null=True, required=False)
-    report = BriefNoteSerializer(source="note", read_only=True)
+    report = TitleOnlyNoteSerializer(source="note", read_only=True)
 
     type = TaskTypeSerializer(required=False)
     created_by = serializers.CharField(source="created_by.first_name", read_only=True)
