@@ -1,6 +1,7 @@
 from rest_framework import generics
-from api.models.task import Task
+
 from api.filters.task import TaskFilter
+from api.models.task import Task
 from api.serializers.task import TaskSerializer
 
 
@@ -24,4 +25,16 @@ class ProjectTaskListView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return Task.objects.filter(note__project=self.request.project)
+        return Task.objects.select_related("note", "created_by").filter(
+            note__project=self.request.project, note__is_approved=True
+        )
+
+    def get(self, request, *args, **kwargs):
+        from django.db import connection, reset_queries
+
+        reset_queries()
+        results = super().get(request, *args, **kwargs)
+        for query in connection.queries:
+            print(query["sql"])
+        print(f"Number of queries: {len(connection.queries)}")
+        return results
