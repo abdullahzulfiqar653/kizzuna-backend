@@ -1,14 +1,15 @@
 import logging
-from rest_framework import status
-from rest_framework.test import APITestCase
+
 from django.utils import timezone
 from django.utils.timezone import timedelta
+from rest_framework import status
+from rest_framework.test import APITestCase
 
-from api.models.task import Task
-from api.models.user import User
 from api.models.note import Note
 from api.models.project import Project
+from api.models.task import Task
 from api.models.task_type import TaskType
+from api.models.user import User
 from api.models.workspace import Workspace
 
 
@@ -33,7 +34,7 @@ class TestProjectTaskListView(APITestCase):
         self.task_type = TaskType.objects.create(name="type 1", project=self.project)
 
         self.note = Note.objects.create(
-            title="note 1", project=self.project, author=self.user
+            title="note 1", project=self.project, author=self.user, is_approved=True
         )
 
         self.task1 = Task.objects.create(
