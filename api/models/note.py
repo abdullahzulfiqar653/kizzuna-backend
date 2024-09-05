@@ -84,6 +84,7 @@ class Note(models.Model):
         TaskResult, on_delete=models.SET_NULL, related_name="notes", null=True
     )
     is_auto_tagged = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
     content = models.JSONField(default=blank_content)
     transcript = models.JSONField(default=blank_transcript)
     summary = models.JSONField(default=list)

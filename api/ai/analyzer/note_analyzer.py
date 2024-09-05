@@ -13,6 +13,7 @@ from api.ai.downloaders.youtube_downloader import YoutubeDownloader
 from api.ai.generators.metadata_generator import generate_metadata
 from api.ai.generators.tag_generator import generate_tags
 from api.ai.generators.takeaway_generator import generate_takeaways
+from api.ai.generators.task_generator import generate_tasks
 from api.ai.transcribers import assemblyai_transcriber
 from api.ai.transcribers.transcriber_router import TranscriberRouter
 from api.models.note import Note
@@ -101,6 +102,8 @@ class NewNoteAnalyzer:
                 self.download(note)
             end = time()
             print(f"Elapsed time: {end - start} seconds")
+            print("========> Generating Tasks")
+            generate_tasks(note, created_by)
             print("========> Generating metadata")
             generate_metadata(note, created_by)
             print("========> End analyzing")

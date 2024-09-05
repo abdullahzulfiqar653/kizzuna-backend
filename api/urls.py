@@ -12,6 +12,8 @@ from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
 )
+from api.views.task import TaskRetrieveUpdateDeleteView
+from api.views.task_type import TaskTypeRetrieveUpdateDestroyView
 from api.views.block.block_theme import BlockThemeListCreateView
 from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
@@ -47,6 +49,8 @@ from api.views.note.note_property import NotePropertyListView, NotePropertyUpdat
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note.note_takeaway_type import NoteTakeawayTypeListCreateView
+from api.views.note.note_task import NoteTaskListCreateView
+from api.views.note.note_task_approval import NoteTaskApprovalCreateView
 from api.views.note_type import NoteTypeRetrieveUpdateDestroyView
 from api.views.option import OptionRetrieveUpdateDestroyView
 from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
@@ -73,8 +77,11 @@ from api.views.project.project_recall_bot import ProjectRecallBotCreateView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_summary import ProjectSummaryRetrieveView
 from api.views.project.project_tag import ProjectTagListView
+from api.views.project.project_task import ProjectTaskListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
+from api.views.project.project_task_type import ProjectTaskTypeListCreateView
+
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
 from api.views.property.option import PropertyOptionListCreateView
@@ -174,6 +181,16 @@ urlpatterns = [
         NoteClipCreateView.as_view(),
         name="note-highlight-create",
     ),
+    path(
+        "reports/<str:report_id>/tasks/",
+        NoteTaskListCreateView.as_view(),
+        name="note-task-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/tasks/approve/",
+        NoteTaskApprovalCreateView.as_view(),
+        name="note-task-approval-create",
+    ),
     # =====================================================
     # Report Types
     # =====================================================
@@ -204,6 +221,11 @@ urlpatterns = [
         "projects/<str:project_id>/reports/",
         ProjectNoteListCreateView.as_view(),
         name="project-note-list-create",
+    ),
+    path(
+        "projects/<str:project_id>/tasks/",
+        ProjectTaskListView.as_view(),
+        name="project-task-list",
     ),
     path(
         "projects/<str:project_id>/takeaways/",
@@ -239,6 +261,11 @@ urlpatterns = [
         "projects/<str:project_id>/takeaway-types/",
         ProjectTakeawayTypeListCreateView.as_view(),
         name="project-takeaway-type-list",
+    ),
+    path(
+        "projects/<str:project_id>/task-types/",
+        ProjectTaskTypeListCreateView.as_view(),
+        name="project-task-type-list-create",
     ),
     path(
         "projects/<str:project_id>/insights/",
@@ -525,6 +552,22 @@ urlpatterns = [
         "playbooks/<str:playbook_id>/video/takeaways/<str:takeaway_id>/",
         PlaybookVideoTakeawaysUpdateDestroyView.as_view(),
         name="playbook-video-takeaways-update-destroy",
+    ),
+    # =====================================================
+    # Tasks
+    # =====================================================
+    path(
+        "tasks/<str:pk>/",
+        TaskRetrieveUpdateDeleteView.as_view(),
+        name="task-update-retrieve-delete",
+    ),
+    # =====================================================
+    # Task types
+    # =====================================================
+    path(
+        "task-types/<str:pk>/",
+        TaskTypeRetrieveUpdateDestroyView.as_view(),
+        name="tasktype-update-retrieve-delete",
     ),
     # =====================================================
     # Auth

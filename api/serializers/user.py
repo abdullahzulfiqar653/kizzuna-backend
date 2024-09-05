@@ -12,6 +12,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email", "first_name", "last_name"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.context.get("allow_email_write", False):
+            self.fields["email"].read_only = False
+
 
 class ProjectUserListSerializer(UserSerializer):
     role = serializers.CharField(read_only=True)
