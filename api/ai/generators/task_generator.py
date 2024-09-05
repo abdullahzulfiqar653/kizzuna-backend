@@ -1,22 +1,20 @@
+from datetime import timedelta
+from textwrap import dedent
+
+from django.utils import timezone
+from langchain.output_parsers import PydanticOutputParser
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema.document import Document
+from langchain.text_splitter import TokenTextSplitter
+from langchain_openai.chat_models import ChatOpenAI
+from pydantic.v1 import BaseModel
+
 from api.ai import config
 from api.ai.generators.utils import ParserErrorCallbackHandler, token_tracker
-
-from textwrap import dedent
-from datetime import timedelta
-from pydantic.v1 import BaseModel
-from django.utils import timezone
-
-from langchain.schema.document import Document
 from api.ai.translator import google_translator
-from langchain.prompts import ChatPromptTemplate
-from langchain_openai.chat_models import ChatOpenAI
-from langchain.text_splitter import TokenTextSplitter
-from langchain.output_parsers import PydanticOutputParser
-
 from api.models.note import Note
-from api.models.user import User
 from api.models.task import Task
-from api.models.task_type import default_task_types
+from api.models.user import User
 
 
 def get_task_chain(task_types):
@@ -145,6 +143,10 @@ def generate_tasks(note: Note, created_by: User):
         chunk_overlap=config.chunk_overlap,
     )
     task_types = note.project.task_types.all()
+
+    if not task_types:
+        return
+
     bot = User.objects.get(username="bot@raijin.ai")
     doc = Document(page_content=note.get_markdown())
     docs = text_splitter.split_documents([doc])
@@ -152,16 +154,14 @@ def generate_tasks(note: Note, created_by: User):
     with token_tracker(note.project, note, "generate-tasks", created_by):
         outputs = [
             {
-                "task_type": task_type,
                 "output": get_task_chain(task_types).invoke(
                     {
                         "TRANSCRIPT": doc.page_content,
-                        "TASK_TYPES": default_task_types,
+                        "TASK_TYPES": task_types,
                     },
                     config={"callbacks": [ParserErrorCallbackHandler()]},
                 ),
             }
-            for task_type in task_types
             for doc in docs
         ]
 
