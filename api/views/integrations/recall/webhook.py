@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.base import File
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from rest_framework import generics, permissions, response
+from rest_framework import exceptions, generics, permissions, response
 from svix.webhooks import Webhook, WebhookVerificationError
 
 from api.integrations.recall import recall
@@ -77,6 +77,10 @@ class RecallWebhookCreateView(generics.CreateAPIView):
                 if video_url is None or project_id is None or username is None:
                     return response.Response(status=200)
 
+                meeting_participants = payload.get("meeting_participants")
+                if not meeting_participants:
+                    raise exceptions.bad_request("Missing meeting participants.")
+
                 res = requests.get(video_url, stream=True)
                 res.raise_for_status()
 
@@ -104,7 +108,7 @@ class RecallWebhookCreateView(generics.CreateAPIView):
 
                 transcript = recall.v1.bot(bot.id.hex).transcript.get()
                 bot.transcript = transcript
-                bot.meeting_participants = payload.get("meeting_participants")
+                bot.meeting_participants = meeting_participants
                 bot.save()
 
                 analyze_new_note.delay_on_commit(note.id, user.id)
