@@ -59,16 +59,6 @@ class RecallWebhookCreateView(generics.CreateAPIView):
 
             # Handling different status codes
             if (
-                request.data.get("data").get("status").get("code")
-                == "in_call_recording"
-            ):
-                name = user.google_credential.get_userinfo().get("name")
-                recall.v1.bot(bot.id.hex)("send_chat_message").post(
-                    to="everyone",
-                    message=f"Hi everyone, I am recording the meeting for {name}",
-                )
-
-            if (
                 request.data.get("data").get("status").get("code") == "done"
                 and getattr(bot, "note", None) is None
             ):

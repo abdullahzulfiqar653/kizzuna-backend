@@ -62,6 +62,7 @@ class RecallBotSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         validated_data["project"] = request.project
         validated_data["created_by"] = request.user
+        name = request.user.google_credential.get_userinfo().get("name")
 
         # Set meeting_url and join_at if event is provided
         if validated_data.get("event") is not None:
@@ -77,6 +78,15 @@ class RecallBotSerializer(serializers.ModelSerializer):
                 validated_data["join_at"].isoformat()
                 if validated_data.get("join_at")
                 else None
+            ),
+            chat=dict(
+                on_bot_join=dict(
+                    send_to="everyone",
+                    message=(
+                        f"Hi everyone, I am recording the meeting for {name}. "
+                        "Please let the host knows if you do not want to be recorded."
+                    ),
+                )
             ),
             automatic_leave=dict(
                 silence_detection=dict(timeout=300),
