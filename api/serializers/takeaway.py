@@ -31,11 +31,10 @@ class TakeawaySerializer(serializers.ModelSerializer):
     media_type = serializers.CharField(source="note.media_type", read_only=True)
     end = serializers.IntegerField(source="highlight.end", read_only=True)
     start = serializers.IntegerField(source="highlight.start", read_only=True)
-    clip = serializers.FileField(
-        source="highlight.clip", allow_null=True, max_length=100, read_only=True
-    )
+    clip = serializers.FileField(source="highlight.clip", read_only=True)
     thumbnail = serializers.ImageField(
-        source="highlight.thumbnail", allow_null=True, max_length=100, read_only=True
+        source="highlight.thumbnail",
+        read_only=True,
     )
 
     class Meta:

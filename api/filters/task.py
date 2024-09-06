@@ -66,6 +66,9 @@ class TaskFilter(filters.FilterSet):
     )
     due_date = filters.DateFromToRangeFilter(field_name="due_date")
     created_at = filters.DateFromToRangeFilter(field_name="created_at")
+    report_id = ModelMultipleChoiceFilter(
+        field_name="note", to_field_name="id", queryset=notes_in_scope
+    )
 
     class Meta:
         model = Task
@@ -74,6 +77,7 @@ class TaskFilter(filters.FilterSet):
             "status",
             "priority",
             "due_date",
+            "report_id",
             "created_by",
             "created_at",
             "assigned_to",
