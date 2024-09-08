@@ -21,6 +21,7 @@ from api.serializers.tag import KeywordSerializer
 from api.serializers.user import UserSerializer
 from api.utils import media
 from api.utils.lexical import LexicalProcessor
+from api.serializers.note_template import NoteTemplateSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ class NoteSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    templates = NoteTemplateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Note
@@ -69,6 +71,7 @@ class NoteSerializer(serializers.ModelSerializer):
             "file_name",
             "url",
             "sentiment",
+            "templates",
             "slack_channel_id",
             "slack_team_id",
             "google_drive_file_id",

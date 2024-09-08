@@ -46,6 +46,8 @@ from api.models.playbook import Playbook
 from api.models.playbook_takeaway import PlaybookTakeaway
 from api.models.task_type import TaskType
 from api.models.task import Task
+from api.models.note_template import NoteTemplate
+from api.models.note_template_type import NoteTemplateType
 
 __all__ = [
     "Takeaway",
@@ -92,4 +94,6 @@ __all__ = [
     "GoogleCalendarEventAttendee",
     "RecallBot",
     "Contact",
+    "NoteTemplate",
+    "NoteTemplateType",
 ]
