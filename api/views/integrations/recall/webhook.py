@@ -91,7 +91,6 @@ class RecallWebhookCreateView(generics.CreateAPIView):
                     project_id=project_id,
                     author=user,
                     title=title,
-                    content="Recall meeting video",
                     file=video_content,
                     recall_bot=bot,
                 )
