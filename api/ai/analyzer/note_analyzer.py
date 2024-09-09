@@ -14,6 +14,7 @@ from api.ai.generators.metadata_generator import generate_metadata
 from api.ai.generators.tag_generator import generate_tags
 from api.ai.generators.takeaway_generator import generate_takeaways
 from api.ai.generators.task_generator import generate_tasks
+from api.ai.generators.note_template_types_generator import generate_template_types
 from api.ai.transcribers import assemblyai_transcriber
 from api.ai.transcribers.transcriber_router import TranscriberRouter
 from api.models.note import Note
@@ -104,6 +105,8 @@ class NewNoteAnalyzer:
             print(f"Elapsed time: {end - start} seconds")
             print("========> Generating Tasks")
             generate_tasks(note, created_by)
+            print("===========> Generating templates data")
+            generate_template_types(note, created_by)
             print("========> Generating metadata")
             generate_metadata(note, created_by)
             print("========> End analyzing")
