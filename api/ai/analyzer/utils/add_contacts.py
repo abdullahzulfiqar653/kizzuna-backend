@@ -132,10 +132,7 @@ def create_attendee_contacts(attendees, contacts):
 
 
 def add_contacts(note, created_by):
-    if (
-        not hasattr(note.recall_bot, "event")
-        or not note.recall_bot.event.attendees.exists()
-    ):
+    if not note.recall_bot.event or not note.recall_bot.event.attendees.exists():
         return
     attendees = note.recall_bot.event.attendees.all()
     participants = note.recall_bot.meeting_participants
