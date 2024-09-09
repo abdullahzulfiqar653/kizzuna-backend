@@ -12,6 +12,8 @@ from api.views.block.block_takeaway import (
     BlockTakeawayDeleteView,
     BlockTakeawayListCreateView,
 )
+from api.views.task import TaskRetrieveUpdateDeleteView
+from api.views.task_type import TaskTypeRetrieveUpdateDestroyView
 from api.views.block.block_theme import BlockThemeListCreateView
 from api.views.demo_generate_takeaways import DemoGenerateTakeawaysCreateView
 from api.views.insight.insight import InsightRetrieveUpdateDeleteView
@@ -20,13 +22,24 @@ from api.views.insight.insight_takeaway import (
     InsightTakeawayDeleteView,
     InsightTakeawayListCreateView,
 )
+from api.views.integrations.google.auth.callback import GoogleAuthCallbackCreateView
+from api.views.integrations.google.auth.url import GoogleAuthUrlRetrieveView
+from api.views.integrations.google.calendar.event import GoogleCalendarEventListView
+from api.views.integrations.google.calendar.webhook import (
+    GoogleCalendarWebhookCreateView,
+)
+from api.views.integrations.googledrive.googledrive_list_files import (
+    GoogleDriveListFilesView,
+)
 from api.views.integrations.mixpanel.event import MixpanelEventCreateView
+from api.views.integrations.recall.bot import RecallBotDeleteView
+from api.views.integrations.recall.webhook import RecallWebhookCreateView
 from api.views.integrations.slack.channel import SlackChannelsListView
 from api.views.integrations.slack.event import SlackEventsCreateView
 from api.views.integrations.slack.oauth_redirect import SlackOauthRedirectCreateView
 from api.views.integrations.slack.oauth_url import SlackOauthUrlRetrieveView
-from api.views.integrations.slack.to_frontend import SlackToFrontendRedirectView
 from api.views.note.note import NoteRetrieveUpdateDeleteView
+from api.views.note.note_clip import NoteClipCreateView
 from api.views.note.note_keyword import (
     NoteKeywordDestroyView,
     NoteKeywordListCreateView,
@@ -36,8 +49,16 @@ from api.views.note.note_property import NotePropertyListView, NotePropertyUpdat
 from api.views.note.note_tag import NoteTagListView
 from api.views.note.note_takeaway import NoteTakeawayListCreateView
 from api.views.note.note_takeaway_type import NoteTakeawayTypeListCreateView
+from api.views.note.note_task import NoteTaskListCreateView
+from api.views.note.note_task_approval import NoteTaskApprovalCreateView
 from api.views.note_type import NoteTypeRetrieveUpdateDestroyView
 from api.views.option import OptionRetrieveUpdateDestroyView
+from api.views.playbook.playbook import PlaybookRetrieveUpdateDeleteView
+from api.views.playbook.playbook_takeaways import PlaybookTakeawaysListView
+from api.views.playbook.playbook_video_takeaways import (
+    PlaybookVideoTakeawaysListCreateView,
+    PlaybookVideoTakeawaysUpdateDestroyView,
+)
 from api.views.project.chart.note import ChartNoteCreateView
 from api.views.project.chart.takeaway import ChartTakeawayCreateView
 from api.views.project.project import ProjectRetrieveUpdateDeleteView
@@ -50,12 +71,17 @@ from api.views.project.project_keyword import ProjectKeywordListView
 from api.views.project.project_note import ProjectNoteListCreateView
 from api.views.project.project_note_type import ProjectNoteTypeListCreateView
 from api.views.project.project_organization import ProjectOrganizationListView
+from api.views.project.project_playbook import ProjectPlaybookListCreateView
 from api.views.project.project_property import ProjectPropertyListCreateView
+from api.views.project.project_recall_bot import ProjectRecallBotCreateView
 from api.views.project.project_sentiment import ProjectSentimentListView
 from api.views.project.project_summary import ProjectSummaryRetrieveView
 from api.views.project.project_tag import ProjectTagListView
+from api.views.project.project_task import ProjectTaskListView
 from api.views.project.project_takeaway import ProjectTakeawayListView
 from api.views.project.project_takeaway_type import ProjectTakeawayTypeListCreateView
+from api.views.project.project_task_type import ProjectTaskTypeListCreateView
+
 from api.views.project.project_user import ProjectUserListView
 from api.views.project.project_user_delete import ProjectUserDeleteView
 from api.views.property.option import PropertyOptionListCreateView
@@ -150,6 +176,21 @@ urlpatterns = [
         NoteMessageListCreateView.as_view(),
         name="note-message-list-create",
     ),
+    path(
+        "reports/<str:report_id>/clips/",
+        NoteClipCreateView.as_view(),
+        name="note-highlight-create",
+    ),
+    path(
+        "reports/<str:report_id>/tasks/",
+        NoteTaskListCreateView.as_view(),
+        name="note-task-list-create",
+    ),
+    path(
+        "reports/<str:report_id>/tasks/approve/",
+        NoteTaskApprovalCreateView.as_view(),
+        name="note-task-approval-create",
+    ),
     # =====================================================
     # Report Types
     # =====================================================
@@ -180,6 +221,11 @@ urlpatterns = [
         "projects/<str:project_id>/reports/",
         ProjectNoteListCreateView.as_view(),
         name="project-note-list-create",
+    ),
+    path(
+        "projects/<str:project_id>/tasks/",
+        ProjectTaskListView.as_view(),
+        name="project-task-list",
     ),
     path(
         "projects/<str:project_id>/takeaways/",
@@ -215,6 +261,11 @@ urlpatterns = [
         "projects/<str:project_id>/takeaway-types/",
         ProjectTakeawayTypeListCreateView.as_view(),
         name="project-takeaway-type-list",
+    ),
+    path(
+        "projects/<str:project_id>/task-types/",
+        ProjectTaskTypeListCreateView.as_view(),
+        name="project-task-type-list-create",
     ),
     path(
         "projects/<str:project_id>/insights/",
@@ -260,6 +311,31 @@ urlpatterns = [
         "projects/<str:pk>/dummy-reports/",
         ProjectDummyNoteCreateView.as_view(),
         name="project-dummy-note-create",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/google_drive/oauth-url/",
+        GoogleAuthUrlRetrieveView.as_view(),
+        name="project-googledrive-oauth-url",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/google_drive/oauth-redirect/",
+        GoogleAuthCallbackCreateView.as_view(),
+        name="project-googledrive-oauth-redirect",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/google_drive/files/",
+        GoogleDriveListFilesView.as_view(),
+        name="project-googledrive-files",
+    ),
+    path(
+        "projects/<str:project_id>/integrations/recall/bot/",
+        ProjectRecallBotCreateView.as_view(),
+        name="project-recall-bot-create",
+    ),
+    path(
+        "projects/<str:project_id>/playbooks/",
+        ProjectPlaybookListCreateView.as_view(),
+        name="project-playbook-list-create",
     ),
     # =====================================================
     # Workspace
@@ -455,6 +531,45 @@ urlpatterns = [
         name="demo-generate-takeaway-create",
     ),
     # =====================================================
+    # Playbooks
+    # =====================================================
+    path(
+        "playbooks/<str:pk>/",
+        PlaybookRetrieveUpdateDeleteView.as_view(),
+        name="playbook-update-retrieve-delete",
+    ),
+    path(
+        "playbooks/<str:playbook_id>/takeaways/",
+        PlaybookTakeawaysListView.as_view(),
+        name="playbook-takeaways-list",
+    ),
+    path(
+        "playbooks/<str:playbook_id>/video/takeaways/",
+        PlaybookVideoTakeawaysListCreateView.as_view(),
+        name="playbook-video-takeaways-list-create",
+    ),
+    path(
+        "playbooks/<str:playbook_id>/video/takeaways/<str:takeaway_id>/",
+        PlaybookVideoTakeawaysUpdateDestroyView.as_view(),
+        name="playbook-video-takeaways-update-destroy",
+    ),
+    # =====================================================
+    # Tasks
+    # =====================================================
+    path(
+        "tasks/<str:pk>/",
+        TaskRetrieveUpdateDeleteView.as_view(),
+        name="task-update-retrieve-delete",
+    ),
+    # =====================================================
+    # Task types
+    # =====================================================
+    path(
+        "task-types/<str:pk>/",
+        TaskTypeRetrieveUpdateDestroyView.as_view(),
+        name="tasktype-update-retrieve-delete",
+    ),
+    # =====================================================
     # Auth
     # =====================================================
     path(
@@ -542,13 +657,34 @@ urlpatterns = [
         name="slack_events",
     ),
     path(
-        "integrations/slack/to-frontend/",
-        SlackToFrontendRedirectView.as_view(),
-        name="slack_to_frontend",
-    ),
-    path(
         "integrations/slack/channels/",
         SlackChannelsListView.as_view(),
         name="list_channels",
+    ),
+    # =====================================================
+    # Google Integration
+    # =====================================================
+    path(
+        "integrations/google/calendar/events/",
+        GoogleCalendarEventListView.as_view(),
+        name="google-calendar-event-list",
+    ),
+    path(
+        "integrations/google/calendar/webhook/",
+        GoogleCalendarWebhookCreateView.as_view(),
+        name="google-calendar-webhook",
+    ),
+    # =====================================================
+    # Recall Integration
+    # =====================================================
+    path(
+        "integrations/recall/bot/<str:pk>/",
+        RecallBotDeleteView.as_view(),
+        name="recall-bot-delete",
+    ),
+    path(
+        "integrations/recall/webhook/",
+        RecallWebhookCreateView.as_view(),
+        name="recall-webhook",
     ),
 ]

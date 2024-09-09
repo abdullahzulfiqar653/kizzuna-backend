@@ -1,12 +1,16 @@
 # note/serializers.py
 import logging
+import tempfile
 
+import requests
+from django.core.files.base import ContentFile
 from django.db.models import Count
 from rest_framework import exceptions, serializers
 
 from api.ai.embedder import embedder
 from api.mixpanel import mixpanel
 from api.models.highlight import Highlight
+from api.models.integrations.google.credential import GoogleCredential
 from api.models.keyword import Keyword
 from api.models.note import Note
 from api.models.note_type import NoteType
@@ -15,7 +19,9 @@ from api.serializers.note_type import NoteTypeSerializer
 from api.serializers.organization import OrganizationSerializer
 from api.serializers.tag import KeywordSerializer
 from api.serializers.user import UserSerializer
+from api.utils import media
 from api.utils.lexical import LexicalProcessor
+from api.serializers.note_template import NoteTemplateSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +33,8 @@ class NoteSerializer(serializers.ModelSerializer):
     keywords = KeywordSerializer(many=True, required=False)
     summary = serializers.JSONField(required=False, default=[])
     organizations = OrganizationSerializer(many=True, required=False)
+    google_drive_file_id = serializers.CharField(write_only=True, required=False)
+    is_analyzing = serializers.BooleanField(read_only=True)
     type = NoteTypeSerializer(read_only=True)
     type_id = serializers.PrimaryKeyRelatedField(
         source="type",
@@ -35,6 +43,7 @@ class NoteSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    templates = NoteTemplateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Note
@@ -49,18 +58,24 @@ class NoteSerializer(serializers.ModelSerializer):
             "title",
             "created_at",
             "organizations",
+            "is_approved",
             "content",
+            "transcript",
             "revenue",
             "description",
             "type",
             "type_id",
             "file",
             "file_type",
+            "media_type",
             "file_name",
             "url",
             "sentiment",
+            "templates",
             "slack_channel_id",
             "slack_team_id",
+            "google_drive_file_id",
+            "google_drive_file_timestamp",
         ]
         read_only_fields = [
             "id",
@@ -131,11 +146,51 @@ class NoteSerializer(serializers.ModelSerializer):
         note.keywords.add(*keywords_to_add)
 
     def create(self, validated_data):
-        if validated_data["file"] is not None:
-            validated_data["file_size"] = validated_data["file"].size
+        google_drive_file_id = validated_data.pop("google_drive_file_id", None)
+
+        if google_drive_file_id:
+            user = self.context["request"].user
+            try:
+                gdrive_user = GoogleCredential.objects.get(user=user)
+            except GoogleCredential.DoesNotExist:
+                raise serializers.ValidationError("Google Drive account not connected")
+
+            headers = {"Authorization": f"Bearer {gdrive_user.token}"}
+
+            file_metadata_response = requests.get(
+                f"https://www.googleapis.com/drive/v3/files/{google_drive_file_id}?fields=name,mimeType,size,createdTime",
+                headers=headers,
+            )
+            file_metadata_response.raise_for_status()
+            file_metadata = file_metadata_response.json()
+
+            file_content_response = requests.get(
+                f"https://www.googleapis.com/drive/v3/files/{google_drive_file_id}?alt=media",
+                headers=headers,
+            )
+            file_content_response.raise_for_status()
+            file_content = file_content_response.content
+
+            validated_data["title"] = file_metadata.get("name")
+            validated_data["file"] = ContentFile(
+                file_content, name=file_metadata.get("name")
+            )
+            validated_data["file_type"] = file_metadata.get("mimeType")
+            validated_data["file_size"] = file_metadata.get("size")
+            validated_data["google_drive_file_timestamp"] = file_metadata.get(
+                "createdTime"
+            )
         organizations = validated_data.pop("organizations", [])
         keywords = validated_data.pop("keywords", [])
-        note = Note.objects.create(**validated_data)
+        file = validated_data.get("file")
+
+        # Convert mp4 file with movflags faststart for streaming
+        if file and file.name and file.name.split(".")[-1].lower() == "mp4":
+            with tempfile.NamedTemporaryFile(suffix=".mp4") as output:
+                validated_data["file"] = media.process_mp4_for_streaming(file, output)
+                note = Note.objects.create(**validated_data)
+        else:
+            note = Note.objects.create(**validated_data)
         self.add_organizations(note, organizations)
         self.add_keywords(note, keywords)
         mixpanel.track(
@@ -164,7 +219,10 @@ class NoteUpdateSerializer(NoteSerializer):
         organizations = validated_data.pop("organizations", None)
         note = super().update(note, validated_data)
 
-        note = self.extract_highlights_from_content_state(note)
+        if note.media_type is Note.MediaType.TEXT:
+            note = self.extract_highlights_from_content_state(note)
+        else:
+            self.update_highlights(note)
 
         if organizations is not None:
             organizations_to_add = []
@@ -242,15 +300,60 @@ class NoteUpdateSerializer(NoteSerializer):
         note.save()
         return note
 
+    def update_highlights(self, note):
+        highlights_to_update = {}
+
+        for utterance in note.transcript.get("utterances", []):
+            for word in utterance.get("words", []):
+                for highlight_id in word.get("highlight_ids", []):
+                    highlights_to_update.setdefault(highlight_id, []).append(
+                        word["text"]
+                    )
+
+        highlight_ids = list(highlights_to_update.keys())
+        highlights = {
+            highlight.takeaway_ptr_id: highlight
+            for highlight in Highlight.objects.filter(takeaway_ptr_id__in=highlight_ids)
+        }
+
+        for highlight_id, words in highlights_to_update.items():
+            highlight = highlights[highlight_id]
+            highlight.quote = " ".join(words)
+        Highlight.objects.bulk_update(highlights.values(), ["quote", "title", "vector"])
+
 
 class ProjectNoteSerializer(NoteSerializer):
     content = None
     highlights = None
+    transcript = None
+    summary = None
+    keywords = None
 
     class Meta(NoteSerializer.Meta):
-        fields = list(set(NoteSerializer.Meta.fields) - {"content", "highlights"})
+        fields = list(
+            set(NoteSerializer.Meta.fields)
+            - {"content", "highlights", "transcript", "summary", "keywords"}
+        )
 
 
 class ProjectSentimentSerializer(serializers.Serializer):
     name = serializers.ChoiceField(choices=Note.Sentiment.choices)
     report_count = serializers.IntegerField()
+
+
+class BriefNoteSerializer(serializers.ModelSerializer):
+    organizations = OrganizationSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Note
+        fields = [
+            "id",
+            "title",
+            "organizations",
+        ]
+
+
+class TitleOnlyNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ("id", "title")

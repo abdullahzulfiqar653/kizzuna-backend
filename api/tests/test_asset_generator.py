@@ -69,7 +69,7 @@ class TestAssetGenerator(APITestCase):
         generate_content(
             self.asset,
             "User's instruction",
-            Takeaway.objects.filter(note__assets=self.asset),
+            Takeaway.objects.filter(note__assets=self.asset).order_by("title"),
             self.user,
         )
         human_prompt = dedent(

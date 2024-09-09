@@ -56,27 +56,34 @@ class TestUserRetrieveUpdateDestroyView(APITestCase):
             "email": "",
             "first_name": "",
             "last_name": "",
-            "job": "",
             "workspaces": [
                 {
-                    "is_owner": True,
                     "id": self.workspace.id,
                     "name": self.workspace.name,
-                    "usage_type": "",
+                    "is_owner": True,
                     "industry": "",
                     "company_size": "",
+                    "subscription_type": "",
+                    "subscription_name": None,
+                    "subscription_end_at": None,
+                    "subscription_is_free_trial": None,
                 },
                 {
-                    "is_owner": False,
                     "id": self.outsider_owned_workspace.id,
                     "name": self.outsider_owned_workspace.name,
-                    "usage_type": "",
+                    "is_owner": False,
                     "industry": "",
                     "company_size": "",
+                    "subscription_type": "",
+                    "subscription_name": None,
+                    "subscription_end_at": None,
+                    "subscription_is_free_trial": None,
                 },
             ],
             "skip_tutorial": False,
             "consent_given": False,
+            "job": "",
+            "tutorial": {},
         }
         self.assertEqual(response.json(), expected_data)
 
@@ -89,19 +96,23 @@ class TestUserRetrieveUpdateDestroyView(APITestCase):
             "email": "",
             "first_name": "",
             "last_name": "",
-            "job": "",
             "workspaces": [
                 {
-                    "is_owner": True,
                     "id": self.outsider_owned_workspace.id,
                     "name": self.outsider_owned_workspace.name,
-                    "usage_type": "",
+                    "is_owner": True,
                     "industry": "",
                     "company_size": "",
-                },
+                    "subscription_type": "",
+                    "subscription_name": None,
+                    "subscription_end_at": None,
+                    "subscription_is_free_trial": None,
+                }
             ],
             "skip_tutorial": False,
             "consent_given": False,
+            "job": "",
+            "tutorial": {},
         }
         self.assertEqual(response.json(), expected_data)
 

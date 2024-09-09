@@ -16,7 +16,7 @@
       "file": "attachments/Interview_with_Claudia_UX_Researcher_Scoot.pdf",
       "file_type": "pdf",
       "file_size": 55609,
-      "is_analyzing": false,
+      "task": null,
       "is_auto_tagged": false,
       "content": {
         "root": {
@@ -1993,7 +1993,7 @@
       "file": "attachments/Interview_with_Jim_UX_Researcher_Synthesis.pdf",
       "file_type": "pdf",
       "file_size": 44816,
-      "is_analyzing": false,
+      "task": null,
       "is_auto_tagged": false,
       "content": {
         "root": {

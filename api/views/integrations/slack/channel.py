@@ -15,6 +15,7 @@ class SlackChannelsListView(generics.ListAPIView):
     serializer_class = ListChannelsSerializer
     # TODO: Update to the proper permission class
     permission_classes = [IsAuthenticated]
+    filter_backends = []
 
     def get_channels(self):
         slack_users = self.request.user.slack_users.all()

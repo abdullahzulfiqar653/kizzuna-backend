@@ -10,6 +10,8 @@ def add_mixpanel_users(apps, schema_editor):
     if not User.objects.exists():
         return
     for user in User.objects.all():
+        if user.username == "bot@raijin.ai":
+            continue
         mixpanel.people_set(
             user.id,
             {

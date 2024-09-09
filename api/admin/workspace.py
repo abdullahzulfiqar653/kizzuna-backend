@@ -3,7 +3,6 @@ from django.contrib import admin
 from api.models.workspace import Workspace
 from api.stripe import stripe
 
-
 @admin.register(Workspace)
 class WorkspaceAdmin(admin.ModelAdmin):
     list_display = (

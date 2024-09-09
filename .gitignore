@@ -9,3 +9,4 @@ note/test
 credentials
 celerybeat-schedule
 experiments
+.cursorignore

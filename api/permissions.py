@@ -77,6 +77,17 @@ class InProjectOrWorkspace(permissions.BasePermission):
                 project = request.takeaway_type.project
                 workspace = project.workspace
 
+            case str(s) if s.startswith("/api/task-types/"):
+                if not hasattr(request, "task_type"):
+                    TaskType = apps.get_model("api", "TaskType")
+                    task_type_id = view.kwargs.get("pk") or view.kwargs.get(
+                        "task_type_id"
+                    )
+                    queryset = TaskType.objects.select_related("project__workspace")
+                    request.task_type = get_instance(queryset, task_type_id)
+                project = request.task_type.project
+                workspace = project.workspace
+
             case str(s) if s.startswith("/api/insights/"):
                 if not hasattr(request, "insight"):
                     Insight = apps.get_model("api", "Insight")
@@ -84,6 +95,26 @@ class InProjectOrWorkspace(permissions.BasePermission):
                     queryset = Insight.objects.select_related("project__workspace")
                     request.insight = get_instance(queryset, insight_id)
                 project = request.insight.project
+                workspace = project.workspace
+
+            case str(s) if s.startswith("/api/tasks/"):
+                if not hasattr(request, "task"):
+                    Task = apps.get_model("api", "Task")
+                    task_id = view.kwargs.get("pk") or view.kwargs.get("task_id")
+                    queryset = Task.objects.select_related("note__project__workspace")
+                    request.task = get_instance(queryset, task_id)
+                project = request.task.note.project
+                workspace = project.workspace
+
+            case str(s) if s.startswith("/api/playbooks/"):
+                if not hasattr(request, "playbook"):
+                    Playbook = apps.get_model("api", "Playbook")
+                    playbook_id = view.kwargs.get("pk") or view.kwargs.get(
+                        "playbook_id"
+                    )
+                    queryset = Playbook.objects.select_related("project__workspace")
+                    request.playbook = get_instance(queryset, playbook_id)
+                project = request.playbook.project
                 workspace = project.workspace
 
             case str(s) if s.startswith("/api/assets/"):

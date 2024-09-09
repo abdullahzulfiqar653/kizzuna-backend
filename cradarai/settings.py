@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import json
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -20,15 +21,11 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 env = environ.Env()
 # reading .env file
-environ.Env.read_env(".env")
+environ.Env.read_env(".env", overwrite=True)
 environ.Env.read_env(".env.example")
-os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
-os.environ["GOOGLE_API_KEY"] = env("GOOGLE_API_KEY")
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = env("GOOGLE_APPLICATION_CREDENTIALS")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -40,11 +37,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS", cast=list)
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://\w+\.kizunna\.com/?$",
-    r"^https://\w+\.raijin\.ai/?$",
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGIN_REGEXES = env("CORS_ALLOWED_ORIGIN_REGEXES", cast=list)
 FRONTEND_URL = env("FRONTEND_URL")
 
 # Application definition
@@ -65,6 +58,7 @@ INSTALLED_APPS = [
     "storages",
     "django_cleanup",  # To delete the file when the model instance that contains the file is deleted.
     "django_celery_results",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -104,7 +98,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API description",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    "SCHEMA_PATH_PREFIX": "/api/",
+    "SCHEMA_PATH_PREFIX": r"^/api/(integrations/)?",
     "ENUM_NAME_OVERRIDES": {  # This is to suppress warnings related to enum
         "NoteSentiment": "api.models.note.Note.Sentiment",
     },
@@ -249,12 +243,20 @@ LOGGING = {
             "class": "logging.StreamHandler",
         },
     },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
     "loggers": {
         "django": {
-            "handlers": [
-                "console",
-            ],
+            "handlers": ["console"],
             "level": "INFO",
+            "propagate": False,
+        },
+        "celery": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
         },
     },
 }
@@ -316,7 +318,44 @@ DEMO_PROJECT_ID = env("DEMO_PROJECT_ID", default=None)
 DEMO_USER_ID = env("DEMO_USER_ID", default=None)
 
 
+# Load Google credential files from the environment variables
+GOOGLE_APPLICATION_CREDENTIALS = env("GOOGLE_APPLICATION_CREDENTIALS")
+GOOGLE_APPLICATION_CREDENTIALS_JSON = env(
+    "GOOGLE_APPLICATION_CREDENTIALS_JSON", default=None
+)
+if GOOGLE_APPLICATION_CREDENTIALS_JSON and not os.path.exists(
+    GOOGLE_APPLICATION_CREDENTIALS
+):
+    os.makedirs(os.path.dirname(GOOGLE_APPLICATION_CREDENTIALS), exist_ok=True)
+    with open(GOOGLE_APPLICATION_CREDENTIALS, "w") as f:
+        json.dump(json.loads(GOOGLE_APPLICATION_CREDENTIALS_JSON), f)
+
+GOOGLE_CLIENT_SECRET_FILE = env("GOOGLE_CLIENT_SECRET_FILE")
+GOOGLE_CLIENT_SECRET_JSON = env("GOOGLE_CLIENT_SECRET_JSON", default=None)
+if GOOGLE_CLIENT_SECRET_JSON and not os.path.exists(GOOGLE_CLIENT_SECRET_FILE):
+    os.makedirs(os.path.dirname(GOOGLE_CLIENT_SECRET_FILE), exist_ok=True)
+    with open(GOOGLE_CLIENT_SECRET_FILE, "w") as f:
+        json.dump(json.loads(GOOGLE_CLIENT_SECRET_JSON), f)
+
+# Google drive integration credentials
+GOOGLE_CLIENT_SECRET_FILE = env("GOOGLE_CLIENT_SECRET_FILE")
+GOOGLE_REDIRECT_URI = env("GOOGLE_REDIRECT_URI")
+GOOGLE_SCOPES = [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/calendar.events",
+]
+GOOGLE_CALENDAR_WEBHOOK_URL = env("GOOGLE_CALENDAR_WEBHOOK_URL")
+
+ASSEMBLY_AI_API_KEY = env("ASSEMBLY_AI_API_KEY")
 MIXPANEL_TOKEN = env("MIXPANEL_TOKEN")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
 STRIPE_WEBHOOK_SECRET_KEY = env("STRIPE_WEBHOOK_SECRET_KEY")
+RECALLAI_API_KEY = env("RECALLAI_API_KEY")
+RECALLAI_ENV = env("RECALLAI_ENV")
+RECALLAI_WEBHOOK_SECRET = env("RECALLAI_WEBHOOK_SECRET")

@@ -125,8 +125,7 @@ def generate_metadata(note: Note, created_by: User):
         chunk_size=config.chunk_size,
         chunk_overlap=config.chunk_overlap,
     )
-
-    doc = Document(page_content=note.get_content_markdown())
+    doc = Document(page_content=note.get_markdown())
     docs = text_splitter.split_documents([doc])
 
     map_reduce_chain = get_chain()
@@ -151,6 +150,14 @@ def generate_metadata(note: Note, created_by: User):
     note.summary = metadata["summary"]
     note.sentiment = metadata.get("sentiment")
     note.save()
-    for keyword in metadata["keywords"]:
-        keyword, is_created = Keyword.objects.get_or_create(name=keyword)
-        note.keywords.add(keyword)
+
+    existing_keywords = set(
+        Keyword.objects.filter(name__in=metadata["keywords"]).values_list(
+            "name", flat=True
+        )
+    )
+    new_keywords = set(metadata["keywords"]) - existing_keywords
+    if new_keywords:
+        Keyword.objects.bulk_create([Keyword(name=keyword) for keyword in new_keywords])
+    all_keywords = Keyword.objects.filter(name__in=metadata["keywords"])
+    note.keywords.add(*all_keywords)

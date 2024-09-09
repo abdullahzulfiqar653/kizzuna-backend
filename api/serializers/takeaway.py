@@ -4,27 +4,14 @@ from rest_framework import exceptions, serializers
 from api.ai.embedder import embedder
 from api.models.block import Block
 from api.models.insight import Insight
-from api.models.note import Note
 from api.models.takeaway import Takeaway
 from api.models.takeaway_type import TakeawayType
 from api.models.theme import Theme
 from api.models.user import User
-from api.serializers.organization import OrganizationSerializer
+from api.serializers.note import BriefNoteSerializer
 from api.serializers.tag import TagSerializer
 from api.serializers.takeaway_type import TakeawayTypeSerializer
 from api.serializers.user import UserSerializer
-
-
-class BriefNoteSerializer(serializers.ModelSerializer):
-    organizations = OrganizationSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Note
-        fields = [
-            "id",
-            "title",
-            "organizations",
-        ]
 
 
 class TakeawaySerializer(serializers.ModelSerializer):
@@ -41,6 +28,14 @@ class TakeawaySerializer(serializers.ModelSerializer):
     report = BriefNoteSerializer(source="note", read_only=True)
     is_saved = serializers.BooleanField(read_only=True)
     quote = serializers.CharField(source="highlight.quote", read_only=True)
+    media_type = serializers.CharField(source="note.media_type", read_only=True)
+    end = serializers.IntegerField(source="highlight.end", read_only=True)
+    start = serializers.IntegerField(source="highlight.start", read_only=True)
+    clip = serializers.FileField(source="highlight.clip", read_only=True)
+    thumbnail = serializers.ImageField(
+        source="highlight.thumbnail",
+        read_only=True,
+    )
 
     class Meta:
         model = Takeaway
@@ -57,6 +52,11 @@ class TakeawaySerializer(serializers.ModelSerializer):
             "created_at",
             "is_saved",
             "quote",
+            "clip",
+            "media_type",
+            "thumbnail",
+            "start",
+            "end",
         ]
 
     def __init__(self, *args, **kwargs):

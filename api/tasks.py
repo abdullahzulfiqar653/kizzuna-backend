@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from datetime import datetime
 
 from celery import shared_task
@@ -10,6 +9,7 @@ from api.ai.analyzer.note_analyzer import ExistingNoteAnalyzer, NewNoteAnalyzer
 from api.ai.analyzer.project_summarizer import ProjectSummarizer
 from api.mixpanel import mixpanel
 from api.models.asset import Asset
+from api.models.integrations.google.calendar.channel import GoogleCalendarChannel
 from api.models.integrations.slack.slack_message_buffer import SlackMessageBuffer
 from api.models.note import Note
 from api.models.project import Project
@@ -17,22 +17,6 @@ from api.models.takeaway_type import TakeawayType
 from api.models.user import User
 
 logger = get_task_logger(__name__)
-
-
-@contextmanager
-def is_analyzing(note: Note):
-    try:
-        note.is_analyzing = True
-        note.save()
-        yield None
-    except Exception as e:
-        import traceback
-
-        traceback.print_exc()
-        raise e
-    finally:
-        note.is_analyzing = False
-        note.save()
 
 
 @shared_task
@@ -44,7 +28,26 @@ def summarize_projects():
 
 
 @shared_task
-def analyze_new_note(note_id, user_id):
+def sync_google_calendar_channel(channel_id):
+    print(f"syncing google calendar channel {channel_id}")
+    channel = GoogleCalendarChannel.objects.get(id=channel_id)
+    channel.sync()
+    print(f"synced google calendar channel {channel_id}")
+
+
+@shared_task
+def refresh_google_calendar_channel():
+    print("refreshing google calendar channel")
+    for channel in GoogleCalendarChannel.objects.all():
+        try:
+            channel.credential.refresh()
+            channel.refresh()
+        except Exception as e:
+            print(f"Failed to refresh google calendar channel {channel.id}: {str(e)}")
+
+
+@shared_task(bind=True, track_started=True)
+def analyze_new_note(self, note_id, user_id):
     print(f"analyzing new note {note_id} by {user_id}")
     try:
         note = Note.objects.select_related("project__workspace").get(id=note_id)
@@ -60,14 +63,17 @@ def analyze_new_note(note_id, user_id):
     if note.is_analyzing:
         return
 
+    task = TaskResult.objects.get(task_id=self.request.id)
+    note.task = task
+    note.save()
+
     user = User.objects.get(id=user_id)
-    with is_analyzing(note):
-        analyzer = NewNoteAnalyzer()
-        analyzer.analyze(note, user)
+    analyzer = NewNoteAnalyzer()
+    analyzer.analyze(note, user)
 
 
-@shared_task
-def analyze_existing_note(note_id, takeaway_type_ids, user_id):
+@shared_task(bind=True, track_started=True)
+def analyze_existing_note(self, note_id, takeaway_type_ids, user_id):
     print(
         f"analyzing existing note {note_id} with takeaway types {takeaway_type_ids} by {user_id}"
     )
@@ -76,14 +82,17 @@ def analyze_existing_note(note_id, takeaway_type_ids, user_id):
     if note.is_analyzing:
         return
 
+    task = TaskResult.objects.get(task_id=self.request.id)
+    note.task = task
+    note.save()
+
     takeaway_types = note.project.takeaway_types.filter(id__in=takeaway_type_ids)
     if not takeaway_types:
         return
 
     user = User.objects.get(id=user_id)
-    with is_analyzing(note):
-        analyzer = ExistingNoteAnalyzer()
-        analyzer.analyze(note, takeaway_types, user)
+    analyzer = ExistingNoteAnalyzer()
+    analyzer.analyze(note, takeaway_types, user)
 
 
 @shared_task(bind=True, track_started=True)
@@ -123,9 +132,12 @@ def analyze_asset(self, project_id, note_ids, takeaway_type_ids, user_id):
             state="PROGRESS",
             meta={"step": "analyzing report", "current": i + 1, "total": len(notes)},
         )
-        with is_analyzing(note):
-            analyzer = ExistingNoteAnalyzer()
-            analyzer.analyze(note, note_takeaway_types, user)
+
+        note.task = task
+        note.save()
+
+        analyzer = ExistingNoteAnalyzer()
+        analyzer.analyze(note, note_takeaway_types, user)
 
         # Generate asset
         self.update_state(

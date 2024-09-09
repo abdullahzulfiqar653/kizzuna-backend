@@ -1,21 +1,25 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django_celery_results.models import TaskResult
 from shortuuid.django_fields import ShortUUIDField
 
+from api.models.contact import Contact
 from api.models.highlight import Highlight
+from api.models.integrations.recall.bot import RecallBot
 from api.models.keyword import Keyword
 from api.models.note_type import NoteType
 from api.models.organization import Organization
 from api.models.project import Project
 from api.models.user import User
 from api.models.workspace import Workspace
+from api.utils.assembly import AssemblyProcessor, blank_transcript
 from api.utils.lexical import LexicalProcessor, blank_content
 
 
 def validate_file_size(value):
-    max_size = 30 * 1024 * 1024  # 30 MB
+    max_size = 1 * 1024 * 1024 * 1024  # 1 GB
     if value.size > max_size:
-        raise ValidationError("File size cannot exceed 20 MB.")
+        raise ValidationError("File size cannot exceed 1 GB.")
 
 
 def validate_file_type(value):
@@ -41,6 +45,11 @@ class Note(models.Model):
         WAV = "wav"
         M4A = "m4a"
 
+    class MediaType(models.TextChoices):
+        AUDIO = "audio"
+        VIDEO = "video"
+        TEXT = "text"
+
     class Sentiment(models.TextChoices):
         POSITIVE = "Positive"
         NEUTRAL = "Neutral"
@@ -55,7 +64,6 @@ class Note(models.Model):
     workspace = models.ForeignKey(
         Workspace, on_delete=models.CASCADE, related_name="notes"
     )
-    organizations = models.ManyToManyField(Organization, related_name="notes")
     revenue = models.CharField(max_length=6, choices=Revenue.choices, null=True)
     description = models.TextField()
     type = models.ForeignKey(
@@ -71,9 +79,14 @@ class Note(models.Model):
     )
     file_type = models.CharField(max_length=4, choices=FileType.choices, null=True)
     file_size = models.IntegerField(null=True, help_text="File size measured in bytes.")
-    is_analyzing = models.BooleanField(default=False)
+    google_drive_file_timestamp = models.DateTimeField(null=True)
+    task = models.ForeignKey(
+        TaskResult, on_delete=models.SET_NULL, related_name="notes", null=True
+    )
     is_auto_tagged = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
     content = models.JSONField(default=blank_content)
+    transcript = models.JSONField(default=blank_transcript)
     summary = models.JSONField(default=list)
     keywords = models.ManyToManyField(Keyword, related_name="notes")
     sentiment = models.CharField(max_length=8, choices=Sentiment.choices, null=True)
@@ -82,12 +95,25 @@ class Note(models.Model):
     slack_channel_id = models.CharField(max_length=25, null=True)
     slack_team_id = models.CharField(max_length=25, null=True)
 
+    # Recall Integration
+    recall_bot = models.OneToOneField(
+        RecallBot, on_delete=models.PROTECT, related_name="note", null=True
+    )
+
+    # CRM Integration
+    contacts = models.ManyToManyField(Contact, related_name="notes")
+    organizations = models.ManyToManyField(Organization, related_name="notes")
+
     def __str__(self):
         return self.title
 
     @property
     def highlights(self):
         return Highlight.objects.filter(note=self)
+
+    @property
+    def is_analyzing(self):
+        return self.task and self.task.status not in {"SUCCESS", "FAILURE"}
 
     def save(self, *args, **kwargs):
         if self.file and self.file.name:
@@ -97,6 +123,31 @@ class Note(models.Model):
         self.workspace = self.project.workspace
         super().save(*args, **kwargs)
 
-    def get_content_markdown(self):
-        lexical = LexicalProcessor(self.content["root"])
-        return lexical.to_markdown()
+    @property
+    def media_type(self) -> MediaType:
+        # Mapping of file types to media types
+        to_media_type = {
+            "flac": Note.MediaType.AUDIO,
+            "mp3": Note.MediaType.AUDIO,
+            "mp4": Note.MediaType.VIDEO,
+            "mpga": Note.MediaType.AUDIO,
+            "m4a": Note.MediaType.AUDIO,
+            "ogg": Note.MediaType.AUDIO,
+            "wav": Note.MediaType.AUDIO,
+            "webm": Note.MediaType.VIDEO,
+            "docx": Note.MediaType.TEXT,
+            "pdf": Note.MediaType.TEXT,
+            "txt": Note.MediaType.TEXT,
+        }
+
+        # Return the media type based on the file type
+        # Default to text for web and youtube links
+        return to_media_type.get(self.file_type, Note.MediaType.TEXT)
+
+    def get_markdown(self):
+        if self.media_type in {Note.MediaType.AUDIO, Note.MediaType.VIDEO}:
+            assembly = AssemblyProcessor(self.transcript)
+            return assembly.to_markdown()
+        else:  # Note.MediaType.TEXT
+            lexical = LexicalProcessor(self.content["root"])
+            return lexical.to_markdown()
