@@ -1,5 +1,4 @@
 import logging
-from unittest.mock import patch
 
 from django.utils import timezone
 from rest_framework import status
@@ -44,66 +43,6 @@ class TestNoteKeywordDestroyView(APITestCase):
             url, {"username": "user@example.com", "password": "password"}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    @patch("requests.get")
-    def test_google_login_case_insensitive(self, mocked_get):
-        """
-        Check the google sign in endpoint can detect user case insensitively
-        """
-
-        class Response:
-            status_code = status.HTTP_200_OK
-
-            def json(self):
-                return {"email": "user@example.com"}
-
-        mocked_get.return_value = Response()
-
-        url = "/api/token/google/"
-        data = {"google_access_token": "token"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        mocked_get.assert_called_once_with(
-            "https://www.googleapis.com/oauth2/v3/userinfo",
-            headers={"Authorization": f"Bearer token"},
-        )
-
-        # Check that no new user is created
-        bot = User.objects.get(username="bot@raijin.ai")
-        self.assertCountEqual(User.objects.all(), [bot, self.existing_user])
-
-    @patch("requests.get")
-    def test_google_signup_with_uppercase_username(self, mocked_get):
-        """
-        Check the google sign up results in lowercase username
-        """
-
-        class Response:
-            status_code = status.HTTP_200_OK
-
-            def json(self):
-                return {
-                    "email": "UPPERCASE_USER@example.com",
-                    "given_name": "user_first_name",
-                    "family_name": "user_last_name",
-                }
-
-        mocked_get.return_value = Response()
-
-        url = "/api/token/google/"
-        data = {"google_access_token": "token"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        mocked_get.assert_called_once_with(
-            "https://www.googleapis.com/oauth2/v3/userinfo",
-            headers={"Authorization": f"Bearer token"},
-        )
-
-        # Make sure that the created username is lowercase
-        newly_created_user = User.objects.latest("date_joined")
-        self.assertEqual(newly_created_user.username, "uppercase_user@example.com")
 
     def test_invite_status_case_insensitive(self):
         """

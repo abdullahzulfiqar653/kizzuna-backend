@@ -9,7 +9,6 @@ from api.models.invitation import Invitation
 from api.models.user import User
 from api.serializers.auth import (
     DoPasswordResetSerializer,
-    GoogleLoginSerializer,
     InvitationSignupSerializer,
     InvitationStatusSerializer,
     PasswordUpdateSerializer,
@@ -27,14 +26,6 @@ class SignupView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         request._request.sensitive_post_parameters = ("password",)
         return super().create(request, *args, **kwargs)
-
-
-class GoogleLoginView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = GoogleLoginSerializer
-
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
 
 
 class PasswordUpdateView(generics.CreateAPIView):
